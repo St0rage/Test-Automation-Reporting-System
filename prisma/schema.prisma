@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(50)
+
+  scenarios Scenario[]
+  reports   Report[]
+
+  @@map("projects")
+}
+
+model Scenario {
+  id          Int     @id @default(autoincrement())
+  project_id  Int
+  name        String  @db.VarChar(100)
+
+  project       Project @relation(fields: [project_id], references: [id])
+  test_cases    TestCase[]
+  reports       Report[]
+  file_records  FileRecord[]
+
+  @@map("scenarios")
+}
+
+model TestCase {
+  id          Int     @id @default(autoincrement())
+  scenario_id Int
+  name        String  @db.VarChar(100)
+
+  scenario      Scenario @relation(fields: [scenario_id], references: [id])
+  reports       Report[]
+  file_records  FileRecord[]
+
+  @@map("test_cases")
+}
+
+model Tool {
+  id      Int     @id @default(autoincrement())
+  name    String  @db.VarChar(50)
+
+  report  Report[]
+
+  @@map("tools")
+}
+
+model Status {
+  id              Int     @id @default(autoincrement())
+  name            String  @db.VarChar(10)
+
+  report_details  ReportDetail[]
+  file_records    FileRecord[]
+
+  @@map("statuses")
+}
+
+model Report {
+  id            Int @id @default(autoincrement())
+  project_id    Int
+  scenario_id   Int
+  test_case_id  Int
+  tool_id       Int
+  author        String @db.VarChar(50)
+
+  project         Project       @relation(fields: [project_id], references: [id])
+  scenario        Scenario      @relation(fields: [scenario_id], references: [id])
+  test_case       TestCase      @relation(fields: [test_case_id], references: [id])
+  tool            Tool          @relation(fields: [tool_id], references: [id])
+  report_details  ReportDetail[]
+
+  @@map("reports")
+}
+
+model ReportDetail {
+  id          Int @id @default(autoincrement())
+  report_id   Int
+  status_id   Int
+  title       String @db.VarChar(200)
+  description String @db.Text
+  image       String @db.VarChar(100)
+
+  report      Report @relation(fields: [report_id], references: [id])
+  status      Status @relation(fields: [status_id], references: [id])
+
+  @@map("report_details")
+}
+
+model FileRecord {
+  id            Int @id @default(autoincrement())
+  scenario_id   Int
+  test_case_id  Int
+  status_id     Int
+  file_name     String @db.VarChar(255)
+  created_time  Int
+
+  scenario      Scenario  @relation(fields: [scenario_id], references: [id])
+  test_case     TestCase  @relation(fields: [test_case_id], references: [id])
+  status        Status    @relation(fields: [status_id], references: [id])
+
+  @@map("file_records")
+}
