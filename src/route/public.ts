@@ -6,9 +6,6 @@ export class PublicRouter {
 
   constructor(private reportController: ReportController) {
     this.router = express.Router();
-  }
-
-  private config(): void {
-    this.router.post("/api/create-report");
+    this.router.post("/api/create-report", this.reportController.createReport);
   }
 }

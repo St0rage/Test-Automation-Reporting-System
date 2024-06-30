@@ -15,7 +15,7 @@ export class ReportRepository implements IReportRepository {
   public async createReport(
     reportInsertRequest: ReportInsertRequest
   ): Promise<number> {
-    const result = await this.db.report.create({
+    const result = await this.db.prismaClient.report.create({
       data: reportInsertRequest,
       select: {
         id: true,

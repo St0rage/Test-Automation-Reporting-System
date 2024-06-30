@@ -10,7 +10,6 @@ import { IProjectRepository } from "./repository/interface/project-repository-in
 import { ProjectRepository } from "./repository/project-repository";
 import { IScenarioRepository } from "./repository/interface/scenario-repository-interface";
 import { ScenarioRepository } from "./repository/scenario-repository";
-import { Web } from "./application/web";
 import { ITestCaseRepository } from "./repository/interface/testcase-repository-interface";
 import { TestCaseRepository } from "./repository/testcase-repository";
 import { IToolRepository } from "./repository/interface/tool-repository-interface";
@@ -20,7 +19,6 @@ const container = new Container();
 // Application
 container.bind<Logger>(Logger).toSelf().inSingletonScope();
 container.bind<Database>(Database).toSelf();
-container.bind<Web>(Web).toSelf();
 // Repository
 container.bind<IProjectRepository>("IProjectRepository").to(ProjectRepository);
 container

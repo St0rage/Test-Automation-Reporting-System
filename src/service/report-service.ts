@@ -8,6 +8,7 @@ import { IReportRepository } from "../repository/interface/report-repository-int
 import { ReportInsertRequest, ReportRequest } from "../model/report-model";
 import { Validation } from "../validation/validation";
 import { ReportValidation } from "../validation/report-validation";
+import { AuthUtil } from "../utils/auth-util";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -50,7 +51,7 @@ export class ReportService implements IReportService {
 
     const result = await this.reportRepository.createReport(reportInserRequest);
 
-    return "";
+    return AuthUtil.signJwt(result);
   }
 
   public saveReport(): void {}

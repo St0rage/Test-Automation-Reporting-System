@@ -1,5 +1,11 @@
+import "reflect-metadata";
 import { Web } from "./application/web";
 import { container } from "./inversify.config";
+import dotenv from "dotenv";
+import { Logger } from "./application/logger";
 
-const app = container.get<Web>(Web);
+dotenv.config();
+
+const logger = container.get<Logger>(Logger);
+const app = new Web(logger);
 app.start(7000);

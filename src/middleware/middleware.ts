@@ -19,8 +19,9 @@ export class Middleware {
       });
     } else {
       res.status(500).json({
-        errors: "Internal Server Error",
+        errors: "WADUH ERROR",
       });
+      console.info(error.message);
     }
   }
 }

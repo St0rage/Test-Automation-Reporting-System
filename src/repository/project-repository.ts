@@ -11,7 +11,7 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async createOrGetProjectId(projectName: string): Promise<number> {
-    let result = await this.db.project.findFirst({
+    let result = await this.db.prismaClient.project.findFirst({
       where: {
         name: projectName,
       },
@@ -19,9 +19,8 @@ export class ProjectRepository implements IProjectRepository {
         id: true,
       },
     });
-
     if (result == null) {
-      result = await this.db.project.create({
+      result = await this.db.prismaClient.project.create({
         data: {
           name: projectName,
         },
@@ -30,7 +29,6 @@ export class ProjectRepository implements IProjectRepository {
         },
       });
     }
-
     return result.id;
   }
 }
