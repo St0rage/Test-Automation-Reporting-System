@@ -1,11 +1,14 @@
-import { PrismaClient } from "@prisma/client";
-import winston from "winston";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { inject, injectable } from "inversify";
+import { Logger } from "./logger";
 
-export class setupDatabase {
-  public prismaClient;
-
-  constructor(logger: winston.Logger) {
-    this.prismaClient = new PrismaClient({
+@injectable()
+export class Database extends PrismaClient<
+  Prisma.PrismaClientOptions,
+  "query" | "info" | "warn" | "error"
+> {
+  constructor(@inject(Logger) logger: Logger) {
+    super({
       log: [
         { emit: "event", level: "query" },
         { emit: "event", level: "info" },
@@ -14,16 +17,16 @@ export class setupDatabase {
       ],
     });
 
-    this.prismaClient.$on("error", (e) => {
+    this.$on("error", (e) => {
       logger.error(e);
     });
-    this.prismaClient.$on("info", (e) => {
-      logger.info(e);
-    });
-    this.prismaClient.$on("warn", (e) => {
+    this.$on("warn", (e) => {
       logger.warn(e);
     });
-    this.prismaClient.$on("query", (e) => {
+    this.$on("info", (e) => {
+      logger.info(e);
+    });
+    this.$on("query", (e) => {
       logger.info(e);
     });
   }
