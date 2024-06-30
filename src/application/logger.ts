@@ -1,10 +1,10 @@
+import { injectable } from "inversify";
 import winston from "winston";
 
-export class setupLogger {
-  public logger;
-
+@injectable()
+export class Logger extends winston.Logger {
   constructor() {
-    this.logger = winston.createLogger({
+    super({
       format: winston.format.json(),
       level: "debug",
       transports: [new winston.transports.Console({})],
