@@ -1,32 +1,20 @@
 import express, { Express } from "express";
 import { Logger } from "./logger";
-import { ReportController } from "../controller/report-controller";
-import { container } from "../inversify.config";
-import { PublicRouter } from "../route/public";
-import { inject } from "inversify";
 import { Middleware } from "../middleware/middleware";
+import { Route } from "../route/route";
+import { container } from "../di/inversify.config";
 export class Web {
   private web: Express;
   private logger: Logger;
-  private middleware: Middleware;
+  private route: Route;
 
-  constructor(@inject(Logger) logger: Logger) {
-    this.logger = logger;
-    this.middleware = new Middleware();
+  constructor() {
+    this.logger = container.get<Logger>(Logger);
+    this.route = container.get<Route>(Route);
     this.web = express();
     this.web.use(express.json());
-    this.configRouter();
-    this.web.use(this.middleware.errorMiddleware);
-  }
-
-  private configRouter(): void {
-    // controller
-    const reportController: ReportController =
-      container.get<ReportController>(ReportController);
-    // route
-    const publicRouter = new PublicRouter(reportController);
-    // use
-    this.web.use(publicRouter.router);
+    this.web.use(this.route.getPublicRoute());
+    this.web.use(Middleware.errorMiddleware);
   }
 
   public start(port: number) {

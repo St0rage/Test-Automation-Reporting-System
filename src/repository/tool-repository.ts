@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { IToolRepository } from "./interface/tool-repository-interface";
+import { IToolRepository } from "../interface/repository/tool-repository-interface";
 import { Database } from "../application/database";
 
 @injectable()

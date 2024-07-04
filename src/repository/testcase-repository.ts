@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Database } from "../application/database";
-import { ITestCaseRepository } from "./interface/testcase-repository-interface";
+import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 
 @injectable()
 export class TestCaseRepository implements ITestCaseRepository {

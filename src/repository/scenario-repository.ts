@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Database } from "../application/database";
-import { IScenarioRepository } from "./interface/scenario-repository-interface";
+import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 
 @injectable()
 export class ScenarioRepository implements IScenarioRepository {

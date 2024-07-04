@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { IReportRepository } from "./interface/report-repository-interface";
+import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { Database } from "../application/database";
 
 import { ReportInsertRequest } from "../model/report-model";

@@ -1,15 +1,14 @@
 import { inject, injectable } from "inversify";
-import { IReportService } from "../service/interface/report-service-interface";
+import { IReportService } from "../interface/service/report-service-interface";
 import { NextFunction, Request, Response } from "express";
 import { ReportRequest } from "../model/report-model";
+import { TYPES } from "../di/types";
 
 @injectable()
 export class ReportController {
-  private reportService: IReportService;
-
-  constructor(@inject("IReportService") reportService: IReportService) {
-    this.reportService = reportService;
-  }
+  constructor(
+    @inject(TYPES.IReportService) private reportService: IReportService
+  ) {}
 
   public async createReport(
     req: Request,
@@ -18,7 +17,6 @@ export class ReportController {
   ): Promise<void> {
     try {
       const request: ReportRequest = req.body as ReportRequest;
-      console.info(request);
       const token = await this.reportService.createReport(request);
       res.status(201).json({
         data: {
