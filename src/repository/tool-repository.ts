@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { IToolRepository } from "./interface/tool-repository-interface";
+import { IToolRepository } from "../interface/repository/tool-repository-interface";
 import { Database } from "../application/database";
 
 @injectable()
@@ -11,7 +11,7 @@ export class ToolRepository implements IToolRepository {
   }
 
   async createOrGetToolId(toolName: string): Promise<number> {
-    let result = await this.db.tool.findFirst({
+    let result = await this.db.prismaClient.tool.findFirst({
       where: {
         name: toolName,
       },
@@ -21,7 +21,7 @@ export class ToolRepository implements IToolRepository {
     });
 
     if (result == null) {
-      result = await this.db.tool.create({
+      result = await this.db.prismaClient.tool.create({
         data: {
           name: toolName,
         },

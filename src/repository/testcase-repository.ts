@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Database } from "../application/database";
-import { ITestCaseRepository } from "./interface/testcase-repository-interface";
+import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 
 @injectable()
 export class TestCaseRepository implements ITestCaseRepository {
@@ -14,7 +14,7 @@ export class TestCaseRepository implements ITestCaseRepository {
     testCaseName: string,
     scenarioId: number
   ): Promise<number> {
-    let result = await this.db.testCase.findFirst({
+    let result = await this.db.prismaClient.testCase.findFirst({
       where: {
         scenario_id: scenarioId,
         name: testCaseName,
@@ -25,7 +25,7 @@ export class TestCaseRepository implements ITestCaseRepository {
     });
 
     if (result == null) {
-      result = await this.db.testCase.create({
+      result = await this.db.prismaClient.testCase.create({
         data: {
           scenario_id: scenarioId,
           name: testCaseName,

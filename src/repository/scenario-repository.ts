@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Database } from "../application/database";
-import { IScenarioRepository } from "./interface/scenario-repository-interface";
+import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 
 @injectable()
 export class ScenarioRepository implements IScenarioRepository {
@@ -14,7 +14,7 @@ export class ScenarioRepository implements IScenarioRepository {
     scenarioName: string,
     projectId: number
   ): Promise<number> {
-    let result = await this.db.scenario.findFirst({
+    let result = await this.db.prismaClient.scenario.findFirst({
       where: {
         project_id: projectId,
         name: scenarioName,
@@ -25,7 +25,7 @@ export class ScenarioRepository implements IScenarioRepository {
     });
 
     if (result == null) {
-      result = await this.db.scenario.create({
+      result = await this.db.prismaClient.scenario.create({
         data: {
           project_id: projectId,
           name: scenarioName,

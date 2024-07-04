@@ -1,9 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { ResponseError } from "../error/response-error";
+import { injectable } from "inversify";
 
+@injectable()
 export class Middleware {
-  public errorMiddleware(
+  static errorMiddleware(
     error: Error,
     req: Request,
     res: Response,
@@ -11,7 +13,7 @@ export class Middleware {
   ): void {
     if (error instanceof ZodError) {
       res.status(400).json({
-        errors: `Validation Error : ${JSON.stringify(error)}`,
+        errors: error.flatten().fieldErrors,
       });
     } else if (error instanceof ResponseError) {
       res.status(error.status).json({
@@ -21,6 +23,7 @@ export class Middleware {
       res.status(500).json({
         errors: "Internal Server Error",
       });
+      console.info(error.message);
     }
   }
 }
