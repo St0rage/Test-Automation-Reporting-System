@@ -5,11 +5,13 @@ import { IScenarioRepository } from "../interface/repository/scenario-repository
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IToolRepository } from "../interface/repository/tool-repository-interface";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
-import { ReportInsertRequest, ReportRequest } from "../model/report-model";
+import { ReportInsertRequest, ReportRequest } from "../model/model";
 import { Validation } from "../validation/validation";
 import { ReportValidation } from "../validation/report-validation";
 import { AuthUtil } from "../utils/auth-util";
 import { TYPES } from "../di/types";
+import { FileSystem } from "../utils/file-system-uti";
+import { ResponseError } from "../error/response-error";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -30,26 +32,68 @@ export class ReportService implements IReportService {
       reportRequest
     );
 
-    const projectId = await this.projectRepository.createOrGetProjectId(
+    const imagePath = process.env.IMAGE_PATH;
+    if (!imagePath) {
+      throw new ResponseError(500, "Internal Server Error");
+    }
+    const reportPath = process.env.REPORT_PATH;
+    if (!reportPath) {
+      throw new ResponseError(500, "Internal Server Error");
+    }
+
+    // Project
+    const project = await this.projectRepository.createOrGetProjectIdAndName(
       rawRequest.project
     );
 
-    const scenarioId = await this.scenarioRepository.createOrGetScenarioId(
+    // Create Project Folder
+    try {
+      await FileSystem.createFolder(imagePath + `/${project.name}`);
+      await FileSystem.createFolder(reportPath + `/${project.name}`);
+    } catch (e) {
+      throw new ResponseError(500, "Internal Server Error");
+    }
+
+    // Scenario
+    const scenario = await this.scenarioRepository.createOrGetScenarioIdAndName(
       rawRequest.scenario,
-      projectId
+      project.id
     );
 
-    const testCaseId = await this.testCaseRepository.createOrGetTestCaseId(
+    // Create Scenario Folder
+    try {
+      await FileSystem.createFolder(
+        imagePath + `/${project.name}/${scenario.name}`
+      );
+      await FileSystem.createFolder(
+        reportPath + `/${project.name}/${scenario.name}`
+      );
+    } catch (e) {
+      throw new ResponseError(500, "Internal Server Error");
+    }
+
+    // TestCase
+    const testCase = await this.testCaseRepository.createOrGetTestCaseIdAndName(
       rawRequest.test_case,
-      scenarioId
+      scenario.id
     );
 
+    // Create Folder TestCase
+    try {
+      await FileSystem.createFolder(
+        imagePath + `/${project.name}/${scenario.name}/${testCase.name}`
+      );
+    } catch (e) {
+      throw new ResponseError(500, "Internal Server Error");
+    }
+
+    // Tool
     const toolId = await this.toolRepository.createOrGetToolId(rawRequest.tool);
 
     const reportInserRequest: ReportInsertRequest = {
-      project_id: projectId,
-      scenario_id: scenarioId,
-      test_case_id: testCaseId,
+      project_id: project.id,
+      scenario_id: scenario.id,
+      test_case_id: testCase.id,
       tool_id: toolId,
       author: rawRequest.author,
     };
@@ -58,5 +102,7 @@ export class ReportService implements IReportService {
     return AuthUtil.signJwt(result);
   }
 
-  public saveReport(): void {}
+  public async addTestStep(): Promise<void> {}
+
+  public async saveReport(): Promise<void> {}
 }

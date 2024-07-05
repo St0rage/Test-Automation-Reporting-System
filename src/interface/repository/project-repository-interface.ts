@@ -1,3 +1,5 @@
+import { IdAndName } from "../../model/model";
+
 export interface IProjectRepository {
-  createOrGetProjectId(projectName: string): Promise<number>;
+  createOrGetProjectIdAndName(projectName: string): Promise<IdAndName>;
 }

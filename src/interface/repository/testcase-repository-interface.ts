@@ -1,6 +1,8 @@
+import { IdAndName } from "../../model/model";
+
 export interface ITestCaseRepository {
-  createOrGetTestCaseId(
+  createOrGetTestCaseIdAndName(
     testCaseName: string,
     scenarioId: number
-  ): Promise<number>;
+  ): Promise<IdAndName>;
 }

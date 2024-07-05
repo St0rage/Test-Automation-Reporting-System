@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Database } from "../application/database";
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
+import { IdAndName } from "../model/model";
 
 @injectable()
 export class ScenarioRepository implements IScenarioRepository {
@@ -10,10 +11,10 @@ export class ScenarioRepository implements IScenarioRepository {
     this.db = db;
   }
 
-  async createOrGetScenarioId(
+  async createOrGetScenarioIdAndName(
     scenarioName: string,
     projectId: number
-  ): Promise<number> {
+  ): Promise<IdAndName> {
     let result = await this.db.prismaClient.scenario.findFirst({
       where: {
         project_id: projectId,
@@ -21,6 +22,7 @@ export class ScenarioRepository implements IScenarioRepository {
       },
       select: {
         id: true,
+        name: true,
       },
     });
 
@@ -32,10 +34,11 @@ export class ScenarioRepository implements IScenarioRepository {
         },
         select: {
           id: true,
+          name: true,
         },
       });
     }
 
-    return result.id;
+    return result;
   }
 }

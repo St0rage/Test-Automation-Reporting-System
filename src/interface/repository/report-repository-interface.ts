@@ -1,5 +1,5 @@
-import { ReportInsertRequest } from "../../model/report-model";
+import { ReportInsertRequest } from "../../model/model";
 
 export interface IReportRepository {
-  createReport(reportModel: ReportInsertRequest): Promise<number>;
+  createReport(reportModel: ReportInsertRequest): Promise<{ id: number }>;
 }

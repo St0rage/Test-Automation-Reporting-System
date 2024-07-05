@@ -8,4 +8,12 @@ export class ReportValidation {
     tool: z.string().min(3).max(50),
     author: z.string().min(3).max(50),
   });
+
+  static readonly stepSchema: ZodType = z.object({
+    title: z.string().min(3).max(200),
+    description: z.string().min(3),
+    result: z
+      .enum(["PASSED", "FAILED"])
+      .transform((value: string): string => value.toUpperCase()),
+  });
 }

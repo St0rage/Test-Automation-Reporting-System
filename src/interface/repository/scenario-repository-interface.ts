@@ -1,6 +1,8 @@
+import { IdAndName } from "../../model/model";
+
 export interface IScenarioRepository {
-  createOrGetScenarioId(
+  createOrGetScenarioIdAndName(
     scenarioName: string,
     projectId: number
-  ): Promise<number>;
+  ): Promise<IdAndName>;
 }
