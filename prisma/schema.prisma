@@ -90,7 +90,7 @@ model ReportDetail {
   status_id   Int
   title       String @db.VarChar(200)
   description String @db.Text
-  image       String @db.VarChar(100)
+  image       String @db.VarChar(50)
 
   report      Report @relation(fields: [report_id], references: [id])
   status      Status @relation(fields: [status_id], references: [id])

@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { Database } from "../application/database";
 
-import { ReportInsertRequest } from "../model/report-model";
+import { ReportInsertRequest } from "../model/model";
 
 @injectable()
 export class ReportRepository implements IReportRepository {
@@ -14,7 +14,7 @@ export class ReportRepository implements IReportRepository {
 
   public async createReport(
     reportInsertRequest: ReportInsertRequest
-  ): Promise<number> {
+  ): Promise<{ id: number }> {
     const result = await this.db.prismaClient.report.create({
       data: reportInsertRequest,
       select: {
@@ -22,6 +22,20 @@ export class ReportRepository implements IReportRepository {
       },
     });
 
-    return result.id;
+    return result;
+  }
+
+  public async checkReportIsExist(id: number): Promise<Boolean> {
+    const count = await this.db.prismaClient.report.count({
+      where: {
+        id: id,
+      },
+    });
+
+    if (count != 1) {
+      return false;
+    }
+
+    return true;
   }
 }

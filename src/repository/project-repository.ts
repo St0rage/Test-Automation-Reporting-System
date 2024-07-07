@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { Database } from "../application/database";
+import { IdAndName } from "../model/model";
 
 @injectable()
 export class ProjectRepository implements IProjectRepository {
@@ -10,13 +11,14 @@ export class ProjectRepository implements IProjectRepository {
     this.db = db;
   }
 
-  async createOrGetProjectId(projectName: string): Promise<number> {
+  async createOrGetProjectIdAndName(projectName: string): Promise<IdAndName> {
     let result = await this.db.prismaClient.project.findFirst({
       where: {
         name: projectName,
       },
       select: {
         id: true,
+        name: true,
       },
     });
     if (result == null) {
@@ -26,9 +28,11 @@ export class ProjectRepository implements IProjectRepository {
         },
         select: {
           id: true,
+          name: true,
         },
       });
     }
-    return result.id;
+
+    return result;
   }
 }

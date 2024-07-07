@@ -6,7 +6,7 @@ import { Logger } from "./logger";
 export class Database {
   public prismaClient;
 
-  constructor(@inject(Logger) public logger: Logger) {
+  constructor(@inject(Logger) private logger: Logger) {
     this.prismaClient = new PrismaClient({
       log: [
         { emit: "event", level: "query" },

@@ -14,6 +14,7 @@ export class Web {
     this.web = express();
     this.web.use(express.json());
     this.web.use(this.route.getPublicRoute());
+    this.web.use(this.route.getPrivateRouter(Middleware.authMiddleware));
     this.web.use(Middleware.errorMiddleware);
   }
 

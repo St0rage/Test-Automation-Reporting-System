@@ -5,11 +5,20 @@ import { IScenarioRepository } from "../interface/repository/scenario-repository
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IToolRepository } from "../interface/repository/tool-repository-interface";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
-import { ReportInsertRequest, ReportRequest } from "../model/report-model";
+import {
+  ReportDetailInsertRequest,
+  ReportDetailRequest,
+  ReportInsertRequest,
+  ReportRequest,
+} from "../model/model";
 import { Validation } from "../validation/validation";
 import { ReportValidation } from "../validation/report-validation";
 import { AuthUtil } from "../utils/auth-util";
 import { TYPES } from "../di/types";
+import { ResponseError } from "../error/response-error";
+import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
+import { IStatusRepository } from "../interface/repository/status-repository-interface";
+import { rmSync } from "fs";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -21,7 +30,11 @@ export class ReportService implements IReportService {
     @inject(TYPES.ITestCaseRepository)
     private testCaseRepository: ITestCaseRepository,
     @inject(TYPES.IToolRepository) private toolRepository: IToolRepository,
-    @inject(TYPES.IReportRepository) private reportRepository: IReportRepository
+    @inject(TYPES.IReportRepository)
+    private reportRepository: IReportRepository,
+    @inject(TYPES.IReportDetailRepository)
+    private reportDetailRepository: IReportDetailRepository,
+    @inject(TYPES.IStatusRepository) private statusRepository: IStatusRepository
   ) {}
 
   public async createReport(reportRequest: ReportRequest): Promise<string> {
@@ -30,33 +43,70 @@ export class ReportService implements IReportService {
       reportRequest
     );
 
-    const projectId = await this.projectRepository.createOrGetProjectId(
+    // Project
+    const project = await this.projectRepository.createOrGetProjectIdAndName(
       rawRequest.project
     );
 
-    const scenarioId = await this.scenarioRepository.createOrGetScenarioId(
+    // Scenario
+    const scenario = await this.scenarioRepository.createOrGetScenarioIdAndName(
       rawRequest.scenario,
-      projectId
+      project.id
     );
 
-    const testCaseId = await this.testCaseRepository.createOrGetTestCaseId(
+    // TestCase
+    const testCase = await this.testCaseRepository.createOrGetTestCaseIdAndName(
       rawRequest.test_case,
-      scenarioId
+      scenario.id
     );
 
+    // Tool
     const toolId = await this.toolRepository.createOrGetToolId(rawRequest.tool);
 
-    const reportInserRequest: ReportInsertRequest = {
-      project_id: projectId,
-      scenario_id: scenarioId,
-      test_case_id: testCaseId,
+    const reportInsertRequest: ReportInsertRequest = {
+      project_id: project.id,
+      scenario_id: scenario.id,
+      test_case_id: testCase.id,
       tool_id: toolId,
       author: rawRequest.author,
     };
 
-    const result = await this.reportRepository.createReport(reportInserRequest);
+    const result = await this.reportRepository.createReport(
+      reportInsertRequest
+    );
     return AuthUtil.signJwt(result);
   }
 
-  public saveReport(): void {}
+  public async addTestStep(
+    reportDetailRequest: ReportDetailRequest
+  ): Promise<void> {
+    const isReportExist = await this.reportRepository.checkReportIsExist(
+      reportDetailRequest.report_id
+    );
+
+    if (!isReportExist) {
+      throw new ResponseError(401, "Unauthorized");
+    }
+
+    const rawRequest = Validation.validate(
+      ReportValidation.reportDetailSchema,
+      reportDetailRequest
+    );
+
+    const status = await this.statusRepository.getStatusId(rawRequest.result);
+
+    const reportDetailInsertRequest: ReportDetailInsertRequest = {
+      report_id: reportDetailRequest.report_id,
+      status_id: status.id,
+      title: rawRequest.title,
+      description: rawRequest.description,
+      image: reportDetailRequest.image as string,
+    };
+
+    await this.reportDetailRepository.createReportDetail(
+      reportDetailInsertRequest
+    );
+  }
+
+  public async saveReport(): Promise<void> {}
 }

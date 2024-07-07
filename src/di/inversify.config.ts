@@ -16,11 +16,17 @@ import { IToolRepository } from "../interface/repository/tool-repository-interfa
 import { ToolRepository } from "../repository/tool-repository";
 import { TYPES } from "./types";
 import { Route } from "../route/route";
+import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
+import { ReportDetail } from "../repository/report-detail-repository";
+import { FileHandling } from "../application/multer";
+import { IStatusRepository } from "../interface/repository/status-repository-interface";
+import { StatusRepository } from "../repository/status-repository";
 
 const container = new Container();
 // Application
 container.bind<Logger>(Logger).toSelf().inSingletonScope();
 container.bind<Database>(Database).toSelf().inSingletonScope();
+container.bind<FileHandling>(FileHandling).toSelf();
 // Repository
 container
   .bind<IProjectRepository>(TYPES.IProjectRepository)
@@ -33,6 +39,10 @@ container
   .to(TestCaseRepository);
 container.bind<IToolRepository>(TYPES.IToolRepository).to(ToolRepository);
 container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
+container
+  .bind<IReportDetailRepository>(TYPES.IReportDetailRepository)
+  .to(ReportDetail);
+container.bind<IStatusRepository>(TYPES.IStatusRepository).to(StatusRepository);
 // Service
 container.bind<IReportService>(TYPES.IReportService).to(ReportService);
 // Controller

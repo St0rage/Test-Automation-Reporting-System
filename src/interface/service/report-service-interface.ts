@@ -1,6 +1,7 @@
-import { ReportRequest } from "../../model/report-model";
+import { ReportDetailRequest, ReportRequest } from "../../model/model";
 
 export interface IReportService {
   createReport(reportRequest: ReportRequest): Promise<string>;
-  saveReport(): void;
+  addTestStep(reportDetailRequest: ReportDetailRequest): Promise<void>;
+  saveReport(): Promise<void>;
 }
