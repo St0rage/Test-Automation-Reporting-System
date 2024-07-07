@@ -3,7 +3,9 @@ import { ZodError } from "zod";
 import { ResponseError } from "../error/response-error";
 import { injectable } from "inversify";
 import { AuthUtil } from "../utils/auth-util";
-import { exRequest } from "../type/report-request";
+import { exRequest } from "../type/exrequest";
+import { MulterError } from "multer";
+import { FileSystem } from "../utils/file-system-uti";
 
 @injectable()
 export class Middleware {
@@ -14,6 +16,20 @@ export class Middleware {
     next: NextFunction
   ): void {
     if (error instanceof ZodError) {
+      if (req.file) {
+        const imagePath = process.env.IMAGE_PATH as string;
+        console.log(req.file.filename);
+        try {
+          FileSystem.deleteFile(`${imagePath}${req.file.filename}`);
+        } catch (e) {
+          res
+            .status(500)
+            .json({
+              errors: "Internal Server Error",
+            })
+            .end();
+        }
+      }
       res
         .status(400)
         .json({
@@ -27,14 +43,33 @@ export class Middleware {
           errors: error.message,
         })
         .end();
+    } else if (error instanceof MulterError) {
+      if (error.code == "LIMIT_FILE_SIZE") {
+        res.status(400).json({
+          errors: "Maximum limit image size is 2MB",
+        }).end;
+      }
     } else {
+      if (req.file) {
+        const imagePath = process.env.IMAGE_PATH as string;
+        console.log(req.file.filename);
+        try {
+          FileSystem.deleteFile(`${imagePath}${req.file.filename}`);
+        } catch (e) {
+          res
+            .status(500)
+            .json({
+              errors: "Internal Server Error",
+            })
+            .end();
+        }
+      }
       res
         .status(500)
         .json({
           errors: "Internal Server Error",
         })
         .end();
-      console.info(error.message);
     }
   }
 
@@ -51,8 +86,6 @@ export class Middleware {
       }
 
       const decoded = await AuthUtil.verifyJwt(token.split(" ")[1]);
-
-      console.log("DECODED ID : " + decoded.id);
 
       req.reportId = decoded.id;
       next();

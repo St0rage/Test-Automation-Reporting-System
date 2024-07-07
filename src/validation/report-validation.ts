@@ -9,7 +9,7 @@ export class ReportValidation {
     author: z.string().min(3).max(50),
   });
 
-  static readonly stepSchema: ZodType = z.object({
+  static readonly reportDetailSchema: ZodType = z.object({
     title: z.string().min(3).max(200),
     description: z.string().min(3),
     result: z

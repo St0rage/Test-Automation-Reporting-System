@@ -19,13 +19,15 @@ export type IdAndName = {
   name: string;
 };
 
-export type StepRequest = {
+export type ReportDetailRequest = {
+  report_id: number;
   title: string;
   description: string;
   result: string;
+  image?: string;
 };
 
-export type StepInsertRequest = {
+export type ReportDetailInsertRequest = {
   report_id: number;
   status_id: number;
   title: string;

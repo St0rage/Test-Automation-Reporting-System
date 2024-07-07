@@ -24,4 +24,18 @@ export class ReportRepository implements IReportRepository {
 
     return result;
   }
+
+  public async checkReportIsExist(id: number): Promise<Boolean> {
+    const count = await this.db.prismaClient.report.count({
+      where: {
+        id: id,
+      },
+    });
+
+    if (count != 1) {
+      return false;
+    }
+
+    return true;
+  }
 }
