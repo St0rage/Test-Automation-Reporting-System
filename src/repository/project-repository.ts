@@ -1,18 +1,14 @@
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
-import { Database } from "../application/database";
 import { IdAndName } from "../model/model";
+import { prismaClient } from "../application/database";
 
 @injectable()
 export class ProjectRepository implements IProjectRepository {
-  private db: Database;
-
-  constructor(@inject(Database) db: Database) {
-    this.db = db;
-  }
+  constructor() {}
 
   async createOrGetProjectIdAndName(projectName: string): Promise<IdAndName> {
-    let result = await this.db.prismaClient.project.findFirst({
+    let result = await prismaClient.project.findFirst({
       where: {
         name: projectName,
       },
@@ -22,7 +18,7 @@ export class ProjectRepository implements IProjectRepository {
       },
     });
     if (result == null) {
-      result = await this.db.prismaClient.project.create({
+      result = await prismaClient.project.create({
         data: {
           name: projectName,
         },

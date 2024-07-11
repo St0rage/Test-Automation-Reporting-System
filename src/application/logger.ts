@@ -1,14 +1,26 @@
-import { injectable } from "inversify";
 import winston from "winston";
-@injectable()
-export class Logger {
-  public log;
+import dotenv from "dotenv";
+import DailyRotateFile from "winston-daily-rotate-file";
 
-  constructor() {
-    this.log = winston.createLogger({
-      format: winston.format.json(),
-      level: "debug",
-      transports: [new winston.transports.Console({})],
-    });
-  }
-}
+dotenv.config();
+
+const logPath = process.env.LOG_PATH as string;
+
+export const logger = winston.createLogger({
+  format: winston.format.printf((log) => {
+    const msg =
+      typeof log.message === "string"
+        ? log.message
+        : JSON.stringify(log.message);
+
+    return `${new Date()} : ${log.level.toUpperCase()} : ${msg}`;
+  }),
+  transports: [
+    new DailyRotateFile({
+      filename: `${logPath}application-%DATE%.log`,
+      zippedArchive: true,
+      maxSize: "10m",
+      maxFiles: "14d",
+    }),
+  ],
+});

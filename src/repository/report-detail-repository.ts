@@ -1,20 +1,16 @@
-import { inject, injectable } from "inversify";
-import { Database } from "../application/database";
+import { injectable } from "inversify";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import { ReportDetailInsertRequest } from "../model/model";
+import { prismaClient } from "../application/database";
 
 @injectable()
 export class ReportDetail implements IReportDetailRepository {
-  private db: Database;
-
-  constructor(@inject(Database) db: Database) {
-    this.db = db;
-  }
+  constructor() {}
 
   async createReportDetail(
     reportDetail: ReportDetailInsertRequest
   ): Promise<void> {
-    await this.db.prismaClient.reportDetail.create({
+    await prismaClient.reportDetail.create({
       data: reportDetail,
     });
   }

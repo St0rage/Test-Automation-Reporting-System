@@ -18,7 +18,7 @@ import { TYPES } from "../di/types";
 import { ResponseError } from "../error/response-error";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import { IStatusRepository } from "../interface/repository/status-repository-interface";
-import { rmSync } from "fs";
+import { FileSystem } from "../utils/file-system-util";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -88,18 +88,26 @@ export class ReportService implements IReportService {
       throw new ResponseError(401, "Unauthorized");
     }
 
-    const rawRequest = Validation.validate(
-      ReportValidation.reportDetailSchema,
-      reportDetailRequest
-    );
+    try {
+      Validation.validate(
+        ReportValidation.reportDetailSchema,
+        reportDetailRequest
+      );
+    } catch (e: any) {
+      const imagePath = process.env.IMAGE_PATH as string;
+      FileSystem.deleteFile(`${imagePath}${reportDetailRequest.image}`);
+      throw e;
+    }
 
-    const status = await this.statusRepository.getStatusId(rawRequest.result);
+    const status = await this.statusRepository.getStatusId(
+      reportDetailRequest.result
+    );
 
     const reportDetailInsertRequest: ReportDetailInsertRequest = {
       report_id: reportDetailRequest.report_id,
       status_id: status.id,
-      title: rawRequest.title,
-      description: rawRequest.description,
+      title: reportDetailRequest.title,
+      description: reportDetailRequest.description,
       image: reportDetailRequest.image as string,
     };
 
@@ -108,5 +116,7 @@ export class ReportService implements IReportService {
     );
   }
 
-  public async saveReport(): Promise<void> {}
+  public async saveReport(): Promise<void> {
+    // KODE SAVE REPORT
+  }
 }

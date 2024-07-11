@@ -1,26 +1,16 @@
-import express, { Express } from "express";
-import { Logger } from "./logger";
-import { Middleware } from "../middleware/middleware";
-import { Route } from "../route/route";
-import { container } from "../di/inversify.config";
-export class Web {
-  private web: Express;
-  private logger: Logger;
-  private route: Route;
+import express from "express";
+import { publicRoute } from "../route/public-route";
+import { privateRoute } from "../route/private-route";
+import { errorMiddleware } from "../middleware/error-middleware";
+import { logRequestMiddleware } from "../middleware/log-request-middleware";
+import { logResponseMiddleware } from "../middleware/log-response-middleware";
+import { notFoundMiddleware } from "../middleware/not-found-middleware";
 
-  constructor() {
-    this.logger = container.get<Logger>(Logger);
-    this.route = container.get<Route>(Route);
-    this.web = express();
-    this.web.use(express.json());
-    this.web.use(this.route.getPublicRoute());
-    this.web.use(this.route.getPrivateRouter(Middleware.authMiddleware));
-    this.web.use(Middleware.errorMiddleware);
-  }
-
-  public start(port: number) {
-    this.web.listen(port, () => {
-      this.logger.log.info(`Listening on Port ${port}`);
-    });
-  }
-}
+export const web = express();
+web.use(express.json());
+web.use(logRequestMiddleware);
+web.use(logResponseMiddleware);
+web.use(publicRoute);
+web.use(privateRoute);
+web.use(notFoundMiddleware);
+web.use(errorMiddleware);
