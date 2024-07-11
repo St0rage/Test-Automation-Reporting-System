@@ -4,7 +4,6 @@ import { prismaClient } from "../application/database";
 
 @injectable()
 export class StatusRepository implements IStatusRepository {
-
   constructor() {}
 
   async getStatusId(statusName: string): Promise<{ id: number }> {

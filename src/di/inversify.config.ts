@@ -20,12 +20,20 @@ import { StatusRepository } from "../repository/status-repository";
 
 const container = new Container();
 // Repository
-container.bind<IProjectRepository>(TYPES.IProjectRepository).to(ProjectRepository);
-container.bind<IScenarioRepository>(TYPES.IScenarioRepository).to(ScenarioRepository);
-container.bind<ITestCaseRepository>(TYPES.ITestCaseRepository).to(TestCaseRepository);
+container
+  .bind<IProjectRepository>(TYPES.IProjectRepository)
+  .to(ProjectRepository);
+container
+  .bind<IScenarioRepository>(TYPES.IScenarioRepository)
+  .to(ScenarioRepository);
+container
+  .bind<ITestCaseRepository>(TYPES.ITestCaseRepository)
+  .to(TestCaseRepository);
 container.bind<IToolRepository>(TYPES.IToolRepository).to(ToolRepository);
 container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
-container.bind<IReportDetailRepository>(TYPES.IReportDetailRepository).to(ReportDetail);
+container
+  .bind<IReportDetailRepository>(TYPES.IReportDetailRepository)
+  .to(ReportDetail);
 container.bind<IStatusRepository>(TYPES.IStatusRepository).to(StatusRepository);
 // Service
 container.bind<IReportService>(TYPES.IReportService).to(ReportService);

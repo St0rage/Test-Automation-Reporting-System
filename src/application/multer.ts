@@ -3,8 +3,7 @@ import { ResponseError } from "../error/response-error";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import { Request } from "express";
-import dotenv from "dotenv"
-
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -17,12 +16,18 @@ const storage = multer.diskStorage({
     cb(null, imagePath);
   },
   filename: (req, file, cb) => {
-    cb(null, `${uuidv4().replace(/-/g, "")}${path.extname(file.originalname)}`)
-  }
-})
+    cb(null, `${uuidv4().replace(/-/g, "")}${path.extname(file.originalname)}`);
+  },
+});
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback): void => {
-  const extName = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+): void => {
+  const extName = allowedFileTypes.test(
+    path.extname(file.originalname).toLowerCase()
+  );
   const mimeType = allowedFileTypes.test(file.mimetype);
 
   if (extName && mimeType) {
@@ -30,12 +35,12 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   } else {
     cb(new ResponseError(400, "Only image file are allowed"));
   }
-}
+};
 
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: maxFileSize
-  }
-})
+    fileSize: maxFileSize,
+  },
+});

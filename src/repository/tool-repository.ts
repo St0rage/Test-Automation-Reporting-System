@@ -4,7 +4,6 @@ import { prismaClient } from "../application/database";
 
 @injectable()
 export class ToolRepository implements IToolRepository {
-
   constructor() {}
 
   async createOrGetToolId(toolName: string): Promise<number> {

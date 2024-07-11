@@ -10,7 +10,7 @@ export class AuthUtil {
         expiresIn: "1d",
       });
     } catch (e: any) {
-      throw e
+      throw e;
     }
   }
 

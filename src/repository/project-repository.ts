@@ -5,7 +5,6 @@ import { prismaClient } from "../application/database";
 
 @injectable()
 export class ProjectRepository implements IProjectRepository {
-
   constructor() {}
 
   async createOrGetProjectIdAndName(projectName: string): Promise<IdAndName> {

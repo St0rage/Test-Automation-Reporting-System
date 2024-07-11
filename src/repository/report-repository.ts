@@ -1,11 +1,10 @@
-import {  injectable } from "inversify";
+import { injectable } from "inversify";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { ReportInsertRequest } from "../model/model";
 import { prismaClient } from "../application/database";
 
 @injectable()
 export class ReportRepository implements IReportRepository {
-
   constructor() {}
 
   public async createReport(

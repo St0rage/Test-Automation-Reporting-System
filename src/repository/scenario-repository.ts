@@ -5,7 +5,6 @@ import { prismaClient } from "../application/database";
 
 @injectable()
 export class ScenarioRepository implements IScenarioRepository {
-
   constructor() {}
 
   async createOrGetScenarioIdAndName(

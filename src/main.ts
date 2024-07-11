@@ -21,13 +21,12 @@ if (!process.env.SECRET_KEY) {
   throw Error("SECRET_KEY not found in ENV");
 }
 
-
 FileSystem.createFolder(imagePath);
 FileSystem.createFolder(reportPath);
 FileSystem.createFolder(logPath);
 
-const port = 7000
+const port = 7000;
 
 web.listen(port, () => {
-  console.info(`Listening on Port ${port}`)
-})
+  console.info(`Listening on Port ${port}`);
+});

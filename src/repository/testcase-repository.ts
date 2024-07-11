@@ -5,7 +5,6 @@ import { prismaClient } from "../application/database";
 
 @injectable()
 export class TestCaseRepository implements ITestCaseRepository {
-
   constructor() {}
 
   async createOrGetTestCaseIdAndName(

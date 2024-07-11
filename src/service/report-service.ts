@@ -93,14 +93,15 @@ export class ReportService implements IReportService {
         ReportValidation.reportDetailSchema,
         reportDetailRequest
       );
-    } catch(e: any) {
+    } catch (e: any) {
       const imagePath = process.env.IMAGE_PATH as string;
-      FileSystem.deleteFile(`${imagePath}${reportDetailRequest.image}`)
-      throw e
+      FileSystem.deleteFile(`${imagePath}${reportDetailRequest.image}`);
+      throw e;
     }
 
-  
-    const status = await this.statusRepository.getStatusId(reportDetailRequest.result);
+    const status = await this.statusRepository.getStatusId(
+      reportDetailRequest.result
+    );
 
     const reportDetailInsertRequest: ReportDetailInsertRequest = {
       report_id: reportDetailRequest.report_id,
@@ -115,5 +116,7 @@ export class ReportService implements IReportService {
     );
   }
 
-  public async saveReport(): Promise<void> {}
+  public async saveReport(): Promise<void> {
+    // KODE SAVE REPORT
+  }
 }
