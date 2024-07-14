@@ -5,4 +5,5 @@ export interface ITestCaseRepository {
     testCaseName: string,
     scenarioId: number
   ): Promise<IdAndName>;
+  findAllTestCaseByScenarioName(scenarioName: string): Promise<IdAndName[]>;
 }

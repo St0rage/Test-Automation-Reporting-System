@@ -37,4 +37,18 @@ export class ScenarioRepository implements IScenarioRepository {
 
     return result;
   }
+
+  async checkScenarioIsExist(scenarioName: string): Promise<Boolean> {
+    const count = await prismaClient.scenario.count({
+      where: {
+        name: scenarioName,
+      },
+    });
+
+    if (count != 1) {
+      return false;
+    }
+
+    return true;
+  }
 }

@@ -6,9 +6,14 @@ import { authMiddleware } from "../middleware/auth-middleware";
 
 const reportController = container.get<ReportController>(ReportController);
 
-export const privateRoute = express.Router();
+export const apiRoute = express.Router();
 
-privateRoute.post(
+apiRoute.post(
+  "/api/create-report",
+  reportController.createReport.bind(reportController)
+);
+
+apiRoute.post(
   "/api/add-test-step",
   authMiddleware,
   upload.single("image"),

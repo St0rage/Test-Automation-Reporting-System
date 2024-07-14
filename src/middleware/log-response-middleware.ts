@@ -11,13 +11,14 @@ export const logResponseMiddleware = (
 
   const originalResponse = res.json;
 
-  res.json = function (body): Response {
+  res.json = function (body: any): Response {
     logger.info(`method : ${req.method}`);
     logger.info(`url : ${req.url}`);
     logger.info(`status code : ${res.statusCode}`);
-    logger.info(`content-type : ${res.get("Content-Type")}`),
-      logger.info(`response time : ${Date.now() - start} ms`);
-    if (req.url === "/api/create-report") {
+    logger.info(`content-type : ${res.get("Content-Type")}`);
+    logger.info(`response time : ${Date.now() - start} ms`);
+
+    if (req.url === "/api/create-report" && body.data) {
       logger.info(
         `response body : ${JSON.stringify({
           data: {

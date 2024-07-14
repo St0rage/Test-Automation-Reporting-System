@@ -1,0 +1,134 @@
+<%- include('../partial/header', {projects, activeProject, activeScenario}) %>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title"><%= projectName %> - <%= scenarioName %></div>
+            <form action="">
+              <div class="d-flex align-items-center">
+                <div class="d-flex mx-3 align-items-center">
+                  <div class="px-2 text-center">
+                    <span class="fw-medium">Test Case</span>
+                  </div>
+                  <div>
+                    <select
+                      class="form-select form-select-sm"
+                      aria-label="Small select example"
+                    >
+                      <option selected>all</option>
+                      <% testCases.forEach((testCase) => { %>
+                        <option value="<%= testCase.name.toLowerCase() %>"><%= testCase.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="px-2 text-center">
+                    <span>Date</span>
+                  </div>
+                  <div>
+                    <input
+                      type="email"
+                      class="form-control form-control-sm"
+                      id="exampleFormControlInput1"
+                      placeholder="dd/mm/yyyy"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-primary ms-3"
+                >
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Status</th>
+                <th scope="col">Test Case</th>
+                <th scope="col">File Name</th>
+                <th scope="col">Created At</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% fileRecords.forEach((fileRecord, index) => { %>
+                <tr>
+                  <td><%= (page - 1) * 10 + index + 1  %></td>
+                  <td>
+                    <span class="badge <%= fileRecord.status.name === "PASSED" ? "badge-success" : "badge-danger" %> "><%= fileRecord.status.name %></span>
+                  </td>
+                  <td><%= fileRecord.test_case.name %></td>
+                  <td><%= fileRecord.file_name %></td>
+                  <% 
+                    function formatEpochTime (epochTime) {
+                      const date = new Date(epochTime * 1000);
+                      const year = date.getFullYear();
+                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                      const day = String(date.getDate()).padStart(2, '0');
+                      const hours = String(date.getHours()).padStart(2, '0');
+                      const minutes = String(date.getMinutes()).padStart(2, '0');
+                      const seconds = String(date.getSeconds()).padStart(2, '0');
+                      return `${day}-${month}-${year}_${hours}:${minutes}:${seconds}`;
+                    }
+
+                    const formattedDate = formatEpochTime(fileRecord.created_time)
+                    
+                  %>
+                  <td><%= formattedDate %></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">
+                      <div class="d-flex justify-content-center">
+                        <li class="fas fa-eye"></li>
+                      </div>
+                    </button>
+                    <button class="btn btn-success btn-sm">
+                      <div class="d-flex justify-content-center">
+                        <li class="fas fa-cloud-download-alt"></li>
+                      </div>
+                    </button>
+                    <button class="btn btn-danger btn-sm">
+                      <div class="d-flex justify-content-center">
+                        <li class="fas fa-trash-alt"></li>
+                      </div>
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <div
+            class="d-flex justify-content-center align-items-center"
+          >
+            <nav aria-label="Page navigation example">
+              <ul class="pagination">
+                <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
+                  <a class="page-link" href="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>?page=<%= page -1 %>">Previous</a>
+                </li>
+                <% for (let i = 1; i <= Math.ceil(totalFileRecords / 10); i++ ) { %>
+                  <li class="page-item  <%= i === page ? 'active' : '' %>">
+                    <a class="page-link" href="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>?page=<%= i %>"><%= i %></a>
+                  </li>
+                <% } %>
+                <li class="page-item <%= page === Math.ceil(totalFileRecords / 10) ? 'disabled' : '' %>">
+                  <a class="page-link" href="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>?page=<%= page + 1 %>">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<%- include('../partial/footer') %>

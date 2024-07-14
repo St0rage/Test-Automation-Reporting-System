@@ -19,6 +19,7 @@ import { ResponseError } from "../error/response-error";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import { IStatusRepository } from "../interface/repository/status-repository-interface";
 import { FileSystem } from "../utils/file-system-util";
+import path from "path";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -80,14 +81,6 @@ export class ReportService implements IReportService {
   public async addTestStep(
     reportDetailRequest: ReportDetailRequest
   ): Promise<void> {
-    const isReportExist = await this.reportRepository.checkReportIsExist(
-      reportDetailRequest.report_id
-    );
-
-    if (!isReportExist) {
-      throw new ResponseError(401, "Unauthorized");
-    }
-
     try {
       Validation.validate(
         ReportValidation.reportDetailSchema,
@@ -95,7 +88,7 @@ export class ReportService implements IReportService {
       );
     } catch (e: any) {
       const imagePath = process.env.IMAGE_PATH as string;
-      FileSystem.deleteFile(`${imagePath}${reportDetailRequest.image}`);
+      FileSystem.deleteFile(path.join(imagePath, reportDetailRequest.image));
       throw e;
     }
 

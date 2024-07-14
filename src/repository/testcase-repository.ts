@@ -37,4 +37,20 @@ export class TestCaseRepository implements ITestCaseRepository {
 
     return result;
   }
+
+  async findAllTestCaseByScenarioName(
+    scenarioName: string
+  ): Promise<IdAndName[]> {
+    return prismaClient.testCase.findMany({
+      where: {
+        scenario: {
+          name: scenarioName,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
 }

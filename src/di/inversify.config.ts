@@ -17,6 +17,11 @@ import { IReportDetailRepository } from "../interface/repository/report-detail-r
 import { ReportDetail } from "../repository/report-detail-repository";
 import { IStatusRepository } from "../interface/repository/status-repository-interface";
 import { StatusRepository } from "../repository/status-repository";
+import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { FileRecordRepository } from "../repository/file-record-repository";
+import { IWebService } from "../interface/service/web-service-interface";
+import { WebService } from "../service/web-service";
+import { WebController } from "../controller/web-controller";
 
 const container = new Container();
 // Repository
@@ -35,9 +40,12 @@ container
   .bind<IReportDetailRepository>(TYPES.IReportDetailRepository)
   .to(ReportDetail);
 container.bind<IStatusRepository>(TYPES.IStatusRepository).to(StatusRepository);
+container.bind<IFileRecord>(TYPES.IFileRecord).to(FileRecordRepository);
 // Service
 container.bind<IReportService>(TYPES.IReportService).to(ReportService);
+container.bind<IWebService>(TYPES.IWebService).to(WebService);
 // Controller
 container.bind<ReportController>(ReportController).toSelf();
+container.bind<WebController>(WebController).toSelf();
 
 export { container };
