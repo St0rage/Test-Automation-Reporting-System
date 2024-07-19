@@ -6,4 +6,5 @@ export interface IFileRecord {
     page: number
   ): Promise<FileRecordResponse[]>;
   countTotalFileRecordByScenarioName(scenarioName: string): Promise<number>;
+  checkFileRecordIsExist(id: number): Promise<string | null>;
 }

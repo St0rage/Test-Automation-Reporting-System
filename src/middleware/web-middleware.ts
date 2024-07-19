@@ -5,6 +5,7 @@ import { IProjectRepository } from "../interface/repository/project-repository-i
 import { TYPES } from "../di/types";
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 import { ResponseError } from "../error/response-error";
+import { IFileRecord } from "../interface/repository/file-record-repository-interface";
 
 export const reportPathValidateMiddleware = async (
   req: exRequest,
@@ -50,6 +51,31 @@ export const reportPathValidateMiddleware = async (
 
     req.projectName = projectName.toUpperCase();
     req.scenarioName = scenarioName.toUpperCase();
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const downloadMiddleware = async (
+  req: exRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+    const fileRecordRepository = container.get<IFileRecord>(TYPES.IFileRecord);
+
+    const fileName = await fileRecordRepository.checkFileRecordIsExist(
+      parseInt(id)
+    );
+
+    if (!fileName) {
+      throw new ResponseError(404, "Not Found");
+    }
+
+    req.fileName = fileName;
 
     next();
   } catch (e) {

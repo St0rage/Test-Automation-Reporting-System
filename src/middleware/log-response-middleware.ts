@@ -2,7 +2,7 @@ import { NextFunction, Response } from "express";
 import { exRequest } from "../type/exrequest";
 import { logger } from "../application/logger";
 
-export const logResponseMiddleware = (
+export const logApiResponseMiddleware = (
   req: exRequest,
   res: Response,
   next: NextFunction
@@ -34,4 +34,14 @@ export const logResponseMiddleware = (
   };
 
   next();
+};
+
+export const logWebResponseMiddleware = (
+  req: exRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  const start = Date.now();
+
+  const originalResponse = res.render;
 };

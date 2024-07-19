@@ -3,6 +3,7 @@ import { TYPES } from "../di/types";
 import { WebService } from "../service/web-service";
 import { exRequest } from "../type/exrequest";
 import { NextFunction, Response } from "express";
+import path from "path";
 
 @injectable()
 export class WebController {
@@ -60,6 +61,24 @@ export class WebController {
         activeScenario: scenarioName,
         page: pageNumber,
         totalFileRecords: totalFileRecords,
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  downloadReport(req: exRequest, res: Response, next: NextFunction): void {
+    try {
+      const originalFileName = req.fileName as string;
+      const fileName = originalFileName.split(".")[0];
+      const extension = originalFileName.split(".")[1];
+      const reportPath = process.env.REPORT_PATH as string;
+      const filePath = path.join(reportPath, originalFileName);
+
+      res.download(filePath, originalFileName, (err) => {
+        if (err) {
+          next(err);
+        }
       });
     } catch (e) {
       next(e);

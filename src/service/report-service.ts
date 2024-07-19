@@ -15,7 +15,6 @@ import { Validation } from "../validation/validation";
 import { ReportValidation } from "../validation/report-validation";
 import { AuthUtil } from "../utils/auth-util";
 import { TYPES } from "../di/types";
-import { ResponseError } from "../error/response-error";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import { IStatusRepository } from "../interface/repository/status-repository-interface";
 import { FileSystem } from "../utils/file-system-util";
@@ -46,18 +45,18 @@ export class ReportService implements IReportService {
 
     // Project
     const project = await this.projectRepository.createOrGetProjectIdAndName(
-      rawRequest.project
+      rawRequest.project.toUpperCase()
     );
 
     // Scenario
     const scenario = await this.scenarioRepository.createOrGetScenarioIdAndName(
-      rawRequest.scenario,
+      rawRequest.scenario.toUpperCase(),
       project.id
     );
 
     // TestCase
     const testCase = await this.testCaseRepository.createOrGetTestCaseIdAndName(
-      rawRequest.test_case,
+      rawRequest.test_case.toUpperCase(),
       scenario.id
     );
 

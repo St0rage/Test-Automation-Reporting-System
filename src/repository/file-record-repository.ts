@@ -51,4 +51,21 @@ export class FileRecordRepository implements IFileRecord {
       },
     });
   }
+
+  async checkFileRecordIsExist(id: number): Promise<string | null> {
+    const result = await prismaClient.fileRecord.findFirst({
+      where: {
+        id: id,
+      },
+      select: {
+        file_name: true,
+      },
+    });
+
+    if (result != null) {
+      return result.file_name;
+    }
+
+    return result;
+  }
 }
