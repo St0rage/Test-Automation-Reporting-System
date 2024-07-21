@@ -1,4 +1,4 @@
-import winston from "winston";
+import winston, { format } from "winston";
 import dotenv from "dotenv";
 import DailyRotateFile from "winston-daily-rotate-file";
 import path from "path";
@@ -7,19 +7,30 @@ dotenv.config();
 
 const logPath = process.env.LOG_PATH as string;
 
-export const logger = winston.createLogger({
-  format: winston.format.printf((log) => {
-    const msg =
-      typeof log.message === "string"
-        ? log.message
-        : JSON.stringify(log.message);
+const prettyPrintFormat = format.printf(
+  ({ level, message, timestamp, ...rest }) => {
+    const logMessage =
+      typeof message === "object" ? JSON.stringify(message, null, 2) : message;
 
-    return `${new Date()} : ${log.level.toUpperCase()} : ${msg}`;
-  }),
+    return JSON.stringify(
+      {
+        level,
+        timestamp,
+        message: logMessage,
+        ...rest,
+      },
+      null,
+      2
+    );
+  }
+);
+
+export const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(winston.format.timestamp(), prettyPrintFormat),
   transports: [
     new DailyRotateFile({
       filename: path.join(logPath, "application-%DATE%.log"),
-      // filename: `${logPath}application-%DATE%.log`,
       zippedArchive: true,
       maxSize: "10m",
       maxFiles: "14d",

@@ -11,6 +11,10 @@ export const errorMiddleware = (
   next: NextFunction
 ): void => {
   if (error instanceof ZodError) {
+    logger.warn({
+      message: "Invalid Request",
+      errors: error.message,
+    });
     logger.info(error.message);
     res.setHeader("Content-Type", "application/json");
     res
@@ -20,7 +24,10 @@ export const errorMiddleware = (
       })
       .end();
   } else if (error instanceof ResponseError) {
-    logger.info(error.message);
+    logger.warn({
+      message: "Invalid Request",
+      errors: error.message,
+    });
     res.setHeader("Content-Type", "application/json");
     res
       .status(error.status)
@@ -29,7 +36,10 @@ export const errorMiddleware = (
       })
       .end();
   } else if (error instanceof MulterError) {
-    logger.info(error.message);
+    logger.warn({
+      message: "Invalid Request",
+      errors: error.message,
+    });
     if (error.code == "LIMIT_FILE_SIZE") {
       res.setHeader("Content-Type", "application/json");
       res
@@ -40,7 +50,10 @@ export const errorMiddleware = (
         .end();
     }
   } else {
-    logger.error(error.message);
+    logger.error({
+      message: "Internal Server Error",
+      errors: error.message,
+    });
     res.setHeader("Content-Type", "application/json");
     res
       .status(500)

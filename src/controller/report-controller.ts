@@ -5,7 +5,6 @@ import { ReportDetailRequest, ReportRequest } from "../model/model";
 import { exRequest } from "../type/exrequest";
 import { TYPES } from "../di/types";
 import { ResponseError } from "../error/response-error";
-import { logger } from "../application/logger";
 
 @injectable()
 export class ReportController {
