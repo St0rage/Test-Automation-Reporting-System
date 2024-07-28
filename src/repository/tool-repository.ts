@@ -1,6 +1,6 @@
-import { inject, injectable } from "inversify";
-import { IToolRepository } from "../interface/repository/tool-repository-interface";
+import { injectable } from "inversify";
 import { prismaClient } from "../application/database";
+import { IToolRepository } from "../interface/repository/tool-repository-interface";
 
 @injectable()
 export class ToolRepository implements IToolRepository {

@@ -13,7 +13,10 @@ export class ReportValidation {
     title: z.string().min(3).max(200),
     description: z.string().min(3),
     result: z
-      .enum(["PASSED", "FAILED"])
-      .transform((value: string): string => value.toUpperCase()),
+      .string()
+      .transform((value) => value.toUpperCase())
+      .refine((value) => ["PASSED", "FAILED"].includes(value), {
+        message: "result must be either 'PASSED' or 'FAILED'",
+      }),
   });
 }

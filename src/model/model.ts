@@ -24,7 +24,7 @@ export type ReportDetailRequest = {
   title: string;
   description: string;
   result: string;
-  image?: string;
+  image: string;
 };
 
 export type ReportDetailInsertRequest = {
@@ -33,4 +33,24 @@ export type ReportDetailInsertRequest = {
   title: string;
   description: string;
   image: string;
+};
+
+export type FileRecordResponse = {
+  id: number;
+  file_name: string;
+  created_time: number;
+  test_case: {
+    name: string;
+  };
+  status: {
+    name: string;
+  };
+};
+
+export type ProjectScenarioResponse = {
+  id: number;
+  name: string;
+  scenarios: {
+    name: string;
+  }[];
 };

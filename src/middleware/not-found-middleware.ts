@@ -1,12 +1,11 @@
-import { NextFunction, Response } from "express";
-import { exRequest } from "../type/exrequest";
+import { NextFunction, Request, Response } from "express";
 import { ResponseError } from "../error/response-error";
 
 export const notFoundMiddleware = (
-  req: exRequest,
+  req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const error = new ResponseError(404, "Not Found");
   next(error);
 };

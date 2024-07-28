@@ -11,7 +11,11 @@ export const errorMiddleware = (
   next: NextFunction
 ): void => {
   if (error instanceof ZodError) {
-    logger.info(error.message);
+    logger.warn({
+      message: "Invalid Request",
+      logId: res.locals.logId,
+      errors: error.message,
+    });
     res.setHeader("Content-Type", "application/json");
     res
       .status(400)
@@ -20,16 +24,32 @@ export const errorMiddleware = (
       })
       .end();
   } else if (error instanceof ResponseError) {
-    logger.info(error.message);
-    res.setHeader("Content-Type", "application/json");
-    res
-      .status(error.status)
-      .json({
-        errors: error.message,
-      })
-      .end();
+    logger.warn({
+      message: "Invalid Request",
+      logId: res.locals.logId,
+      errors: error.message,
+    });
+    if (req.path.startsWith("/api")) {
+      res.setHeader("Content-Type", "application/json");
+      res
+        .status(error.status)
+        .json({
+          errors: error.message,
+        })
+        .end();
+    } else {
+      res.status(error.status).render("page/error", {
+        status: error.status,
+        message: error.message,
+      });
+      res.end();
+    }
   } else if (error instanceof MulterError) {
-    logger.info(error.message);
+    logger.warn({
+      message: "Invalid Request",
+      logId: res.locals.logId,
+      errors: error.message,
+    });
     if (error.code == "LIMIT_FILE_SIZE") {
       res.setHeader("Content-Type", "application/json");
       res
@@ -40,13 +60,25 @@ export const errorMiddleware = (
         .end();
     }
   } else {
-    logger.error(error.message);
-    res.setHeader("Content-Type", "application/json");
-    res
-      .status(500)
-      .json({
-        errors: "Internal Server Error",
-      })
-      .end();
+    logger.error({
+      message: "Internal Server Error",
+      logId: res.locals.logId,
+      errors: error.message,
+    });
+    if (req.path.startsWith("/api")) {
+      res.setHeader("Content-Type", "application/json");
+      res
+        .status(500)
+        .json({
+          errors: "Internal Server Error",
+        })
+        .end();
+    } else {
+      res.status(500).render("page/error", {
+        status: 500,
+        message: "Internal Server Error",
+      });
+      res.end();
+    }
   }
 };

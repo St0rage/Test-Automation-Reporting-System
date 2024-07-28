@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
-import { IdAndName } from "../model/model";
+import { IdAndName, ProjectScenarioResponse } from "../model/model";
 import { prismaClient } from "../application/database";
 
 @injectable()
@@ -30,5 +30,33 @@ export class ProjectRepository implements IProjectRepository {
     }
 
     return result;
+  }
+
+  async findAllProjectAndScenario(): Promise<ProjectScenarioResponse[]> {
+    return prismaClient.project.findMany({
+      select: {
+        id: true,
+        name: true,
+        scenarios: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+  async checkProjectIsExist(projectName: string): Promise<Boolean> {
+    const count = await prismaClient.project.count({
+      where: {
+        name: projectName,
+      },
+    });
+
+    if (count != 1) {
+      return false;
+    }
+
+    return true;
   }
 }

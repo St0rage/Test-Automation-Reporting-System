@@ -9,7 +9,7 @@ export class StatusRepository implements IStatusRepository {
   async getStatusId(statusName: string): Promise<{ id: number }> {
     return (await prismaClient.status.findFirst({
       where: {
-        name: statusName,
+        name: statusName.toUpperCase(),
       },
       select: {
         id: true,

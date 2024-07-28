@@ -1,14 +1,20 @@
-import { NextFunction, Response } from "express";
-import { exRequest } from "../type/exrequest";
+import { NextFunction, Request, Response } from "express";
 import { ResponseError } from "../error/response-error";
 import { AuthUtil } from "../utils/auth-util";
+import { container } from "../di/inversify.config";
+import { IReportRepository } from "../interface/repository/report-repository-interface";
+import { TYPES } from "../di/types";
 
-export const authMiddleware = (
-  req: exRequest,
+export const authMiddleware = async (
+  req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   try {
+    const reportRepository = container.get<IReportRepository>(
+      TYPES.IReportRepository
+    );
+
     const token = req.headers.authorization;
 
     if (!token) {
@@ -17,7 +23,13 @@ export const authMiddleware = (
 
     const decoded = AuthUtil.verifyJwt(token.split(" ")[1]);
 
-    req.reportId = decoded.id;
+    const isReportExist = await reportRepository.checkReportIsExist(decoded.id);
+
+    if (!isReportExist) {
+      throw new ResponseError(401, "Unauthorized");
+    }
+
+    res.locals.reportId = decoded.id;
     next();
   } catch (e) {
     next(e);
