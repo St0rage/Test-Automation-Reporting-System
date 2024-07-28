@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import { IReportService } from "../interface/service/report-service-interface";
 import { NextFunction, Request, Response } from "express";
 import { ReportDetailRequest, ReportRequest } from "../model/model";
-import { exRequest } from "../type/exrequest";
 import { TYPES } from "../di/types";
 import { ResponseError } from "../error/response-error";
 
@@ -32,7 +31,7 @@ export class ReportController {
   }
 
   public async addTestStep(
-    req: exRequest,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -42,7 +41,8 @@ export class ReportController {
       }
 
       const request: ReportDetailRequest = req.body as ReportDetailRequest;
-      request.report_id = req.reportId as number;
+      // request.report_id = req.reportId as number;
+      request.report_id = res.locals.reportId as number;
       request.image = req.file.filename;
 
       await this.reportService.addTestStep(request);

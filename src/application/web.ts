@@ -1,12 +1,12 @@
+import dotenv from "dotenv";
 import express from "express";
-import { errorMiddleware } from "../middleware/error-middleware";
-import { notFoundMiddleware } from "../middleware/not-found-middleware";
 import path from "path";
+import { errorMiddleware } from "../middleware/error-middleware";
+import { logRequestMiddleware } from "../middleware/log-request-middleware";
+import { logResponseMiddleware } from "../middleware/log-response-middleware";
 import { apiRoute } from "../route/api-route";
 import { webRoute } from "../route/web-route";
-import dotenv from "dotenv";
-import { logResponseMiddleware } from "../middleware/log-response-middleware";
-import { logRequestMiddleware } from "../middleware/log-request-middleware";
+import { notFoundMiddleware } from "../middleware/not-found-middleware";
 
 dotenv.config();
 
@@ -19,8 +19,8 @@ web.use(express.json());
 web.use(express.urlencoded({ extended: true }));
 web.use("/public", express.static(path.join(__dirname, "..", "public")));
 web.use("/report", express.static(path.join(reportPath)));
-web.use(logResponseMiddleware);
 web.use(logRequestMiddleware);
+web.use(logResponseMiddleware);
 web.use(apiRoute);
 web.use(webRoute);
 web.use(notFoundMiddleware);

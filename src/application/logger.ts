@@ -2,6 +2,7 @@ import winston, { format } from "winston";
 import dotenv from "dotenv";
 import DailyRotateFile from "winston-daily-rotate-file";
 import path from "path";
+import moment from "moment";
 
 dotenv.config();
 
@@ -12,10 +13,12 @@ const prettyPrintFormat = format.printf(
     const logMessage =
       typeof message === "object" ? JSON.stringify(message, null, 2) : message;
 
+    const formattedTimestamp = moment(timestamp).format("DD/MM/YYYY HH:mm:ss");
+
     return JSON.stringify(
       {
         level,
-        timestamp,
+        timestamp: formattedTimestamp,
         message: logMessage,
         ...rest,
       },

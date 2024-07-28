@@ -1,23 +1,22 @@
+import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import path from "path";
 import { TYPES } from "../di/types";
 import { WebService } from "../service/web-service";
-import { exRequest } from "../type/exrequest";
-import { NextFunction, Response } from "express";
-import path from "path";
 
 @injectable()
 export class WebController {
   constructor(@inject(TYPES.IWebService) private webService: WebService) {}
 
   async getDashboardData(
-    req: exRequest,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const projects = await this.webService.getAllProjectAndScenario();
 
-      res.render("page/dashboard", {
+      res.status(200).render("page/dashboard", {
         projects: projects,
         activeProject: "dashboard",
         activeScenario: "",
@@ -28,13 +27,13 @@ export class WebController {
   }
 
   async getReportData(
-    req: exRequest,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const projectName = req.projectName;
-      const scenarioName = req.scenarioName;
+      const projectName = res.locals.projectName;
+      const scenarioName = res.locals.scenarioName;
       const pageString: string = req.query.page as string;
       const pageNumber: number = parseInt(pageString);
 
@@ -51,7 +50,7 @@ export class WebController {
           scenarioName as string
         );
 
-      res.render("page/report", {
+      res.status(200).render("page/report", {
         projects: projects,
         testCases: testCases,
         fileRecords: fileRecords,
@@ -67,15 +66,13 @@ export class WebController {
     }
   }
 
-  downloadReport(req: exRequest, res: Response, next: NextFunction): void {
+  downloadReport(req: Request, res: Response, next: NextFunction): void {
     try {
-      const originalFileName = req.fileName as string;
-      const fileName = originalFileName.split(".")[0];
-      const extension = originalFileName.split(".")[1];
+      const originalFileName = res.locals.fileName;
       const reportPath = process.env.REPORT_PATH as string;
       const filePath = path.join(reportPath, originalFileName);
 
-      res.download(filePath, originalFileName, (err) => {
+      res.status(200).download(filePath, originalFileName, (err) => {
         if (err) {
           next(err);
         }

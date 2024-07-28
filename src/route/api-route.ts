@@ -1,7 +1,7 @@
+import express from "express";
 import { upload } from "../application/multer";
 import { ReportController } from "../controller/report-controller";
 import { container } from "../di/inversify.config";
-import express from "express";
 import { authMiddleware } from "../middleware/auth-middleware";
 
 const reportController = container.get<ReportController>(ReportController);

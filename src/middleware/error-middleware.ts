@@ -13,9 +13,9 @@ export const errorMiddleware = (
   if (error instanceof ZodError) {
     logger.warn({
       message: "Invalid Request",
+      logId: res.locals.logId,
       errors: error.message,
     });
-    logger.info(error.message);
     res.setHeader("Content-Type", "application/json");
     res
       .status(400)
@@ -26,18 +26,28 @@ export const errorMiddleware = (
   } else if (error instanceof ResponseError) {
     logger.warn({
       message: "Invalid Request",
+      logId: res.locals.logId,
       errors: error.message,
     });
-    res.setHeader("Content-Type", "application/json");
-    res
-      .status(error.status)
-      .json({
-        errors: error.message,
-      })
-      .end();
+    if (req.path.startsWith("/api")) {
+      res.setHeader("Content-Type", "application/json");
+      res
+        .status(error.status)
+        .json({
+          errors: error.message,
+        })
+        .end();
+    } else {
+      res.status(error.status).render("page/error", {
+        status: error.status,
+        message: error.message,
+      });
+      res.end();
+    }
   } else if (error instanceof MulterError) {
     logger.warn({
       message: "Invalid Request",
+      logId: res.locals.logId,
       errors: error.message,
     });
     if (error.code == "LIMIT_FILE_SIZE") {
@@ -52,14 +62,23 @@ export const errorMiddleware = (
   } else {
     logger.error({
       message: "Internal Server Error",
+      logId: res.locals.logId,
       errors: error.message,
     });
-    res.setHeader("Content-Type", "application/json");
-    res
-      .status(500)
-      .json({
-        errors: "Internal Server Error",
-      })
-      .end();
+    if (req.path.startsWith("/api")) {
+      res.setHeader("Content-Type", "application/json");
+      res
+        .status(500)
+        .json({
+          errors: "Internal Server Error",
+        })
+        .end();
+    } else {
+      res.status(500).render("page/error", {
+        status: 500,
+        message: "Internal Server Error",
+      });
+      res.end();
+    }
   }
 };

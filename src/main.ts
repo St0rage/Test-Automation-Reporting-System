@@ -1,7 +1,7 @@
-import "reflect-metadata";
 import dotenv from "dotenv";
-import { FileSystem } from "./utils/file-system-util";
+import "reflect-metadata";
 import { web } from "./application/web";
+import { FileSystem } from "./utils/file-system-util";
 
 dotenv.config();
 

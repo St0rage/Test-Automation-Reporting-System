@@ -1,5 +1,4 @@
-import { NextFunction, Response } from "express";
-import { exRequest } from "../type/exrequest";
+import { NextFunction, Request, Response } from "express";
 import { ResponseError } from "../error/response-error";
 import { AuthUtil } from "../utils/auth-util";
 import { container } from "../di/inversify.config";
@@ -7,7 +6,7 @@ import { IReportRepository } from "../interface/repository/report-repository-int
 import { TYPES } from "../di/types";
 
 export const authMiddleware = async (
-  req: exRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -30,7 +29,7 @@ export const authMiddleware = async (
       throw new ResponseError(401, "Unauthorized");
     }
 
-    req.reportId = decoded.id;
+    res.locals.reportId = decoded.id;
     next();
   } catch (e) {
     next(e);

@@ -1,5 +1,4 @@
-import { NextFunction, Response } from "express";
-import { exRequest } from "../type/exrequest";
+import { NextFunction, Request, Response } from "express";
 import { container } from "../di/inversify.config";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { TYPES } from "../di/types";
@@ -8,7 +7,7 @@ import { ResponseError } from "../error/response-error";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
 
 export const reportPathValidateMiddleware = async (
-  req: exRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -49,8 +48,8 @@ export const reportPathValidateMiddleware = async (
       return res.redirect(`/${projectName}/${scenarioName}?page=1`);
     }
 
-    req.projectName = projectName.toUpperCase();
-    req.scenarioName = scenarioName.toUpperCase();
+    res.locals.projectName = projectName.toUpperCase();
+    res.locals.scenarioName = scenarioName.toUpperCase();
 
     next();
   } catch (e) {
@@ -59,7 +58,7 @@ export const reportPathValidateMiddleware = async (
 };
 
 export const downloadMiddleware = async (
-  req: exRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -75,7 +74,7 @@ export const downloadMiddleware = async (
       throw new ResponseError(404, "Not Found");
     }
 
-    req.fileName = fileName;
+    res.locals.fileName = fileName;
 
     next();
   } catch (e) {

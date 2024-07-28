@@ -1,14 +1,17 @@
-import { NextFunction, Response } from "express";
-import { exRequest } from "../type/exrequest";
+import { NextFunction, Request, Response } from "express";
+import { v4 as uuidv4 } from "uuid";
 import { logger } from "../application/logger";
 
 export const logRequestMiddleware = (
-  req: exRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void => {
+  res.locals.logId = uuidv4();
+
   logger.info({
     message: "Request Send",
+    logId: res.locals.logId,
     request: {
       method: req.method,
       url: req.url,
@@ -17,12 +20,6 @@ export const logRequestMiddleware = (
       ip: req.ip,
     },
   });
-  // logger.info(`method : ${req.method}`);
-  // logger.info(`url : ${req.url}`);
-  // logger.info(`content-type : ${req.headers["content-type"]}`);
-  // logger.info(`user-agent : ${req.headers["user-agent"]}`);
-  // logger.info(`request body : ${JSON.stringify(req.body)}`);
-  // logger.info(`IP : ${req.ip}`);
 
   next();
 };
