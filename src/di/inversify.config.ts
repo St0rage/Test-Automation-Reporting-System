@@ -22,8 +22,12 @@ import { FileRecordRepository } from "../repository/file-record-repository";
 import { IWebService } from "../interface/service/web-service-interface";
 import { WebService } from "../service/web-service";
 import { WebController } from "../controller/web-controller";
+import { ReportBuilder } from "../application/report-builder";
 
 const container = new Container();
+// Application
+container.bind<ReportBuilder>(ReportBuilder).toSelf();
+
 // Repository
 container
   .bind<IProjectRepository>(TYPES.IProjectRepository)

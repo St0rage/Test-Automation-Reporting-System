@@ -41,7 +41,6 @@ export class ReportController {
       }
 
       const request: ReportDetailRequest = req.body as ReportDetailRequest;
-      // request.report_id = req.reportId as number;
       request.report_id = res.locals.reportId as number;
       request.image = req.file.filename;
 
@@ -50,6 +49,18 @@ export class ReportController {
       res.status(201).json({
         data: "OK",
       });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async saveReport(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const reportId = res.locals.reportId as number;
     } catch (e) {
       next(e);
     }

@@ -19,6 +19,8 @@ import { IReportDetailRepository } from "../interface/repository/report-detail-r
 import { IStatusRepository } from "../interface/repository/status-repository-interface";
 import { FileSystem } from "../utils/file-system-util";
 import path from "path";
+import { container } from "../di/inversify.config";
+import { ReportBuilder } from "../application/report-builder";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -68,6 +70,7 @@ export class ReportService implements IReportService {
       scenario_id: scenario.id,
       test_case_id: testCase.id,
       tool_id: toolId,
+      activity: rawRequest.activity,
       author: rawRequest.author,
     };
 
@@ -87,17 +90,15 @@ export class ReportService implements IReportService {
       );
     } catch (e: any) {
       const imagePath = process.env.IMAGE_PATH as string;
-      FileSystem.deleteFile(path.join(imagePath, reportDetailRequest.image));
+      await FileSystem.deleteFile(
+        path.join(imagePath, reportDetailRequest.image)
+      );
       throw e;
     }
 
-    const status = await this.statusRepository.getStatusId(
-      reportDetailRequest.result
-    );
-
     const reportDetailInsertRequest: ReportDetailInsertRequest = {
       report_id: reportDetailRequest.report_id,
-      status_id: status.id,
+      status_id: parseInt(reportDetailRequest.result, 10),
       title: reportDetailRequest.title,
       description: reportDetailRequest.description,
       image: reportDetailRequest.image as string,
@@ -108,7 +109,16 @@ export class ReportService implements IReportService {
     );
   }
 
-  public async saveReport(): Promise<void> {
-    // KODE SAVE REPORT
+  public async saveReport(reportId: number): Promise<void> {
+    const report = await this.reportRepository.getReportById(reportId);
+    const reportDetails =
+      await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+
+    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
+
+    const { fileName, date } = await reportBuilder.createReport(
+      report,
+      reportDetails
+    );
   }
 }

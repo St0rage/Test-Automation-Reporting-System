@@ -6,17 +6,24 @@ export class ReportValidation {
     scenario: z.string().min(2).max(100),
     test_case: z.string().min(3).max(100),
     tool: z.string().min(3).max(50),
+    activity: z.string().min(3).max(50),
     author: z.string().min(3).max(50),
   });
 
   static readonly reportDetailSchema: ZodType = z.object({
-    title: z.string().min(3).max(200),
-    description: z.string().min(3),
+    title: z.string().min(3).max(80),
+    description: z.string().min(3).max(400),
+    // result: z
+    //   .string()
+    //   .transform((value) => value.toUpperCase())
+    //   .refine((value) => ["PASSED", "FAILED"].includes(value), {
+    //     message: "result must be either 'PASSED' or 'FAILED'",
+    //   }),
     result: z
       .string()
-      .transform((value) => value.toUpperCase())
-      .refine((value) => ["PASSED", "FAILED"].includes(value), {
-        message: "result must be either 'PASSED' or 'FAILED'",
+      .refine((val) => parseInt(val, 10) >= 1 && parseInt(val, 10) <= 3, {
+        message:
+          "String number must be between 1 = 'DONE', 2 = 'PASSED', 3 = 'FAILED'",
       }),
   });
 }

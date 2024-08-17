@@ -19,3 +19,9 @@ apiRoute.post(
   upload.single("image"),
   reportController.addTestStep.bind(reportController)
 );
+
+apiRoute.post(
+  "/api/save-report",
+  authMiddleware,
+  reportController.saveReport.bind(reportController)
+);

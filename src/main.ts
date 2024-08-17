@@ -21,9 +21,13 @@ if (!process.env.SECRET_KEY) {
   throw Error("SECRET_KEY not found in ENV");
 }
 
-FileSystem.createFolder(imagePath);
-FileSystem.createFolder(reportPath);
-FileSystem.createFolder(logPath);
+try {
+  FileSystem.createFolder(imagePath);
+  FileSystem.createFolder(reportPath);
+  FileSystem.createFolder(logPath);
+} catch (e) {
+  throw e;
+}
 
 const port = 7000;
 

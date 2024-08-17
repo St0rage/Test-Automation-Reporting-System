@@ -3,6 +3,7 @@ export type ReportRequest = {
   scenario: string;
   test_case: string;
   tool: string;
+  activity: string;
   author: string;
 };
 
@@ -11,6 +12,7 @@ export type ReportInsertRequest = {
   scenario_id: number;
   test_case_id: number;
   tool_id: number;
+  activity: string;
   author: string;
 };
 
@@ -53,4 +55,30 @@ export type ProjectScenarioResponse = {
   scenarios: {
     name: string;
   }[];
+};
+
+export type ReportResponse = {
+  activity: string;
+  author: string;
+  project: {
+    name: string;
+  };
+  scenario: {
+    name: string;
+  };
+  test_case: {
+    name: string;
+  };
+  tool: {
+    name: string;
+  };
+};
+
+export type ReportDetailResponse = {
+  title: string;
+  description: string;
+  image: string;
+  status: {
+    name: string;
+  };
 };
