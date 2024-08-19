@@ -2,6 +2,7 @@ import { injectable } from "inversify";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { ReportInsertRequest, ReportResponse } from "../model/model";
 import { prismaClient } from "../application/database";
+import { number } from "zod";
 
 @injectable()
 export class ReportRepository implements IReportRepository {
@@ -47,11 +48,13 @@ export class ReportRepository implements IReportRepository {
         },
         scenario: {
           select: {
+            id: true,
             name: true,
           },
         },
         test_case: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -66,5 +69,13 @@ export class ReportRepository implements IReportRepository {
     });
 
     return report as ReportResponse;
+  }
+
+  public async deleteReportById(id: number): Promise<void> {
+    await prismaClient.report.delete({
+      where: {
+        id: id,
+      },
+    });
   }
 }

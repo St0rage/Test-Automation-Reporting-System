@@ -8,4 +8,5 @@ export interface IReportDetailRepository {
   findAllReportDetailByReportId(
     reportId: number
   ): Promise<ReportDetailResponse[]>;
+  deleteAllReportDetailByReportId(reportId: number): Promise<void>;
 }

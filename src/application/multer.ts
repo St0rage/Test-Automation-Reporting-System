@@ -1,7 +1,7 @@
 import multer from "multer";
 import { ResponseError } from "../error/response-error";
 import { v4 as uuidv4 } from "uuid";
-import path from "path";
+import path, { join } from "path";
 import { Request } from "express";
 import dotenv from "dotenv";
 
@@ -44,3 +44,25 @@ export const upload = multer({
     fileSize: maxFileSize,
   },
 });
+
+// Logo Multer
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "..", "public", "img"));
+  },
+  filename: (req, file, cb) => {
+    cb(null, `report-logo${path.extname(file.originalname)}`);
+  },
+});
+
+const logoFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+): void => {
+  if (file.mimetype === "image/png") {
+    return cb(null, true);
+  } else {
+    cb(new ResponseError(400, "Only image file are allowed"));
+  }
+};

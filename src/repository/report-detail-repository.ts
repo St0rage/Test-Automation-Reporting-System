@@ -37,4 +37,14 @@ export class ReportDetail implements IReportDetailRepository {
       },
     });
   }
+
+  public async deleteAllReportDetailByReportId(
+    reportId: number
+  ): Promise<void> {
+    await prismaClient.reportDetail.deleteMany({
+      where: {
+        report_id: reportId,
+      },
+    });
+  }
 }

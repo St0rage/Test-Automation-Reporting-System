@@ -13,12 +13,6 @@ export class ReportValidation {
   static readonly reportDetailSchema: ZodType = z.object({
     title: z.string().min(3).max(80),
     description: z.string().min(3).max(400),
-    // result: z
-    //   .string()
-    //   .transform((value) => value.toUpperCase())
-    //   .refine((value) => ["PASSED", "FAILED"].includes(value), {
-    //     message: "result must be either 'PASSED' or 'FAILED'",
-    //   }),
     result: z
       .string()
       .refine((val) => parseInt(val, 10) >= 1 && parseInt(val, 10) <= 3, {

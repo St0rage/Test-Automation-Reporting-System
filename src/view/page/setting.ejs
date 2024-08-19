@@ -1,0 +1,35 @@
+<%- include('../partial/header', {projects, activeProject, activeScenario}) %>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Settings</div>    
+          </div>
+        </div>
+        <div class="card-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-5">
+                        <form action="/change-report-logo" method="post" enctype="multipart/form-data" id="report-logo-form" class="need-validation" novalidate>
+                            <div class="mb-3">
+                                <label for="formFile" class="form-label fw-bolder text-dark">Change Report Logo</label>
+                                <input class="form-control" type="file" id="formFile">
+                                <div class="invalid-feedback" id="formFeedback"> 
+                                    message
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+      </div>
+    </div>
+  </div>
+
+<%- include('../partial/footer') %>

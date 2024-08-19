@@ -4,6 +4,36 @@
 
 <!-- End Custom template -->
 </div>
+<script>
+    document.getElementById("report-logo-form").addEventListener("submit", (e) => {
+        const fileInput = document.getElementById("formFile");
+        const fileInputFeedback = document.getElementById("formFeedback");
+        const maxSize = 2 * 1024 * 1024
+
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            fileInput.classList.add("is-invalid");
+            fileInputFeedback.textContent = "Please upload a file before submitting the form.";
+        } else {
+            const file = fileInput.files[0];
+            const allowedTypes = ['image/jpeg', 'image/png'];
+
+            if (!allowedTypes.includes(file.type)) {
+                e.preventDefault();
+                fileInput.classList.add("is-invalid");
+                fileInputFeedback.textContent = "Please select a valid image file (JPEG, PNG).";
+            } else if (file.size > maxSize) {
+                e.preventDefault();
+                fileInput.classList.add("is-invalid");
+                fileInputFeedback.textContent = "File size exceeds the 2MB limit.";
+            } else {
+                fileInput.classList.remove("is-invalid");
+                fileInputFeedback.textContent = "";
+            }
+        }
+    })
+</script>
+
 <!--   Core JS Files   -->
 <script src="/public/js/core/jquery-3.7.1.min.js"></script>
 <script src="/public/js/core/popper.min.js"></script>
@@ -21,5 +51,6 @@
 
 <!-- Kaiadmin JS -->
 <script src="/public/js/kaiadmin.min.js"></script>
+
 </body>
 </html>

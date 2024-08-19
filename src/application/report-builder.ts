@@ -154,7 +154,7 @@ export class ReportBuilder {
     const imageWidth: number = 35;
     const imageHeight: number = 10;
     const imageBuffer: Buffer = await this.getImageBinary(
-      path.join(__dirname, "..", "public", "img", "LogoMandiri.png")
+      path.join(__dirname, "..", "public", "img", "report-logo.png")
     );
     const image: string = `data:image/png;base64,${imageBuffer.toString(
       "base64"
@@ -547,6 +547,7 @@ export class ReportBuilder {
     const imageWidth = this.pageWidth - this.x * 2;
     const imageHeight = imageWidth / 2;
     const imagePadding: number = 3;
+    const imagePath: string = process.env.IMAGE_PATH as string;
 
     let currentTitlePosition: number;
     let currentImagePosition: number;
@@ -633,7 +634,7 @@ export class ReportBuilder {
 
       // Set Image
       imageBuffer = await this.getImageBinary(
-        path.join(__dirname, "..", "public", "img", value.image)
+        path.join(imagePath, value.image)
       );
       image = `data:image/png;base64,${imageBuffer.toString("base64")}`;
 
@@ -682,8 +683,10 @@ export class ReportBuilder {
     const author: string = report.author;
     const testCase: string = report.test_case.name;
     const tool: string = report.tool.name;
-    const date: number = Date.now();
-    const dateString: string = moment(date).format("DD-MMMM-YYYY_HH:mm:ss");
+    const date: number = Math.floor(Date.now() / 1000);
+    const dateString: string = moment(date * 1000).format(
+      "DD-MMMM-YYYY_HH:mm:ss"
+    );
     const stepDataLength: number = stepData.length;
     const tableOfContentStartPage: number = 2;
     const tableOfContentFirstMaxPage: number = 41;
@@ -707,8 +710,16 @@ export class ReportBuilder {
     const totalAllPage: number =
       Math.ceil(stepDataLength / 2) +
       tableOfContentTotalPage +
-      documentSummaryTotalPage +
-      1;
+      documentSummaryTotalPage;
+    const totalDoneStatus: number = stepData.filter(
+      (value) => value.status.name === "DONE"
+    ).length;
+    const totalPassedStatus: number = stepData.filter(
+      (value) => value.status.name === "PASSED"
+    ).length;
+    const totalFailedStatus: number = stepData.filter(
+      (value) => value.status.name === "FAILED"
+    ).length;
     let newStepData: {}[] = [];
 
     stepData.forEach((value) => {
@@ -730,7 +741,7 @@ export class ReportBuilder {
         testCase,
         dateString,
         startPage,
-        totalAllPage
+        totalAllPage + 1
       );
       startPage++;
     }
@@ -751,15 +762,15 @@ export class ReportBuilder {
       startPageReport,
       documentSummaryFirstMaxPage,
       documentSummaryRestMaxPage,
-      20,
-      20,
-      20
+      totalPassedStatus,
+      totalFailedStatus,
+      totalDoneStatus
     );
 
     await this.createContent(stepData, startPageReport);
 
-    const fileName = `${scenarioName}_${testCase}_${moment(date).format(
-      "DD-MMMM-YYYY_HH-mm-ss"
+    const fileName = `${scenarioName}_${testCase}_${moment(date * 1000).format(
+      "DD-MM-YYYY_HH-mm-ss"
     )}.pdf`;
     const output = this.doc.output("arraybuffer");
     const reportPath = process.env.REPORT_PATH as string;

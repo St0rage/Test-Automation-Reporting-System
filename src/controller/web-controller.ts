@@ -81,4 +81,18 @@ export class WebController {
       next(e);
     }
   }
+
+  async settings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const projects = await this.webService.getAllProjectAndScenario();
+
+    res.status(200).render("page/setting", {
+      projects: projects,
+      activeProject: "",
+      activeScenario: "",
+    });
+  }
 }

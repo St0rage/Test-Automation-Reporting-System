@@ -15,8 +15,6 @@ import { ToolRepository } from "../repository/tool-repository";
 import { TYPES } from "./types";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import { ReportDetail } from "../repository/report-detail-repository";
-import { IStatusRepository } from "../interface/repository/status-repository-interface";
-import { StatusRepository } from "../repository/status-repository";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
 import { FileRecordRepository } from "../repository/file-record-repository";
 import { IWebService } from "../interface/service/web-service-interface";
@@ -43,7 +41,6 @@ container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
 container
   .bind<IReportDetailRepository>(TYPES.IReportDetailRepository)
   .to(ReportDetail);
-container.bind<IStatusRepository>(TYPES.IStatusRepository).to(StatusRepository);
 container.bind<IFileRecord>(TYPES.IFileRecord).to(FileRecordRepository);
 // Service
 container.bind<IReportService>(TYPES.IReportService).to(ReportService);

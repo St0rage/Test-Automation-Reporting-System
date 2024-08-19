@@ -64,9 +64,11 @@ export type ReportResponse = {
     name: string;
   };
   scenario: {
+    id: number;
     name: string;
   };
   test_case: {
+    id: number;
     name: string;
   };
   tool: {
@@ -81,4 +83,12 @@ export type ReportDetailResponse = {
   status: {
     name: string;
   };
+};
+
+export type FileRecordRequest = {
+  scenario_id: number;
+  test_case_id: number;
+  status_id: number;
+  file_name: string;
+  created_time: number;
 };
