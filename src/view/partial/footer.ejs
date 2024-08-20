@@ -5,10 +5,17 @@
 <!-- End Custom template -->
 </div>
 <script>
+    const fileInput = document.getElementById("formFile")
+
+    fileInput.addEventListener('change', (e) => {
+        fileInput.classList.remove("is-invalid")
+    })
+
+
     document.getElementById("report-logo-form").addEventListener("submit", (e) => {
         const fileInput = document.getElementById("formFile");
         const fileInputFeedback = document.getElementById("formFeedback");
-        const maxSize = 2 * 1024 * 1024
+        const maxSize = 1 * 1024 * 1024
 
         if (fileInput.files.length === 0) {
             e.preventDefault();
@@ -16,16 +23,15 @@
             fileInputFeedback.textContent = "Please upload a file before submitting the form.";
         } else {
             const file = fileInput.files[0];
-            const allowedTypes = ['image/jpeg', 'image/png'];
 
-            if (!allowedTypes.includes(file.type)) {
+            if (file.type !== 'image/png') {
                 e.preventDefault();
                 fileInput.classList.add("is-invalid");
-                fileInputFeedback.textContent = "Please select a valid image file (JPEG, PNG).";
+                fileInputFeedback.textContent = "Only PNG file are allowed";
             } else if (file.size > maxSize) {
                 e.preventDefault();
                 fileInput.classList.add("is-invalid");
-                fileInputFeedback.textContent = "File size exceeds the 2MB limit.";
+            fileInputFeedback.textContent = "Maximum limit image size is 1MB";
             } else {
                 fileInput.classList.remove("is-invalid");
                 fileInputFeedback.textContent = "";

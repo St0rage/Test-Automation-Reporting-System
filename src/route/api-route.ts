@@ -1,8 +1,8 @@
 import express from "express";
-import { upload } from "../application/multer";
 import { ReportController } from "../controller/report-controller";
 import { container } from "../di/inversify.config";
 import { authMiddleware } from "../middleware/auth-middleware";
+import { uploadImage } from "../middleware/image-middleware";
 
 const reportController = container.get<ReportController>(ReportController);
 
@@ -16,7 +16,7 @@ apiRoute.post(
 apiRoute.post(
   "/api/add-test-step",
   authMiddleware,
-  upload.single("image"),
+  uploadImage,
   reportController.addTestStep.bind(reportController)
 );
 

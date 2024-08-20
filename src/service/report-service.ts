@@ -22,6 +22,7 @@ import path from "path";
 import { container } from "../di/inversify.config";
 import { ReportBuilder } from "../application/report-builder";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { ResponseError } from "../error/response-error";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -116,6 +117,10 @@ export class ReportService implements IReportService {
     const report = await this.reportRepository.getReportById(reportId);
     const reportDetails =
       await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+
+    if (reportDetails.length < 1) {
+      throw new ResponseError(400, "No Step Data Found");
+    }
 
     const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
 

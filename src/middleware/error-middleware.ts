@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { logger } from "../application/logger";
 import { ResponseError } from "../error/response-error";
-import { MulterError } from "multer";
 
 export const errorMiddleware = (
   error: Error,
@@ -43,21 +42,6 @@ export const errorMiddleware = (
         message: error.message,
       });
       res.end();
-    }
-  } else if (error instanceof MulterError) {
-    logger.warn({
-      message: "Invalid Request",
-      logId: res.locals.logId,
-      errors: error.message,
-    });
-    if (error.code == "LIMIT_FILE_SIZE") {
-      res.setHeader("Content-Type", "application/json");
-      res
-        .status(400)
-        .json({
-          errors: "Maximum limit image size is 2MB",
-        })
-        .end();
     }
   } else {
     logger.error({
