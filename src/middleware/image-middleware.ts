@@ -8,6 +8,10 @@ export const uploadImage = (
   next: NextFunction
 ) => {
   upload(req, res, (err) => {
+    if (!req.file) {
+      return next(new ResponseError(400, "Image file required"));
+    }
+
     if (err) {
       if (err.message === "Only image file are allowed") {
         return next(err);
@@ -16,11 +20,8 @@ export const uploadImage = (
       if (err.code === "LIMIT_FILE_SIZE") {
         return next(new ResponseError(400, "Maximum limit image size is 2MB"));
       }
-      return res.redirect("/settings");
-    }
 
-    if (!req.file) {
-      return next(new ResponseError(400, "Image file required"));
+      return next(err);
     }
 
     next();

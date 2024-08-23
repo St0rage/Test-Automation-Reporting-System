@@ -135,7 +135,7 @@ export class ReportService implements IReportService {
 
     const fileRecordRequest: FileRecordRequest = {
       scenario_id: report.scenario.id,
-      test_case_id: report.scenario.id,
+      test_case_id: report.test_case.id,
       status_id: isReportFailed ? 3 : 2,
       file_name: fileName,
       created_time: date,
