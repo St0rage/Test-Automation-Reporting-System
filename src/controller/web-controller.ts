@@ -118,8 +118,8 @@ export class WebController {
     next: NextFunction
   ): Promise<void> {
     try {
-      res.locals.reportLogoError = "";
-      res.locals.reportLogoLogoStatus = 200;
+      const message = await this.webService.validateReportLogo();
+      req.flash("error-logo", message);
       return res.redirect("/settings");
     } catch (e) {
       next(e);

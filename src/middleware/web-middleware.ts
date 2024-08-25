@@ -89,6 +89,11 @@ export const uploadReportLogo = (
   next: NextFunction
 ) => {
   uploadLogo(req, res, (err) => {
+    if (!req.file) {
+      req.flash("error-logo", "Image (PNG) file required");
+      return res.redirect("/settings");
+    }
+
     if (err) {
       if (err.message === "Only PNG file are allowed") {
         req.flash("error-logo", err.message);
@@ -97,11 +102,6 @@ export const uploadReportLogo = (
       if (err.code === "LIMIT_FILE_SIZE") {
         req.flash("error-logo", "Maximum limit image size is 1MB");
       }
-      return res.redirect("/settings");
-    }
-
-    if (!req.file) {
-      req.flash("error-logo", "Image (PNG) file required");
       return res.redirect("/settings");
     }
 

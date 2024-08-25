@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../error/response-error";
+import fs from "fs";
 
 dotenv.config();
 
@@ -53,6 +54,23 @@ const logoStorage = multer.diskStorage({
     cb(null, path.join(__dirname, "..", "public", "img"));
   },
   filename: (req, file, cb) => {
+    const oldLogo = path.join(
+      __dirname,
+      "..",
+      "public",
+      "img",
+      "report-logo.png"
+    );
+    const tempLogo = path.join(
+      __dirname,
+      "..",
+      "public",
+      "img",
+      "report-logo-temp.png"
+    );
+
+    fs.renameSync(oldLogo, tempLogo);
+
     cb(null, `report-logo${path.extname(file.originalname)}`);
   },
 });

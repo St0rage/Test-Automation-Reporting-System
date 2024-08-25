@@ -9,6 +9,10 @@ import { TYPES } from "../di/types";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import fs from "fs";
+import path from "path";
+import { FileSystem } from "../utils/file-system-util";
+import jsPDF from "jspdf";
 
 @injectable()
 export class WebService implements IWebService {
@@ -46,5 +50,38 @@ export class WebService implements IWebService {
     return this.fileRecordRepository.countTotalFileRecordByScenarioName(
       scenarioName
     );
+  }
+
+  async validateReportLogo(): Promise<string> {
+    const logoPath = path.join(
+      __dirname,
+      "..",
+      "public",
+      "img",
+      "report-logo.png"
+    );
+    const logoTemp = path.join(
+      __dirname,
+      "..",
+      "public",
+      "img",
+      "report-logo-temp.png"
+    );
+
+    const imageBuffer = await FileSystem.getImageBinary(logoPath);
+    const imageString = `data:image/png;base64,${imageBuffer.toString(
+      "base64"
+    )}`;
+
+    try {
+      const tempDoc = new jsPDF();
+      tempDoc.addImage(imageString, "PNG", 10, 10, 35, 10);
+      await FileSystem.deleteFile(logoTemp);
+      return "";
+    } catch (e) {
+      await FileSystem.deleteFile(logoPath);
+      await FileSystem.renameFile(logoTemp, logoPath);
+      return "Upload failed. Please ensure the image is not compressed.";
+    }
   }
 }

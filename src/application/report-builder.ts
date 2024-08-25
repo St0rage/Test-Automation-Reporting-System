@@ -5,6 +5,7 @@ import moment from "moment";
 import path from "path";
 import { ReportDetailResponse, ReportResponse } from "../model/model";
 import { injectable } from "inversify";
+import { FileSystem } from "../utils/file-system-util";
 
 @injectable()
 export class ReportBuilder {
@@ -27,17 +28,17 @@ export class ReportBuilder {
     this.y = 35;
   }
 
-  private async getImageBinary(path: string): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      fs.readFile(path, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
-      });
-    });
-  }
+  // private async getImageBinary(path: string): Promise<Buffer> {
+  //   return new Promise((resolve, reject) => {
+  //     fs.readFile(path, (err, data) => {
+  //       if (err) {
+  //         reject(err);
+  //       } else {
+  //         resolve(data);
+  //       }
+  //     });
+  //   });
+  // }
 
   private async addPage(
     title: string,
@@ -153,7 +154,7 @@ export class ReportBuilder {
     const testCaseIdFontSize: number = 12;
     const imageWidth: number = 35;
     const imageHeight: number = 10;
-    const imageBuffer: Buffer = await this.getImageBinary(
+    const imageBuffer: Buffer = await FileSystem.getImageBinary(
       path.join(__dirname, "..", "public", "img", "report-logo.png")
     );
     const image: string = `data:image/png;base64,${imageBuffer.toString(
@@ -633,7 +634,7 @@ export class ReportBuilder {
       );
 
       // Set Image
-      imageBuffer = await this.getImageBinary(
+      imageBuffer = await FileSystem.getImageBinary(
         path.join(imagePath, value.image)
       );
       image = `data:image/png;base64,${imageBuffer.toString("base64")}`;
