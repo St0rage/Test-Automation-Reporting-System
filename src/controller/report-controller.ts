@@ -35,11 +35,10 @@ export class ReportController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const file = req.file as Express.Multer.File;
-
-      const request: ReportDetailRequest = req.body as ReportDetailRequest;
+      const request: ReportDetailRequest = res.locals
+        .reportDetails as ReportDetailRequest;
       request.report_id = res.locals.reportId as number;
-      request.image = file.filename;
+      request.image = res.locals.stepDataImageFileName;
 
       await this.reportService.addTestStep(request);
       res.setHeader("Content-Type", "application/json");
