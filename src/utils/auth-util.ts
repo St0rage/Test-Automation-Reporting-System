@@ -2,25 +2,29 @@ import jwt from "jsonwebtoken";
 import { ResponseError } from "../error/response-error";
 
 export class AuthUtil {
-  static signJwt(payload: { id: number }): string {
+  static signJwt(payload: { id: number }): Promise<string> {
     const secretKey = process.env.SECRET_KEY as string;
 
-    try {
-      return jwt.sign(payload, secretKey, {
-        expiresIn: "1d",
+    return new Promise((resolve, reject) => {
+      jwt.sign(payload, secretKey, { expiresIn: "1d" }, (err, token) => {
+        if (err) {
+          return reject(new Error(err.message));
+        }
+        resolve(token as string);
       });
-    } catch (e: any) {
-      throw e;
-    }
+    });
   }
 
-  static verifyJwt(token: string): { id: number } {
+  static verifyJwt(token: string): Promise<{ id: number }> {
     const secretKey = process.env.SECRET_KEY as string;
 
-    try {
-      return jwt.verify(token, secretKey) as { id: number };
-    } catch (e) {
-      throw new ResponseError(401, "Unauthorized");
-    }
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+          return reject(new ResponseError(401, "Unauthorized"));
+        }
+        resolve(decoded as { id: number });
+      });
+    });
   }
 }

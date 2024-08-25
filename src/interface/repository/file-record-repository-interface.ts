@@ -1,4 +1,4 @@
-import { FileRecordResponse } from "../../model/model";
+import { FileRecordRequest, FileRecordResponse } from "../../model/model";
 
 export interface IFileRecord {
   findAllFileRecordByScenarioName(
@@ -7,4 +7,5 @@ export interface IFileRecord {
   ): Promise<FileRecordResponse[]>;
   countTotalFileRecordByScenarioName(scenarioName: string): Promise<number>;
   checkFileRecordIsExist(id: number): Promise<string | null>;
+  createFileRecord(fileRecord: FileRecordRequest): Promise<void>;
 }

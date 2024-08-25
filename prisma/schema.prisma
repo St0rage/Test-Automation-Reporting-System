@@ -73,6 +73,7 @@ model Report {
   scenario_id   Int
   test_case_id  Int
   tool_id       Int
+  activity      String @db.VarChar(50)
   author        String @db.VarChar(50)
 
   project         Project       @relation(fields: [project_id], references: [id])
@@ -88,7 +89,7 @@ model ReportDetail {
   id          Int @id @default(autoincrement())
   report_id   Int
   status_id   Int
-  title       String @db.VarChar(200)
+  title       String @db.VarChar(100)
   description String @db.Text
   image       String @db.VarChar(50)
 

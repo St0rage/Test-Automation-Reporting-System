@@ -4,6 +4,42 @@
 
 <!-- End Custom template -->
 </div>
+<script>
+    const fileInput = document.getElementById("formFile")
+
+    fileInput.addEventListener('change', (e) => {
+        fileInput.classList.remove("is-invalid")
+    })
+
+
+    document.getElementById("report-logo-form").addEventListener("submit", (e) => {
+        const fileInput = document.getElementById("formFile");
+        const fileInputFeedback = document.getElementById("formFeedback");
+        const maxSize = 1 * 1024 * 1024
+
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            fileInput.classList.add("is-invalid");
+            fileInputFeedback.textContent = "Please upload a file before submitting the form.";
+        } else {
+            const file = fileInput.files[0];
+
+            if (file.type !== 'image/png') {
+                e.preventDefault();
+                fileInput.classList.add("is-invalid");
+                fileInputFeedback.textContent = "Only PNG file are allowed";
+            } else if (file.size > maxSize) {
+                e.preventDefault();
+                fileInput.classList.add("is-invalid");
+            fileInputFeedback.textContent = "Maximum limit image size is 1MB";
+            } else {
+                fileInput.classList.remove("is-invalid");
+                fileInputFeedback.textContent = "";
+            }
+        }
+    })
+</script>
+
 <!--   Core JS Files   -->
 <script src="/public/js/core/jquery-3.7.1.min.js"></script>
 <script src="/public/js/core/popper.min.js"></script>
@@ -21,5 +57,6 @@
 
 <!-- Kaiadmin JS -->
 <script src="/public/js/kaiadmin.min.js"></script>
+
 </body>
 </html>

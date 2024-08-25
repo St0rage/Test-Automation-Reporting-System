@@ -1,11 +1,17 @@
 import { injectable } from "inversify";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
 import { prismaClient } from "../application/database";
-import { FileRecordResponse } from "../model/model";
+import { FileRecordRequest, FileRecordResponse } from "../model/model";
 
 @injectable()
 export class FileRecordRepository implements IFileRecord {
   constructor() {}
+
+  async createFileRecord(fileRecord: FileRecordRequest): Promise<void> {
+    await prismaClient.fileRecord.create({
+      data: fileRecord,
+    });
+  }
 
   async findAllFileRecordByScenarioName(
     scenarioName: string,

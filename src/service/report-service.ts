@@ -6,6 +6,7 @@ import { ITestCaseRepository } from "../interface/repository/testcase-repository
 import { IToolRepository } from "../interface/repository/tool-repository-interface";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import {
+  FileRecordRequest,
   ReportDetailInsertRequest,
   ReportDetailRequest,
   ReportInsertRequest,
@@ -16,9 +17,12 @@ import { ReportValidation } from "../validation/report-validation";
 import { AuthUtil } from "../utils/auth-util";
 import { TYPES } from "../di/types";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
-import { IStatusRepository } from "../interface/repository/status-repository-interface";
 import { FileSystem } from "../utils/file-system-util";
 import path from "path";
+import { container } from "../di/inversify.config";
+import { ReportBuilder } from "../application/report-builder";
+import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { ResponseError } from "../error/response-error";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -34,41 +38,44 @@ export class ReportService implements IReportService {
     private reportRepository: IReportRepository,
     @inject(TYPES.IReportDetailRepository)
     private reportDetailRepository: IReportDetailRepository,
-    @inject(TYPES.IStatusRepository) private statusRepository: IStatusRepository
+    @inject(TYPES.IFileRecord) private fileRecordRepository: IFileRecord
   ) {}
 
   public async createReport(reportRequest: ReportRequest): Promise<string> {
-    const rawRequest = Validation.validate(
+    const validatedRequest = Validation.validate(
       ReportValidation.reportSchema,
       reportRequest
     );
 
     // Project
     const project = await this.projectRepository.createOrGetProjectIdAndName(
-      rawRequest.project.toUpperCase()
+      validatedRequest.project.toUpperCase()
     );
 
     // Scenario
     const scenario = await this.scenarioRepository.createOrGetScenarioIdAndName(
-      rawRequest.scenario.toUpperCase(),
+      validatedRequest.scenario.toUpperCase(),
       project.id
     );
 
     // TestCase
     const testCase = await this.testCaseRepository.createOrGetTestCaseIdAndName(
-      rawRequest.test_case.toUpperCase(),
+      validatedRequest.test_case.toUpperCase(),
       scenario.id
     );
 
     // Tool
-    const toolId = await this.toolRepository.createOrGetToolId(rawRequest.tool);
+    const toolId = await this.toolRepository.createOrGetToolId(
+      validatedRequest.tool
+    );
 
     const reportInsertRequest: ReportInsertRequest = {
       project_id: project.id,
       scenario_id: scenario.id,
       test_case_id: testCase.id,
       tool_id: toolId,
-      author: rawRequest.author,
+      activity: validatedRequest.activity,
+      author: validatedRequest.author,
     };
 
     const result = await this.reportRepository.createReport(
@@ -87,17 +94,15 @@ export class ReportService implements IReportService {
       );
     } catch (e: any) {
       const imagePath = process.env.IMAGE_PATH as string;
-      FileSystem.deleteFile(path.join(imagePath, reportDetailRequest.image));
+      await FileSystem.deleteFile(
+        path.join(imagePath, reportDetailRequest.image)
+      );
       throw e;
     }
 
-    const status = await this.statusRepository.getStatusId(
-      reportDetailRequest.result
-    );
-
     const reportDetailInsertRequest: ReportDetailInsertRequest = {
       report_id: reportDetailRequest.report_id,
-      status_id: status.id,
+      status_id: parseInt(reportDetailRequest.result, 10),
       title: reportDetailRequest.title,
       description: reportDetailRequest.description,
       image: reportDetailRequest.image as string,
@@ -108,7 +113,41 @@ export class ReportService implements IReportService {
     );
   }
 
-  public async saveReport(): Promise<void> {
-    // KODE SAVE REPORT
+  public async saveReport(reportId: number): Promise<void> {
+    const report = await this.reportRepository.getReportById(reportId);
+    const reportDetails =
+      await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+
+    if (reportDetails.length < 1) {
+      throw new ResponseError(400, "No Step Data Found");
+    }
+
+    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
+
+    const isReportFailed = reportDetails.some(
+      (value) => value.status.name === "FAILED"
+    );
+
+    const { fileName, date } = await reportBuilder.createReport(
+      report,
+      reportDetails
+    );
+
+    const fileRecordRequest: FileRecordRequest = {
+      scenario_id: report.scenario.id,
+      test_case_id: report.test_case.id,
+      status_id: isReportFailed ? 3 : 2,
+      file_name: fileName,
+      created_time: date,
+    };
+
+    await this.fileRecordRepository.createFileRecord(fileRecordRequest);
+    await this.reportDetailRepository.deleteAllReportDetailByReportId(reportId);
+    await this.reportRepository.deleteReportById(reportId);
+
+    const imagePath = process.env.IMAGE_PATH as string;
+    for (const reportDetail of reportDetails) {
+      await FileSystem.deleteFile(path.join(imagePath, reportDetail.image));
+    }
   }
 }

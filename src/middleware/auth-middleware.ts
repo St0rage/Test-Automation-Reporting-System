@@ -21,7 +21,7 @@ export const authMiddleware = async (
       throw new ResponseError(401, "Unauthorized");
     }
 
-    const decoded = AuthUtil.verifyJwt(token.split(" ")[1]);
+    const decoded = await AuthUtil.verifyJwt(token.split(" ")[1]);
 
     const isReportExist = await reportRepository.checkReportIsExist(decoded.id);
 
