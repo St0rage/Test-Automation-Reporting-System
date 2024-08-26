@@ -17,7 +17,7 @@
                         <form action="/change-report-logo" method="post" enctype="multipart/form-data" id="report-logo-form" class="need-validation" novalidate>
                             <div class="mb-3">
                                 <label for="formFile" class="form-label fw-bolder text-dark">Change Report Logo</label>
-                                <input class="form-control <%= reportLogoError ? "is-invalid" : "" %>" type="file" name="image" id="formFile">
+                                <input class="form-control <%= reportLogoError ? "is-invalid" : "" %>" type="file" name="logo" id="formFile">
                                 <div class="invalid-feedback" id="formFeedback"> 
                                     <%= reportLogoError %>
                                 </div>

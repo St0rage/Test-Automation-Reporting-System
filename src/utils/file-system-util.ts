@@ -1,5 +1,4 @@
 import fs from "fs";
-import { resolve } from "path";
 
 export class FileSystem {
   static createFolder(path: string): Promise<void> {

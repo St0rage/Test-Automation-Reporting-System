@@ -82,7 +82,7 @@
                         const formattedDate = formatEpochTime(fileRecord.created_time)
                     %>
                     <td><%= formattedDate %></td>
-                    <td>
+                    <td class="d-flex">
                       <a href="/report/<%= fileRecord.file_name %>" class="btn btn-primary btn-sm" target="_blank">
                         <div class="d-flex justify-content-center">
                           <li class="fas fa-eye"></li>
@@ -93,11 +93,18 @@
                           <li class="fas fa-cloud-download-alt"></li>
                         </div>
                       </a>
-                      <button class="btn btn-danger btn-sm">
+                      <button type="button" id="delete-report-alert" class="btn btn-danger btn-sm">
                         <div class="d-flex justify-content-center">
                           <li class="fas fa-trash-alt"></li>
                         </div>
                       </button>
+                      <!-- <form action="">
+                        <button type="button" id="delete-report-alert" class="btn btn-danger btn-sm">
+                          <div class="d-flex justify-content-center">
+                            <li class="fas fa-trash-alt"></li>
+                          </div>
+                        </button>
+                      </form> -->
                     </td>
                   </tr>
                 <% }); %>

@@ -4,46 +4,14 @@
 
 <!-- End Custom template -->
 </div>
-<script>
-    const fileInput = document.getElementById("formFile")
-
-    fileInput.addEventListener('change', (e) => {
-        fileInput.classList.remove("is-invalid")
-    })
-
-
-    document.getElementById("report-logo-form").addEventListener("submit", (e) => {
-        const fileInput = document.getElementById("formFile");
-        const fileInputFeedback = document.getElementById("formFeedback");
-        const maxSize = 1 * 1024 * 1024
-
-        if (fileInput.files.length === 0) {
-            e.preventDefault();
-            fileInput.classList.add("is-invalid");
-            fileInputFeedback.textContent = "Please upload a file before submitting the form.";
-        } else {
-            const file = fileInput.files[0];
-
-            if (file.type !== 'image/png') {
-                e.preventDefault();
-                fileInput.classList.add("is-invalid");
-                fileInputFeedback.textContent = "Only PNG file are allowed";
-            } else if (file.size > maxSize) {
-                e.preventDefault();
-                fileInput.classList.add("is-invalid");
-            fileInputFeedback.textContent = "Maximum limit image size is 1MB";
-            } else {
-                fileInput.classList.remove("is-invalid");
-                fileInputFeedback.textContent = "";
-            }
-        }
-    })
-</script>
 
 <!--   Core JS Files   -->
 <script src="/public/js/core/jquery-3.7.1.min.js"></script>
 <script src="/public/js/core/popper.min.js"></script>
 <script src="/public/js/core/bootstrap.min.js"></script>
+
+<!-- Sweet Alert -->
+<script src="/public/js/plugin/sweetalert/sweetalert.min.js"></script>
 
 <!-- jQuery Scrollbar -->
 <script src="/public/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
@@ -52,11 +20,94 @@
 <script src="/public/js/plugin/jsvectormap/jsvectormap.min.js"></script>
 <script src="/public/js/plugin/jsvectormap/world.js"></script>
 
-<!-- Sweet Alert -->
-<script src="/public/js/plugin/sweetalert/sweetalert.min.js"></script>
-
 <!-- Kaiadmin JS -->
 <script src="/public/js/kaiadmin.min.js"></script>
+
+<script>
+    $("#formFile").change((e) => {
+        $('#formFile').removeClass("is-invalid");
+    })
+
+    $("#report-logo-form").submit((e) => {
+        console.log("HAI HAI")
+        const fileInput = $("#formFile")[0];
+        const fileInputFeedback = $("#formFeedback");
+
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            $(fileInput).addClass("is-invalid");
+            fileInputFeedback.text("Please upload a file before submitting the form.")
+        } else {
+            const file = fileInput.files[0]
+
+            if (file.type !== 'image/png') {
+                e.preventDefault();
+                $(fileInput).addClass("is-invalid");
+                fileInputFeedback.text("Only PNG file are allowed");
+            } else if (file.size > maxSize) {
+                e.preventDefault();
+                $(fileInput).addClass("is-invalid");
+                fileInputFeedback.text("Maximum limit image size is 1MB")
+            } else {
+                $(fileInput).removeClass("is-invalid");
+                fileInputFeedback.text("");
+            }
+        }
+    })
+</script>
+
+<script>
+    //== Class definition
+    var SweetAlert2Demo = (function () {
+      var initAlert = function () {
+       
+        $("#delete-report-alert").click(function (e) {
+          swal({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            buttons: {
+              confirm: {
+                text: "Yes, delete it!",    
+                className: "btn btn-success",
+              },
+              cancel: {
+                visible: true,
+                className: "btn btn-danger",
+              },
+            },
+          }).then((Delete) => {
+            if (Delete) {
+              swal({
+                title: "Deleted!",
+                text: "Your file has been deleted.",
+                type: "success",
+                buttons: {
+                  confirm: {
+                    className: "btn btn-success",
+                  },
+                },
+              });
+            } else {
+              swal.close();
+            }
+          });
+        });
+      };
+
+      return {
+        //== Init
+        init: function () {
+          initAlert();
+        },
+      };
+    })();
+
+    //== Class Initialization
+    jQuery(document).ready(function () {
+      SweetAlert2Demo.init();
+    });
+</script>
 
 </body>
 </html>

@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { container } from "../di/inversify.config";
-import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { TYPES } from "../di/types";
-import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 import { ResponseError } from "../error/response-error";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
-import { uploadLogo } from "../application/multer";
+import { IProjectRepository } from "../interface/repository/project-repository-interface";
+import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 
 export const reportPathValidateMiddleware = async (
   req: Request,
@@ -81,30 +80,4 @@ export const downloadMiddleware = async (
   } catch (e) {
     next(e);
   }
-};
-
-export const uploadReportLogo = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  uploadLogo(req, res, (err) => {
-    if (!req.file) {
-      req.flash("error-logo", "Image (PNG) file required");
-      return res.redirect("/settings");
-    }
-
-    if (err) {
-      if (err.message === "Only PNG file are allowed") {
-        req.flash("error-logo", err.message);
-      }
-
-      if (err.code === "LIMIT_FILE_SIZE") {
-        req.flash("error-logo", "Maximum limit image size is 1MB");
-      }
-      return res.redirect("/settings");
-    }
-
-    next();
-  });
 };
