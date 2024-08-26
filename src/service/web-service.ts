@@ -68,7 +68,7 @@ export class WebService implements IWebService {
       "report-logo-temp.png"
     );
 
-    const imageBuffer = await FileSystem.getImageBinary(logoPath);
+    const imageBuffer = await FileSystem.getImageBinary(logoTemp);
     const imageString = `data:image/png;base64,${imageBuffer.toString(
       "base64"
     )}`;
@@ -76,11 +76,11 @@ export class WebService implements IWebService {
     try {
       const tempDoc = new jsPDF();
       tempDoc.addImage(imageString, "PNG", 10, 10, 35, 10);
-      await FileSystem.deleteFile(logoTemp);
-      return "";
-    } catch (e) {
       await FileSystem.deleteFile(logoPath);
       await FileSystem.renameFile(logoTemp, logoPath);
+      return "";
+    } catch (e) {
+      await FileSystem.deleteFile(logoTemp);
       return "Upload failed. Please ensure the image is not compressed.";
     }
   }

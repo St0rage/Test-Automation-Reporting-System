@@ -81,31 +81,3 @@ export const downloadMiddleware = async (
     next(e);
   }
 };
-
-export const uploadReportLogo = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // uploadLogo(req, res, (err) => {
-  //   // if (err) {
-  //   //   if (err.message === "Only PNG file are allowed") {
-  //   //     req.flash("error-logo", err.message);
-  //   //     console.info("REDIRECT");
-  //   //     return res.redirect("/settings");
-  //   //   }
-  //   //   if (err.code === "LIMIT_FILE_SIZE") {
-  //   //     req.flash("error-logo", "Maximum limit image size is 1MB");
-  //   //   }
-  //   // }
-  //   if (err) {
-  //     req.flash("error-logo", err.message);
-  //     return res.redirect("/settings");
-  //   }
-  //   if (!req.file) {
-  //     req.flash("error-logo", "Image (PNG) file required");
-  //     return res.redirect("/settings");
-  //   }
-  //   next();
-  // });
-};

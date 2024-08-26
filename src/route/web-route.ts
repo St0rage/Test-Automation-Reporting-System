@@ -4,8 +4,8 @@ import { container } from "../di/inversify.config";
 import {
   downloadMiddleware,
   reportPathValidateMiddleware,
-  uploadReportLogo,
 } from "../middleware/web-middleware";
+import { reportLogoMiddleware } from "../middleware/form-middleware";
 
 const webController = container.get<WebController>(WebController);
 
@@ -25,6 +25,6 @@ webRoute.get(
 );
 webRoute.post(
   "/change-report-logo",
-  uploadReportLogo,
+  reportLogoMiddleware,
   webController.changeReportLogo.bind(webController)
 );

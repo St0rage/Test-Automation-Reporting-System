@@ -88,7 +88,6 @@ export class WebController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log("MASUK KESINI BOS");
       const reportLogoError = req.flash("error-logo") || "";
       const projects = await this.webService.getAllProjectAndScenario();
 
@@ -118,7 +117,6 @@ export class WebController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log("MASUK CONTROLLER");
       const message = await this.webService.validateReportLogo();
       req.flash("error-logo", message);
       return res.redirect("/settings");

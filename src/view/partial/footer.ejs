@@ -24,36 +24,36 @@
 <script src="/public/js/kaiadmin.min.js"></script>
 
 <script>
-    // $("#formFile").change((e) => {
-    //     $('#formFile').removeClass("is-invalid");
-    // })
+    $("#formFile").change((e) => {
+        $('#formFile').removeClass("is-invalid");
+    })
 
-    // $("#report-logo-form").submit((e) => {
-    //     console.log("HAI HAI")
-    //     const fileInput = $("#formFile")[0];
-    //     const fileInputFeedback = $("#formFeedback");
+    $("#report-logo-form").submit((e) => {
+        console.log("HAI HAI")
+        const fileInput = $("#formFile")[0];
+        const fileInputFeedback = $("#formFeedback");
 
-    //     if (fileInput.files.length === 0) {
-    //         e.preventDefault();
-    //         $(fileInput).addClass("is-invalid");
-    //         fileInputFeedback.text("Please upload a file before submitting the form.")
-    //     } else {
-    //         const file = fileInput.files[0]
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            $(fileInput).addClass("is-invalid");
+            fileInputFeedback.text("Please upload a file before submitting the form.")
+        } else {
+            const file = fileInput.files[0]
 
-    //         if (file.type !== 'image/png') {
-    //             e.preventDefault();
-    //             $(fileInput).addClass("is-invalid");
-    //             fileInputFeedback.text("Only PNG file are allowed");
-    //         } else if (file.size > maxSize) {
-    //             e.preventDefault();
-    //             $(fileInput).addClass("is-invalid");
-    //             fileInputFeedback.text("Maximum limit image size is 1MB")
-    //         } else {
-    //             $(fileInput).removeClass("is-invalid");
-    //             fileInputFeedback.text("");
-    //         }
-    //     }
-    // })
+            if (file.type !== 'image/png') {
+                e.preventDefault();
+                $(fileInput).addClass("is-invalid");
+                fileInputFeedback.text("Only PNG file are allowed");
+            } else if (file.size > maxSize) {
+                e.preventDefault();
+                $(fileInput).addClass("is-invalid");
+                fileInputFeedback.text("Maximum limit image size is 1MB")
+            } else {
+                $(fileInput).removeClass("is-invalid");
+                fileInputFeedback.text("");
+            }
+        }
+    })
 </script>
 
 <script>

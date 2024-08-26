@@ -4,32 +4,34 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../error/response-error";
 import { FileSystem } from "../utils/file-system-util";
+import IncomingForm from "formidable/Formidable";
 
-// export const uploadImage = (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   upload(req, res, (err) => {
-//     if (!req.file) {
-//       return next(new ResponseError(400, "Image file required"));
-//     }
+const createForm = (
+  uploadDir: string,
+  maxFileSize: number,
+  fileType: string[],
+  newFileName: string
+): IncomingForm => {
+  return formidable({
+    uploadDir: uploadDir,
+    keepExtensions: true,
+    maxFileSize: maxFileSize,
+    filter: (file) => {
+      if (!file.mimetype) {
+        return false;
+      }
 
-//     if (err) {
-//       if (err.message === "Only image file are allowed") {
-//         return next(err);
-//       }
+      if (!fileType.includes(file.mimetype)) {
+        return false;
+      }
 
-//       if (err.code === "LIMIT_FILE_SIZE") {
-//         return next(new ResponseError(400, "Maximum limit image size is 2MB"));
-//       }
-
-//       return next(err);
-//     }
-
-//     next();
-//   });
-// };
+      return true;
+    },
+    filename: (name, ext, part, form) => {
+      return newFileName + ext;
+    },
+  });
+};
 
 export const stepDataMiddleware = (
   req: Request,
@@ -40,25 +42,12 @@ export const stepDataMiddleware = (
   const allowedFileTypes = ["image/jpeg", "image/jpg", "image/png"];
   const maxFileSize = 2 * 1024 * 1024;
 
-  const form = formidable({
-    uploadDir: imagePath,
-    keepExtensions: true,
-    maxFileSize: maxFileSize,
-    filter: (file) => {
-      if (!file.mimetype) {
-        return false;
-      }
-
-      if (!allowedFileTypes.includes(file.mimetype)) {
-        return false;
-      }
-
-      return true;
-    },
-    filename: (name, ext, part, form) => {
-      return `${uuidv4().replace(/-/g, "")}${ext}`;
-    },
-  });
+  const form = createForm(
+    imagePath,
+    maxFileSize,
+    allowedFileTypes,
+    `${uuidv4().replace(/-/g, "")}`
+  );
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
@@ -108,36 +97,22 @@ export const reportLogoMiddleware = (
   next: NextFunction
 ) => {
   const logoPath = path.join(__dirname, "..", "public", "img");
-  const allowedFileType = "image/png";
+  const allowedFileType = ["image/png"];
   const maxFileSize = 1 * 1024 * 1024;
 
-  const form = formidable({
-    uploadDir: logoPath,
-    keepExtensions: true,
-    maxFileSize: maxFileSize,
-    filter: (file) => {
-      if (!file.mimetype) {
-        return false;
-      }
-
-      if (allowedFileType !== file.mimetype) {
-        return false;
-      }
-
-      return true;
-    },
-    filename: (name, ext, part, form) => {
-      return `report-logo${ext}`;
-    },
-  });
+  const form = createForm(
+    logoPath,
+    maxFileSize,
+    allowedFileType,
+    "report-logo-temp"
+  );
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
       switch (err.code) {
         case 1009:
-          return next(
-            new ResponseError(400, "Maximum limit image size is 1MB")
-          );
+          req.flash("error-logo", "Maximum limit image size is 1MB");
+          return res.redirect("/settings");
       }
       return next(err);
     }
