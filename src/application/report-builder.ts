@@ -28,18 +28,6 @@ export class ReportBuilder {
     this.y = 35;
   }
 
-  // private async getImageBinary(path: string): Promise<Buffer> {
-  //   return new Promise((resolve, reject) => {
-  //     fs.readFile(path, (err, data) => {
-  //       if (err) {
-  //         reject(err);
-  //       } else {
-  //         resolve(data);
-  //       }
-  //     });
-  //   });
-  // }
-
   private async addPage(
     title: string,
     projectName: string,

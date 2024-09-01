@@ -16,6 +16,8 @@ const reportPath = process.env.REPORT_PATH as string;
 const secretKey = process.env.SECRET_KEY as string;
 
 export const web = express();
+web.use(express.json());
+web.use(express.urlencoded({ extended: true }));
 web.set("view engine", "ejs");
 web.set("views", path.join(__dirname, "..", "view"));
 web.use(
@@ -26,8 +28,6 @@ web.use(
   })
 );
 web.use(flash());
-web.use(express.json());
-web.use(express.urlencoded({ extended: true }));
 web.use("/public", express.static(path.join(__dirname, "..", "public")));
 web.use("/report", express.static(path.join(reportPath)));
 web.use(logRequestMiddleware);

@@ -32,22 +32,29 @@ export class WebController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const projectName = res.locals.projectName;
-      const scenarioName = res.locals.scenarioName;
+      const projectName = res.locals.projectName as string;
+      const scenarioName = res.locals.scenarioName as string;
       const pageString: string = req.query.page as string;
       const pageNumber: number = parseInt(pageString);
+      const testCaseQuery: string = res.locals.testCase as string;
+      const date: string = res.locals.date as string;
 
       const projects = await this.webService.getAllProjectAndScenario();
       const testCases = await this.webService.getAllTestCaseByScenarioName(
-        scenarioName as string
+        scenarioName
       );
       const fileRecords = await this.webService.getAllFileRecordByScenarioName(
-        scenarioName as string,
-        pageNumber
+        scenarioName,
+        pageNumber,
+        testCaseQuery,
+        date
       );
+
       const totalFileRecords =
         await this.webService.getTotalFileRecordByScenarioName(
-          scenarioName as string
+          scenarioName,
+          testCaseQuery,
+          date
         );
 
       res.status(200).render("page/report", {
@@ -60,6 +67,8 @@ export class WebController {
         activeScenario: scenarioName,
         page: pageNumber,
         totalFileRecords: totalFileRecords,
+        dateFilter: date,
+        testCaseQuery: testCaseQuery,
       });
     } catch (e) {
       next(e);
@@ -120,6 +129,23 @@ export class WebController {
       const message = await this.webService.validateReportLogo();
       req.flash("error-logo", message);
       return res.redirect("/settings");
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteFileRecord(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const fileRecordId = res.locals.fileRecordId as number;
+      const { projectName, scenarioName, page } = req.body;
+
+      await this.webService.deleteFileRecordById(fileRecordId);
+
+      return res.redirect(`/${projectName}/${scenarioName}?page=${page}`);
     } catch (e) {
       next(e);
     }

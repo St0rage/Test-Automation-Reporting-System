@@ -9,7 +9,15 @@ export interface IWebService {
   getAllTestCaseByScenarioName(scenarioName: string): Promise<IdAndName[]>;
   getAllFileRecordByScenarioName(
     scenarioName: string,
-    page: number
+    page: number,
+    testCase: string,
+    date: string
   ): Promise<FileRecordResponse[]>;
-  getTotalFileRecordByScenarioName(scenarioName: string): Promise<number>;
+  getTotalFileRecordByScenarioName(
+    scenarioName: string,
+    testCase: string,
+    date: string
+  ): Promise<number>;
+  validateReportLogo(): Promise<string>;
+  deleteFileRecordById(fileRecordId: number): Promise<void>;
 }

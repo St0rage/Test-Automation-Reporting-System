@@ -5,6 +5,7 @@ import { ResponseError } from "../error/response-error";
 import { IFileRecord } from "../interface/repository/file-record-repository-interface";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
+import moment from "moment";
 
 export const reportPathValidateMiddleware = async (
   req: Request,
@@ -48,8 +49,47 @@ export const reportPathValidateMiddleware = async (
       return res.redirect(`/${projectName}/${scenarioName}?page=1`);
     }
 
+    const testCase = req.query.test_case;
+    const date = req.query.date as string;
+
+    if (testCase === "" && date === "") {
+      return res.redirect(`/${projectName}/${scenarioName}?page=1`);
+    }
+
+    if (testCase && date === "") {
+      return res.redirect(
+        `/${projectName}/${scenarioName}?page=1&test_case=${testCase}`
+      );
+    }
+
+    if (date && testCase === "") {
+      const isValidMonth = moment(date, "DD/MM/YYYY", true).isValid();
+
+      if (!isValidMonth) {
+        return res.redirect(`/${projectName}/${scenarioName}?page=1`);
+      }
+
+      return res.redirect(
+        `/${projectName}/${scenarioName}?page=1&date=${encodeURIComponent(
+          date
+        )}`
+      );
+    }
+
+    if (testCase && date) {
+      const isValidMonth = moment(date, "DD/MM/YYYY", true).isValid();
+
+      if (!isValidMonth) {
+        return res.redirect(
+          `/${projectName}/${scenarioName}?page=1&test_case${testCase}`
+        );
+      }
+    }
+
     res.locals.projectName = projectName.toUpperCase();
     res.locals.scenarioName = scenarioName.toUpperCase();
+    res.locals.testCase = testCase;
+    res.locals.date = date;
 
     next();
   } catch (e) {
@@ -75,6 +115,32 @@ export const downloadMiddleware = async (
     }
 
     res.locals.fileName = fileName;
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const deleteFileRecordMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { fileRecordId } = req.params;
+
+    const fileRecordRepository = container.get<IFileRecord>(TYPES.IFileRecord);
+
+    const fileName = await fileRecordRepository.checkFileRecordIsExist(
+      parseInt(fileRecordId)
+    );
+
+    if (!fileName) {
+      throw new ResponseError(404, "Not Found");
+    }
+
+    res.locals.fileRecordId = parseInt(fileRecordId);
 
     next();
   } catch (e) {
