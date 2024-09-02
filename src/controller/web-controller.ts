@@ -141,11 +141,31 @@ export class WebController {
   ): Promise<void> {
     try {
       const fileRecordId = res.locals.fileRecordId as number;
-      const { projectName, scenarioName, page } = req.body;
+      const { projectName, scenarioName, page, test_case, date, length } =
+        req.body;
 
       await this.webService.deleteFileRecordById(fileRecordId);
 
-      return res.redirect(`/${projectName}/${scenarioName}?page=${page}`);
+      console.info(`test_case ${test_case}`);
+      console.info(`date ${date}`);
+      console.info(`length ${length}`);
+
+      let baseUrl = `/${projectName.toLowerCase()}/${scenarioName.toLowerCase()}`;
+
+      if (parseInt(length) === 1) {
+        baseUrl += `?page=${parseInt(page) !== 1 ? parseInt(page) - 1 : page}`;
+      } else {
+        baseUrl += `?page=${page}`;
+      }
+
+      if (test_case) {
+        baseUrl += `&test_case=${test_case}`;
+      }
+
+      if (date) {
+        baseUrl += `&date=${encodeURIComponent(date)}`;
+      }
+      return res.redirect(baseUrl);
     } catch (e) {
       next(e);
     }

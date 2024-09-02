@@ -8,7 +8,6 @@
             class="d-flex justify-content-between align-items-center"
           >
             <div class="card-title"><%= projectName %> - <%= scenarioName %></div>
-            <% if(fileRecords.length != 0) { %>
               <form id="filter-form" action="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>" method="get">
                 <input type="hidden" name="page" value="1">
                 <div class="d-flex align-items-center">
@@ -53,7 +52,6 @@
                   </button>
                 </div>
               </form>
-            <% } %>      
           </div>
         </div>
         <% if(fileRecords.length != 0) { %>
@@ -99,6 +97,13 @@
                         </div>
                       </a>
                       <form action="/delete-file-record/<%= fileRecord.id %>?_method=DELETE" method="post" id="delete-record-form-<%= index %>" enctype="application/x-www-form-urlencoded">
+                        <% if (testCaseQuery) { %>
+                          <input type="hidden" name="test_case" value="<%= testCaseQuery %>">
+                        <% } %>
+                        <% if (dateFilter) { %>
+                          <input type="hidden" name="date" value="<%= dateFilter %>">
+                        <% } %>
+                        <input type="hidden" name="length" value="<%= fileRecords.length %>">
                         <input type="hidden" name="projectName" value="<%= projectName %>">
                         <input type="hidden" name="scenarioName" value="<%= scenarioName %>">
                         <input type="hidden" name="page" value="<%= page %>">
@@ -118,21 +123,67 @@
             >
               <nav aria-label="Page navigation example">
                 <ul class="pagination">
+                  <% let paginationBaseUrl = `/${projectName.toLowerCase()}/${scenarioName.toLowerCase()}` %>
                   <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
-                    <a class="page-link" href="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>?page=<%= page -1 %>">Previous</a>
+                    <% 
+                      let previousBaseUrl =  `${paginationBaseUrl}?page=${ page - 1 }` 
+                    
+                      if (testCaseQuery && !dateFilter) {
+                        previousBaseUrl += `&test_case=${testCaseQuery}`
+                      } 
+
+                      if (dateFilter && !testCaseQuery) {
+                        previousBaseUrl += `&date=${encodeURIComponent(dateFilter)}`
+                      }
+
+                      if (dateFilter && testCaseQuery) {
+                        previousBaseUrl += `&test_case=${testCaseQuery}&date=${encodeURIComponent(dateFilter)}`
+                      }
+                    %>
+                    <a class="page-link" href="<%= previousBaseUrl %>">Previous</a>
                   </li>
                   <% for (let i = 1; i <= Math.ceil(totalFileRecords / 10); i++ ) { %>
                     <li class="page-item  <%= i === page ? 'active' : '' %>">
-                      <a class="page-link" href="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>?page=<%= i %>"><%= i %></a>
+                      <% 
+                        let baseUrl = `${paginationBaseUrl}?page=${i}`
+
+                        if (testCaseQuery && !dateFilter) {
+                          baseUrl += `&test_case=${testCaseQuery}`
+                        } 
+
+                        if (dateFilter && !testCaseQuery) {
+                          baseUrl += `&date=${encodeURIComponent(dateFilter)}`
+                        }
+
+                        if (dateFilter && testCaseQuery) {
+                          baseUrl += `&test_case=${testCaseQuery}&date=${encodeURIComponent(dateFilter)}`
+                        }
+                      %>
+                      <a class="page-link" href="<%= baseUrl %>"><%= i %></a>
                     </li>
                   <% } %>
                   <li class="page-item <%= page === Math.ceil(totalFileRecords / 10) ? 'disabled' : '' %>">
-                    <a class="page-link" href="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>?page=<%= page + 1 %>">Next</a>
+                    <% 
+                      let nextBaseUrl = `${paginationBaseUrl}?page=${page + 1}`
+
+                      if (testCaseQuery && !dateFilter) {
+                        nextBaseUrl += `&test_case=${testCaseQuery}`
+                      } 
+
+                      if (dateFilter && !testCaseQuery) {
+                        nextBaseUrl += `&date=${encodeURIComponent(dateFilter)}`
+                      }
+
+                      if (dateFilter && testCaseQuery) {
+                        nextBaseUrl += `&test_case=${testCaseQuery}&date=${encodeURIComponent(dateFilter)}`
+                      }
+                    %>
+                    <a class="page-link" href="<%= nextBaseUrl %>">Next</a>
                   </li>
                 </ul>
               </nav>
             </div>
-          </div>
+          </div>  
         <% } else { %>
           <div class="card-body text-center">
             <span class="fw-bold">No Report Found</span>

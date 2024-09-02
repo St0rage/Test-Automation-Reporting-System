@@ -81,7 +81,7 @@ export const reportPathValidateMiddleware = async (
 
       if (!isValidMonth) {
         return res.redirect(
-          `/${projectName}/${scenarioName}?page=1&test_case${testCase}`
+          `/${projectName}/${scenarioName}?page=1&test_case=${testCase}`
         );
       }
     }
