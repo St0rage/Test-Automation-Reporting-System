@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import path from "path";
 import { TYPES } from "../di/types";
-import { WebService } from "../service/web-service";
+import { IWebService } from "../interface/service/web-service-interface";
 
 @injectable()
 export class WebController {
-  constructor(@inject(TYPES.IWebService) private webService: WebService) {}
+  constructor(@inject(TYPES.IWebService) private webService: IWebService) {}
 
   async getDashboardData(
     req: Request,
@@ -32,22 +32,32 @@ export class WebController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const projectName = res.locals.projectName;
-      const scenarioName = res.locals.scenarioName;
+      const projectName = res.locals.projectName as string;
+      const scenarioName = res.locals.scenarioName as string;
+      const scenarioId = res.locals.scenarioId as number;
       const pageString: string = req.query.page as string;
       const pageNumber: number = parseInt(pageString);
+      const testCaseQuery: string = res.locals.testCase as string;
+      const date: string = res.locals.date as string;
+      const pageSize: number = 10;
 
       const projects = await this.webService.getAllProjectAndScenario();
-      const testCases = await this.webService.getAllTestCaseByScenarioName(
-        scenarioName as string
+      const testCases = await this.webService.getAllTestCaseByScenarioId(
+        scenarioId
       );
-      const fileRecords = await this.webService.getAllFileRecordByScenarioName(
-        scenarioName as string,
-        pageNumber
+      const fileRecords = await this.webService.getAllFileRecordByScenarioId(
+        scenarioId,
+        pageSize,
+        pageNumber,
+        testCaseQuery,
+        date
       );
+
       const totalFileRecords =
-        await this.webService.getTotalFileRecordByScenarioName(
-          scenarioName as string
+        await this.webService.getTotalFileRecordByScenarioId(
+          scenarioId,
+          testCaseQuery,
+          date
         );
 
       res.status(200).render("page/report", {
@@ -57,9 +67,11 @@ export class WebController {
         projectName: projectName,
         scenarioName: scenarioName,
         activeProject: projectName,
-        activeScenario: scenarioName,
+        activeScenario: scenarioId,
         page: pageNumber,
         totalFileRecords: totalFileRecords,
+        dateFilter: date,
+        testCaseQuery: testCaseQuery,
       });
     } catch (e) {
       next(e);
@@ -120,6 +132,39 @@ export class WebController {
       const message = await this.webService.validateReportLogo();
       req.flash("error-logo", message);
       return res.redirect("/settings");
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteFileRecord(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const fileRecordId = res.locals.fileRecordId as number;
+      const { projectName, scenarioName, page, test_case, date, length } =
+        req.body;
+
+      await this.webService.deleteFileRecordById(fileRecordId);
+
+      let baseUrl = `/${projectName.toLowerCase()}/${scenarioName.toLowerCase()}`;
+
+      if (parseInt(length) === 1) {
+        baseUrl += `?page=${parseInt(page) !== 1 ? parseInt(page) - 1 : page}`;
+      } else {
+        baseUrl += `?page=${page}`;
+      }
+
+      if (test_case) {
+        baseUrl += `&test_case=${test_case}`;
+      }
+
+      if (date) {
+        baseUrl += `&date=${encodeURIComponent(date)}`;
+      }
+      return res.redirect(baseUrl);
     } catch (e) {
       next(e);
     }

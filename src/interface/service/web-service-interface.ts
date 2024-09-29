@@ -6,10 +6,19 @@ import {
 
 export interface IWebService {
   getAllProjectAndScenario(): Promise<ProjectScenarioResponse[]>;
-  getAllTestCaseByScenarioName(scenarioName: string): Promise<IdAndName[]>;
-  getAllFileRecordByScenarioName(
-    scenarioName: string,
-    page: number
+  getAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndName[]>;
+  getAllFileRecordByScenarioId(
+    scenarioId: number,
+    pageSize: number,
+    page: number,
+    testCase: string,
+    date: string
   ): Promise<FileRecordResponse[]>;
-  getTotalFileRecordByScenarioName(scenarioName: string): Promise<number>;
+  getTotalFileRecordByScenarioId(
+    scenarioId: number,
+    testCase: string,
+    date: string
+  ): Promise<number>;
+  validateReportLogo(): Promise<string>;
+  deleteFileRecordById(fileRecordId: number): Promise<void>;
 }

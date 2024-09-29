@@ -25,3 +25,9 @@ apiRoute.post(
   authMiddleware,
   reportController.saveReport.bind(reportController)
 );
+
+apiRoute.post(
+  "/api/save-report-failed",
+  authMiddleware,
+  reportController.saveReportAsFailed.bind(reportController)
+);

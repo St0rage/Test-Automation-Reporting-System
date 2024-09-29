@@ -5,5 +5,12 @@ export interface IScenarioRepository {
     scenarioName: string,
     projectId: number
   ): Promise<IdAndName>;
-  checkScenarioIsExist(scenarioName: string): Promise<Boolean>;
+  checkScenarioIsExist(
+    scenarioName: string,
+    idProject: number
+  ): Promise<Boolean>;
+  getScenarioIdByScenarioNameAndProjectId(
+    scenarioName: string,
+    projectId: number
+  ): Promise<{ id: number } | null>;
 }

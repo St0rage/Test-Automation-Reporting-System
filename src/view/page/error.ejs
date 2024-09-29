@@ -4,4 +4,6 @@
     <span class="fs-1 fw-bold"><%= status %> <%= message %></span>
 </div>
 
-<%- include('../partial/footer') %>
+<% fileRecords = [{}] %>
+
+<%- include('../partial/footer'), {fileRecords} %>

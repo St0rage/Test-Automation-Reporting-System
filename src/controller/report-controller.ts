@@ -67,4 +67,22 @@ export class ReportController {
       next(e);
     }
   }
+
+  public async saveReportAsFailed(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const reportId = res.locals.reportId as number;
+
+      await this.reportService.saveReportAsFailed(reportId);
+      res.setHeader("Content-Type", "application/json");
+      res.status(201).json({
+        data: "OK",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
 }

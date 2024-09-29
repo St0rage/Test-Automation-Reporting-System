@@ -1,10 +1,10 @@
 import { injectable } from "inversify";
-import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { prismaClient } from "../application/database";
 import { FileRecordRequest, FileRecordResponse } from "../model/model";
 
 @injectable()
-export class FileRecordRepository implements IFileRecord {
+export class FileRecordRepository implements IFileRecordRepository {
   constructor() {}
 
   async createFileRecord(fileRecord: FileRecordRequest): Promise<void> {
@@ -13,17 +13,26 @@ export class FileRecordRepository implements IFileRecord {
     });
   }
 
-  async findAllFileRecordByScenarioName(
-    scenarioName: string,
-    page: number
+  async findAllFileRecordByScenarioId(
+    scenarioId: number,
+    pageSize: number,
+    page: number,
+    testCase?: string,
+    startDate?: number,
+    endDate?: number
   ): Promise<FileRecordResponse[]> {
-    const pageSize = 10;
-
     return prismaClient.fileRecord.findMany({
       where: {
         scenario: {
-          name: scenarioName,
+          id: scenarioId,
         },
+        test_case: {
+          name: testCase,
+        },
+        created_time:
+          startDate !== undefined
+            ? { gte: startDate, lte: endDate }
+            : undefined,
       },
       select: {
         id: true,
@@ -46,14 +55,24 @@ export class FileRecordRepository implements IFileRecord {
     });
   }
 
-  async countTotalFileRecordByScenarioName(
-    scenarioName: string
+  async countTotalFileRecordByScenarioId(
+    scenarioId: number,
+    testCase?: string,
+    startDate?: number,
+    endDate?: number
   ): Promise<number> {
     return prismaClient.fileRecord.count({
       where: {
         scenario: {
-          name: scenarioName,
+          id: scenarioId,
         },
+        test_case: {
+          name: testCase,
+        },
+        created_time:
+          startDate !== undefined
+            ? { gte: startDate, lte: endDate }
+            : undefined,
       },
     });
   }
@@ -73,5 +92,18 @@ export class FileRecordRepository implements IFileRecord {
     }
 
     return result;
+  }
+
+  async deleteFileRecordById(id: number): Promise<string> {
+    const result = await prismaClient.fileRecord.delete({
+      where: {
+        id: id,
+      },
+      select: {
+        file_name: true,
+      },
+    });
+
+    return result.file_name;
   }
 }

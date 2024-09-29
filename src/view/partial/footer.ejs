@@ -29,7 +29,6 @@
     })
 
     $("#report-logo-form").submit((e) => {
-        console.log("HAI HAI")
         const fileInput = $("#formFile")[0];
         const fileInputFeedback = $("#formFeedback");
 
@@ -56,58 +55,56 @@
     })
 </script>
 
-<script>
-    //== Class definition
-    var SweetAlert2Demo = (function () {
-      var initAlert = function () {
-       
-        $("#delete-report-alert").click(function (e) {
-          swal({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            buttons: {
-              confirm: {
-                text: "Yes, delete it!",    
-                className: "btn btn-success",
-              },
-              cancel: {
-                visible: true,
-                className: "btn btn-danger",
-              },
-            },
-          }).then((Delete) => {
-            if (Delete) {
+<% if (fileRecords.length != 0) { %>
+  <script>
+      const fileRecordsLength = parseInt("<%= fileRecords.length %>")
+
+      //== Class definition
+      var SweetAlert2Demo = (function () {
+        var initAlert = function () {
+          
+
+          for (let index = 0; index < fileRecordsLength; index++) {
+            $(`#delete-report-alert-${index}`).click(function (e) {
               swal({
-                title: "Deleted!",
-                text: "Your file has been deleted.",
-                type: "success",
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
                 buttons: {
                   confirm: {
+                    text: "Yes, delete it!",    
                     className: "btn btn-success",
                   },
+                  cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                  },
                 },
+              }).then((Delete) => {
+                if (Delete) {
+                  $(`#delete-report-alert-${index}`).parent().submit()
+                } else {
+                  swal.close();
+                }
               });
-            } else {
-              swal.close();
-            }
-          });
-        });
-      };
-
-      return {
-        //== Init
-        init: function () {
-          initAlert();
-        },
-      };
-    })();
-
-    //== Class Initialization
-    jQuery(document).ready(function () {
-      SweetAlert2Demo.init();
-    });
-</script>
+            });
+          }
+        };
+  
+        return {
+          //== Init
+          init: function () {
+            initAlert();
+          },
+        };
+      })();
+  
+      //== Class Initialization
+      jQuery(document).ready(function () {
+        SweetAlert2Demo.init();
+      });
+  </script>
+<% } %>
 
 </body>
 </html>

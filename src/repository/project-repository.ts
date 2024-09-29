@@ -39,6 +39,7 @@ export class ProjectRepository implements IProjectRepository {
         name: true,
         scenarios: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -58,5 +59,18 @@ export class ProjectRepository implements IProjectRepository {
     }
 
     return true;
+  }
+
+  async getProjectIdByProjectName(
+    projectName: string
+  ): Promise<{ id: number } | null> {
+    return prismaClient.project.findFirst({
+      where: {
+        name: projectName,
+      },
+      select: {
+        id: true,
+      },
+    });
   }
 }
