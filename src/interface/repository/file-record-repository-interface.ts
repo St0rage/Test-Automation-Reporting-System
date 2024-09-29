@@ -1,15 +1,16 @@
 import { FileRecordRequest, FileRecordResponse } from "../../model/model";
 
-export interface IFileRecord {
-  findAllFileRecordByScenarioName(
-    scenarioName: string,
+export interface IFileRecordRepository {
+  findAllFileRecordByScenarioId(
+    scenarioId: number,
+    pageSize: number,
     page: number,
     testCase?: string,
     startDate?: number,
     endDate?: number
   ): Promise<FileRecordResponse[]>;
-  countTotalFileRecordByScenarioName(
-    scenarioName: string,
+  countTotalFileRecordByScenarioId(
+    scenarioId: number,
     testCase?: string,
     startDate?: number,
     endDate?: number

@@ -1,8 +1,9 @@
 import { inject, injectable } from "inversify";
 import jsPDF from "jspdf";
+import moment from "moment";
 import path from "path";
 import { TYPES } from "../di/types";
-import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IWebService } from "../interface/service/web-service-interface";
@@ -12,7 +13,6 @@ import {
   ProjectScenarioResponse,
 } from "../model/model";
 import { FileSystem } from "../utils/file-system-util";
-import moment from "moment";
 
 @injectable()
 export class WebService implements IWebService {
@@ -21,21 +21,21 @@ export class WebService implements IWebService {
     private projectRepository: IProjectRepository,
     @inject(TYPES.ITestCaseRepository)
     private testCaseRepository: ITestCaseRepository,
-    @inject(TYPES.IFileRecord) private fileRecordRepository: IFileRecord
+    @inject(TYPES.IFileRecordRepository)
+    private fileRecordRepository: IFileRecordRepository
   ) {}
 
   async getAllProjectAndScenario(): Promise<ProjectScenarioResponse[]> {
     return this.projectRepository.findAllProjectAndScenario();
   }
 
-  async getAllTestCaseByScenarioName(
-    scenarioName: string
-  ): Promise<IdAndName[]> {
-    return this.testCaseRepository.findAllTestCaseByScenarioName(scenarioName);
+  async getAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndName[]> {
+    return this.testCaseRepository.findAllTestCaseByScenarioId(scenarioId);
   }
 
-  async getAllFileRecordByScenarioName(
-    scenarioName: string,
+  async getAllFileRecordByScenarioId(
+    scenarioId: number,
+    pageSize: number,
     page: number,
     testCase: string,
     date: string
@@ -51,8 +51,9 @@ export class WebService implements IWebService {
       endDate = undefined;
     }
 
-    return this.fileRecordRepository.findAllFileRecordByScenarioName(
-      scenarioName,
+    return this.fileRecordRepository.findAllFileRecordByScenarioId(
+      scenarioId,
+      pageSize,
       page,
       testCase !== undefined ? testCase.toUpperCase() : testCase,
       startDate,
@@ -60,8 +61,8 @@ export class WebService implements IWebService {
     );
   }
 
-  async getTotalFileRecordByScenarioName(
-    scenarioName: string,
+  async getTotalFileRecordByScenarioId(
+    scenarioId: number,
     testCase: string,
     date: string
   ): Promise<number> {
@@ -76,8 +77,8 @@ export class WebService implements IWebService {
       endDate = undefined;
     }
 
-    return this.fileRecordRepository.countTotalFileRecordByScenarioName(
-      scenarioName,
+    return this.fileRecordRepository.countTotalFileRecordByScenarioId(
+      scenarioId,
       testCase !== undefined ? testCase.toUpperCase() : testCase,
       startDate,
       endDate

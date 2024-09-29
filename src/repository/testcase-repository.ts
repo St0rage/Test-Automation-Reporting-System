@@ -2,6 +2,7 @@ import { injectable } from "inversify";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IdAndName } from "../model/model";
 import { prismaClient } from "../application/database";
+import { number } from "zod";
 
 @injectable()
 export class TestCaseRepository implements ITestCaseRepository {
@@ -38,14 +39,10 @@ export class TestCaseRepository implements ITestCaseRepository {
     return result;
   }
 
-  async findAllTestCaseByScenarioName(
-    scenarioName: string
-  ): Promise<IdAndName[]> {
+  async findAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndName[]> {
     return prismaClient.testCase.findMany({
       where: {
-        scenario: {
-          name: scenarioName,
-        },
+        scenario_id: scenarioId,
       },
       select: {
         id: true,

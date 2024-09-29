@@ -87,7 +87,7 @@
                 <div class="collapse <%= activeProject === project.name ? 'show' : '' %>" id="<%= project.id %>">
                   <ul class="nav nav-collapse">
                     <% project.scenarios.forEach((scenario) => { %>
-                    <li class="<%= activeScenario === scenario.name ? 'active' : '' %>">
+                    <li class="<%= activeScenario === scenario.id ? 'active' : '' %>">
                       <a
                         href="/<%= project.name.toLowerCase() %>/<%= scenario.name.toLowerCase() %><%= '?page=1' %>"
                       >

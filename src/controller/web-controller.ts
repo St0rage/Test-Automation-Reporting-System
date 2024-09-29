@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import path from "path";
 import { TYPES } from "../di/types";
-import { WebService } from "../service/web-service";
+import { IWebService } from "../interface/service/web-service-interface";
 
 @injectable()
 export class WebController {
-  constructor(@inject(TYPES.IWebService) private webService: WebService) {}
+  constructor(@inject(TYPES.IWebService) private webService: IWebService) {}
 
   async getDashboardData(
     req: Request,
@@ -34,25 +34,28 @@ export class WebController {
     try {
       const projectName = res.locals.projectName as string;
       const scenarioName = res.locals.scenarioName as string;
+      const scenarioId = res.locals.scenarioId as number;
       const pageString: string = req.query.page as string;
       const pageNumber: number = parseInt(pageString);
       const testCaseQuery: string = res.locals.testCase as string;
       const date: string = res.locals.date as string;
+      const pageSize: number = 10;
 
       const projects = await this.webService.getAllProjectAndScenario();
-      const testCases = await this.webService.getAllTestCaseByScenarioName(
-        scenarioName
+      const testCases = await this.webService.getAllTestCaseByScenarioId(
+        scenarioId
       );
-      const fileRecords = await this.webService.getAllFileRecordByScenarioName(
-        scenarioName,
+      const fileRecords = await this.webService.getAllFileRecordByScenarioId(
+        scenarioId,
+        pageSize,
         pageNumber,
         testCaseQuery,
         date
       );
 
       const totalFileRecords =
-        await this.webService.getTotalFileRecordByScenarioName(
-          scenarioName,
+        await this.webService.getTotalFileRecordByScenarioId(
+          scenarioId,
           testCaseQuery,
           date
         );
@@ -64,7 +67,7 @@ export class WebController {
         projectName: projectName,
         scenarioName: scenarioName,
         activeProject: projectName,
-        activeScenario: scenarioName,
+        activeScenario: scenarioId,
         page: pageNumber,
         totalFileRecords: totalFileRecords,
         dateFilter: date,
@@ -145,10 +148,6 @@ export class WebController {
         req.body;
 
       await this.webService.deleteFileRecordById(fileRecordId);
-
-      console.info(`test_case ${test_case}`);
-      console.info(`date ${date}`);
-      console.info(`length ${length}`);
 
       let baseUrl = `/${projectName.toLowerCase()}/${scenarioName.toLowerCase()}`;
 

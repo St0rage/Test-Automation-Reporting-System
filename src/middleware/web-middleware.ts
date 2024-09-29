@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { container } from "../di/inversify.config";
 import { TYPES } from "../di/types";
 import { ResponseError } from "../error/response-error";
-import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 import moment from "moment";
@@ -21,19 +21,30 @@ export const reportPathValidateMiddleware = async (
       TYPES.IScenarioRepository
     );
 
-    const isProjectExist = await projectRepository.checkProjectIsExist(
+    // const isProjectExist = await projectRepository.checkProjectIsExist(
+    //   projectName.toUpperCase()
+    // );
+
+    const projectId = await projectRepository.getProjectIdByProjectName(
       projectName.toUpperCase()
     );
 
-    if (!isProjectExist) {
+    if (!projectId) {
       throw new ResponseError(404, "Not Found");
     }
 
-    const isScenarioExist = await scenarioRepository.checkScenarioIsExist(
-      scenarioName.toUpperCase()
-    );
+    // const isScenarioExist = await scenarioRepository.checkScenarioIsExist(
+    //   scenarioName.toUpperCase(),
+    //   projectId.id
+    // );
 
-    if (!isScenarioExist) {
+    const scenarioId =
+      await scenarioRepository.getScenarioIdByScenarioNameAndProjectId(
+        scenarioName.toUpperCase(),
+        projectId.id
+      );
+
+    if (!scenarioId) {
       throw new ResponseError(404, "Not Found");
     }
 
@@ -90,6 +101,7 @@ export const reportPathValidateMiddleware = async (
     res.locals.scenarioName = scenarioName.toUpperCase();
     res.locals.testCase = testCase;
     res.locals.date = date;
+    res.locals.scenarioId = scenarioId.id;
 
     next();
   } catch (e) {
@@ -104,7 +116,9 @@ export const downloadMiddleware = async (
 ): Promise<void> => {
   try {
     const id = req.params.id;
-    const fileRecordRepository = container.get<IFileRecord>(TYPES.IFileRecord);
+    const fileRecordRepository = container.get<IFileRecordRepository>(
+      TYPES.IFileRecordRepository
+    );
 
     const fileName = await fileRecordRepository.checkFileRecordIsExist(
       parseInt(id)
@@ -130,7 +144,9 @@ export const deleteFileRecordMiddleware = async (
   try {
     const { fileRecordId } = req.params;
 
-    const fileRecordRepository = container.get<IFileRecord>(TYPES.IFileRecord);
+    const fileRecordRepository = container.get<IFileRecordRepository>(
+      TYPES.IFileRecordRepository
+    );
 
     const fileName = await fileRecordRepository.checkFileRecordIsExist(
       parseInt(fileRecordId)

@@ -142,7 +142,31 @@
                     %>
                     <a class="page-link" href="<%= previousBaseUrl %>">Previous</a>
                   </li>
-                  <% for (let i = 1; i <= Math.ceil(totalFileRecords / 10); i++ ) { %>
+                  <% 
+                    let currentPage = 1;
+                    const maxPagesToShow = 10;
+                    const totalPage = Math.ceil(totalFileRecords / 10);
+                    let currentMaxPages = maxPagesToShow;
+                    let endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                    if (page > endPage) {
+                      let pageStrr = 0;
+                      if (page % maxPagesToShow === 0) {
+                        pageStr = (page-1).toString();
+                      } else {
+                        pageStr = page.toString();
+                      }
+                      const firstDigitOfPage = parseInt(pageStr.substring(0, 1), 10);
+                      currentMaxPages = currentMaxPages * firstDigitOfPage
+                      currentPage += currentMaxPages
+                      endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                    }
+                  %>     
+                  <% if (endPage > maxPagesToShow) {%>
+                    <li class="page-item">
+                      <a class="page-link" href="<%= `${paginationBaseUrl}?page=${currentPage - 1}` %>">...</a>
+                    </li>
+                  <% } %>  
+                  <% for (let i = currentPage; i <= endPage; i++ ) { %>
                     <li class="page-item  <%= i === page ? 'active' : '' %>">
                       <% 
                         let baseUrl = `${paginationBaseUrl}?page=${i}`
@@ -160,6 +184,11 @@
                         }
                       %>
                       <a class="page-link" href="<%= baseUrl %>"><%= i %></a>
+                    </li>
+                  <% } %>
+                  <% if (endPage < totalPage) {%>
+                    <li class="page-item">
+                      <a class="page-link" href="<%= `${paginationBaseUrl}?page=${endPage + 1}` %>">...</a>
                     </li>
                   <% } %>
                   <li class="page-item <%= page === Math.ceil(totalFileRecords / 10) ? 'disabled' : '' %>">

@@ -21,7 +21,7 @@ import { FileSystem } from "../utils/file-system-util";
 import path from "path";
 import { container } from "../di/inversify.config";
 import { ReportBuilder } from "../application/report-builder";
-import { IFileRecord } from "../interface/repository/file-record-repository-interface";
+import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { ResponseError } from "../error/response-error";
 
 @injectable()
@@ -38,7 +38,8 @@ export class ReportService implements IReportService {
     private reportRepository: IReportRepository,
     @inject(TYPES.IReportDetailRepository)
     private reportDetailRepository: IReportDetailRepository,
-    @inject(TYPES.IFileRecord) private fileRecordRepository: IFileRecord
+    @inject(TYPES.IFileRecordRepository)
+    private fileRecordRepository: IFileRecordRepository
   ) {}
 
   public async createReport(reportRequest: ReportRequest): Promise<string> {
@@ -122,11 +123,18 @@ export class ReportService implements IReportService {
       throw new ResponseError(400, "No Step Data Found");
     }
 
-    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
-
     const isReportFailed = reportDetails.some(
       (value) => value.status.name === "FAILED"
     );
+
+    if (isReportFailed) {
+      throw new ResponseError(
+        400,
+        "There is step data with failed status, please save the report with save-report-failed"
+      );
+    }
+
+    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
 
     const { fileName, date } = await reportBuilder.createReport(
       report,
@@ -136,7 +144,37 @@ export class ReportService implements IReportService {
     const fileRecordRequest: FileRecordRequest = {
       scenario_id: report.scenario.id,
       test_case_id: report.test_case.id,
-      status_id: isReportFailed ? 3 : 2,
+      status_id: 2,
+      file_name: fileName,
+      created_time: date,
+    };
+
+    await this.fileRecordRepository.createFileRecord(fileRecordRequest);
+    await this.reportDetailRepository.deleteAllReportDetailByReportId(reportId);
+    await this.reportRepository.deleteReportById(reportId);
+
+    const imagePath = process.env.IMAGE_PATH as string;
+    for (const reportDetail of reportDetails) {
+      await FileSystem.deleteFile(path.join(imagePath, reportDetail.image));
+    }
+  }
+
+  async saveReportAsFailed(reportId: number): Promise<void> {
+    const report = await this.reportRepository.getReportById(reportId);
+    const reportDetails =
+      await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+
+    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
+
+    const { fileName, date } = await reportBuilder.createReport(
+      report,
+      reportDetails
+    );
+
+    const fileRecordRequest: FileRecordRequest = {
+      scenario_id: report.scenario.id,
+      test_case_id: report.test_case.id,
+      status_id: 3,
       file_name: fileName,
       created_time: date,
     };
