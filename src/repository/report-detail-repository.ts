@@ -7,7 +7,7 @@ import {
 import { prismaClient } from "../application/database";
 
 @injectable()
-export class ReportDetail implements IReportDetailRepository {
+export class ReportDetailRepository implements IReportDetailRepository {
   constructor() {}
 
   public async createReportDetail(
