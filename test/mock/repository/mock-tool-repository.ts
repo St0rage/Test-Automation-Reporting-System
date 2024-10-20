@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { IToolRepository } from "../../src/interface/repository/tool-repository-interface";
+import { IToolRepository } from "../../../src/interface/repository/tool-repository-interface";
 
 @injectable()
 export class MockToolRepository implements IToolRepository {

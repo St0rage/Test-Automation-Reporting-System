@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { IScenarioRepository } from "../../src/interface/repository/scenario-repository-interface";
-import { IdAndName } from "../../src/model/model";
+import { IScenarioRepository } from "../../../src/interface/repository/scenario-repository-interface";
+import { IdAndName } from "../../../src/model/model";
 
 @injectable()
 export class MockScenarioRepository implements IScenarioRepository {

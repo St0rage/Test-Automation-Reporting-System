@@ -11,13 +11,13 @@ import { IToolRepository } from "../../src/interface/repository/tool-repository-
 import { IReportService } from "../../src/interface/service/report-service-interface";
 import { ReportRequest } from "../../src/model/model";
 import { ReportService } from "../../src/service/report-service";
-import { MockFileRecordRepository } from "../mock/mock-file-record-repository";
-import { MockProjectRepository } from "../mock/mock-project-repository";
-import { MockReportDetailRepository } from "../mock/mock-report-detail-repository";
-import { MockReportRepository } from "../mock/mock-report-repository";
-import { MockScenarioRepository } from "../mock/mock-scenario-repository";
-import { MockTestCaseRepository } from "../mock/mock-test-case-repository";
-import { MockToolRepository } from "../mock/mock-tool-repository";
+import { MockFileRecordRepository } from "../mock/repository/mock-file-record-repository";
+import { MockProjectRepository } from "../mock/repository/mock-project-repository";
+import { MockReportDetailRepository } from "../mock/repository/mock-report-detail-repository";
+import { MockReportRepository } from "../mock/repository/mock-report-repository";
+import { MockScenarioRepository } from "../mock/repository/mock-scenario-repository";
+import { MockTestCaseRepository } from "../mock/repository/mock-test-case-repository";
+import { MockToolRepository } from "../mock/repository/mock-tool-repository";
 
 describe("report-service-create-report-test", () => {
   beforeEach(() => {
@@ -499,131 +499,4 @@ describe("report-service-create-report-test", () => {
 
     await expect(reportService.createReport(reportRequest)).rejects.toThrow();
   });
-
-  // ADD TEST STEP
-  // test("should create test step", async () => {
-  //   const reportService: IReportService =
-  //     container.resolve<IReportService>(ReportService);
-
-  //   const reportDetailInsertRequest: ReportDetailRequest = {
-  //     title: "testing title",
-  //     description: "testing description",
-  //     report_id: 1,
-  //     image: "testing-image.png",
-  //     result: "1",
-  //   };
-
-  //   await reportService.addTestStep(reportDetailInsertRequest);
-  // });
-
-  // test("should throw error when field empty", async () => {
-  //   const mockDeleteFile = jest
-  //     .spyOn(FileSystem, "deleteFile")
-  //     .mockImplementation();
-
-  //   const reportService: IReportService =
-  //     container.resolve<IReportService>(ReportService);
-
-  //   const reportDetailInsertRequest: ReportDetailRequest = {
-  //     title: "",
-  //     description: "",
-  //     report_id: 1,
-  //     image: "",
-  //     result: "",
-  //   };
-
-  //   await expect(
-  //     reportService.addTestStep(reportDetailInsertRequest)
-  //   ).rejects.toThrow();
-  //   expect(mockDeleteFile).toHaveBeenCalled();
-  // });
-
-  // test("should throw error when title empty", async () => {
-  //   const mockDeleteFile = jest
-  //     .spyOn(FileSystem, "deleteFile")
-  //     .mockImplementation();
-
-  //   const reportService: IReportService =
-  //     container.resolve<IReportService>(ReportService);
-
-  //   const reportDetailInsertRequest: ReportDetailRequest = {
-  //     title: "",
-  //     description: "testing description",
-  //     report_id: 1,
-  //     image: "testing-image.png",
-  //     result: "1",
-  //   };
-
-  //   await expect(
-  //     reportService.addTestStep(reportDetailInsertRequest)
-  //   ).rejects.toThrow();
-  //   expect(mockDeleteFile).toHaveBeenCalled();
-  // });
-
-  // test("should throw error when title less than 3 character", async () => {
-  //   const mockDeleteFile = jest
-  //     .spyOn(FileSystem, "deleteFile")
-  //     .mockImplementation();
-
-  //   const reportService: IReportService =
-  //     container.resolve<IReportService>(ReportService);
-
-  //   const reportDetailInsertRequest: ReportDetailRequest = {
-  //     title: "ss",
-  //     description: "testing description",
-  //     report_id: 1,
-  //     image: "testing-image.png",
-  //     result: "1",
-  //   };
-
-  //   await expect(
-  //     reportService.addTestStep(reportDetailInsertRequest)
-  //   ).rejects.toThrow();
-  //   expect(mockDeleteFile).toHaveBeenCalled();
-  // });
-
-  // test("should throw error when title greater than 80 character", async () => {
-  //   const mockDeleteFile = jest
-  //     .spyOn(FileSystem, "deleteFile")
-  //     .mockImplementation();
-
-  //   const reportService: IReportService =
-  //     container.resolve<IReportService>(ReportService);
-
-  //   const reportDetailInsertRequest: ReportDetailRequest = {
-  //     title:
-  //       "Ini Title Untuk Unit Testing Aplikasi Test Automation Reporting System Versi 1.0 Prototype",
-  //     description: "testing description",
-  //     report_id: 1,
-  //     image: "testing-image.png",
-  //     result: "1",
-  //   };
-
-  //   await expect(
-  //     reportService.addTestStep(reportDetailInsertRequest)
-  //   ).rejects.toThrow();
-  //   expect(mockDeleteFile).toHaveBeenCalled();
-  // });
-
-  // test("should throw error when description empty", async () => {
-  //   const mockDeleteFile = jest
-  //     .spyOn(FileSystem, "deleteFile")
-  //     .mockImplementation();
-
-  //   const reportService: IReportService =
-  //     container.resolve<IReportService>(ReportService);
-
-  //   const reportDetailInsertRequest: ReportDetailRequest = {
-  //     title: "testing title",
-  //     description: "",
-  //     report_id: 1,
-  //     image: "testing-image.png",
-  //     result: "1",
-  //   };
-
-  //   await expect(
-  //     reportService.addTestStep(reportDetailInsertRequest)
-  //   ).rejects.toThrow();
-  //   expect(mockDeleteFile).toHaveBeenCalled();
-  // });
 });

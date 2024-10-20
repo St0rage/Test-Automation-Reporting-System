@@ -23,6 +23,7 @@ import { container } from "../di/inversify.config";
 import { ReportBuilder } from "../application/report-builder";
 import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { ResponseError } from "../error/response-error";
+import { IReportBuilder } from "../interface/application/report-builder-interface";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -134,7 +135,7 @@ export class ReportService implements IReportService {
       );
     }
 
-    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
+    const reportBuilder = container.get<IReportBuilder>(TYPES.IReportBuilder);
 
     const { fileName, date } = await reportBuilder.createReport(
       report,
@@ -164,7 +165,7 @@ export class ReportService implements IReportService {
     const reportDetails =
       await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
 
-    const reportBuilder = container.get<ReportBuilder>(ReportBuilder);
+    const reportBuilder = container.get<IReportBuilder>(TYPES.IReportBuilder);
 
     const { fileName, date } = await reportBuilder.createReport(
       report,

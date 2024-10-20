@@ -1,30 +1,31 @@
 import { Container } from "inversify";
-import { ReportService } from "../service/report-service";
-import { ReportController } from "../controller/report-controller";
-import { IReportService } from "../interface/service/report-service-interface";
-import { IReportRepository } from "../interface/repository/report-repository-interface";
-import { ReportRepository } from "../repository/report-repository";
-import { IProjectRepository } from "../interface/repository/project-repository-interface";
-import { ProjectRepository } from "../repository/project-repository";
-import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
-import { ScenarioRepository } from "../repository/scenario-repository";
-import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
-import { TestCaseRepository } from "../repository/testcase-repository";
-import { IToolRepository } from "../interface/repository/tool-repository-interface";
-import { ToolRepository } from "../repository/tool-repository";
-import { TYPES } from "./types";
-import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
-import { ReportDetailRepository } from "../repository/report-detail-repository";
-import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
-import { FileRecordRepository } from "../repository/file-record-repository";
-import { IWebService } from "../interface/service/web-service-interface";
-import { WebService } from "../service/web-service";
-import { WebController } from "../controller/web-controller";
 import { ReportBuilder } from "../application/report-builder";
+import { ReportController } from "../controller/report-controller";
+import { WebController } from "../controller/web-controller";
+import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
+import { IProjectRepository } from "../interface/repository/project-repository-interface";
+import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
+import { IReportRepository } from "../interface/repository/report-repository-interface";
+import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
+import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
+import { IToolRepository } from "../interface/repository/tool-repository-interface";
+import { IReportService } from "../interface/service/report-service-interface";
+import { IWebService } from "../interface/service/web-service-interface";
+import { FileRecordRepository } from "../repository/file-record-repository";
+import { ProjectRepository } from "../repository/project-repository";
+import { ReportDetailRepository } from "../repository/report-detail-repository";
+import { ReportRepository } from "../repository/report-repository";
+import { ScenarioRepository } from "../repository/scenario-repository";
+import { TestCaseRepository } from "../repository/testcase-repository";
+import { ToolRepository } from "../repository/tool-repository";
+import { ReportService } from "../service/report-service";
+import { WebService } from "../service/web-service";
+import { TYPES } from "./types";
+import { IReportBuilder } from "../interface/application/report-builder-interface";
 
 const container = new Container();
 // Application
-container.bind<ReportBuilder>(ReportBuilder).toSelf();
+container.bind<IReportBuilder>(TYPES.IReportBuilder).to(ReportBuilder);
 
 // Repository
 container

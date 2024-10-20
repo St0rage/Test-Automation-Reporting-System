@@ -6,9 +6,10 @@ import path from "path";
 import { ReportDetailResponse, ReportResponse } from "../model/model";
 import { injectable } from "inversify";
 import { FileSystem } from "../utils/file-system-util";
+import { IReportBuilder } from "../interface/application/report-builder-interface";
 
 @injectable()
-export class ReportBuilder {
+export class ReportBuilder implements IReportBuilder {
   private doc: jsPDF;
   private pageWidth: number;
   private pageHeight: number;

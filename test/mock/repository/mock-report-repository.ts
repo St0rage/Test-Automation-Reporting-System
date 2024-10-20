@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { IReportRepository } from "../../src/interface/repository/report-repository-interface";
-import { ReportInsertRequest, ReportResponse } from "../../src/model/model";
+import { IReportRepository } from "../../../src/interface/repository/report-repository-interface";
+import { ReportInsertRequest, ReportResponse } from "../../../src/model/model";
 
 @injectable()
 export class MockReportRepository implements IReportRepository {

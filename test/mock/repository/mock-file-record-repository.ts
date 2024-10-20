@@ -1,6 +1,9 @@
 import { injectable } from "inversify";
-import { IFileRecordRepository } from "../../src/interface/repository/file-record-repository-interface";
-import { FileRecordRequest, FileRecordResponse } from "../../src/model/model";
+import { IFileRecordRepository } from "../../../src/interface/repository/file-record-repository-interface";
+import {
+  FileRecordRequest,
+  FileRecordResponse,
+} from "../../../src/model/model";
 
 @injectable()
 export class MockFileRecordRepository implements IFileRecordRepository {

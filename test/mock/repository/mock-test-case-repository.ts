@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { ITestCaseRepository } from "../../src/interface/repository/testcase-repository-interface";
-import { IdAndName } from "../../src/model/model";
+import { ITestCaseRepository } from "../../../src/interface/repository/testcase-repository-interface";
+import { IdAndName } from "../../../src/model/model";
 
 @injectable()
 export class MockTestCaseRepository implements ITestCaseRepository {

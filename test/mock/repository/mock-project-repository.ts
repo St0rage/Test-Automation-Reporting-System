@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { IProjectRepository } from "../../src/interface/repository/project-repository-interface";
-import { IdAndName, ProjectScenarioResponse } from "../../src/model/model";
+import { IProjectRepository } from "../../../src/interface/repository/project-repository-interface";
+import { IdAndName, ProjectScenarioResponse } from "../../../src/model/model";
 
 @injectable()
 export class MockProjectRepository implements IProjectRepository {
