@@ -17,6 +17,10 @@ export class MockFileRecordRepository implements IFileRecordRepository {
     startDate?: number,
     endDate?: number
   ): Promise<number> {
+    if (startDate === undefined) {
+      return 2;
+    }
+
     return 1;
   }
 
@@ -34,9 +38,21 @@ export class MockFileRecordRepository implements IFileRecordRepository {
     startDate?: number,
     endDate?: number
   ): Promise<FileRecordResponse[]> {
+    if (startDate === undefined) {
+      return [
+        {
+          created_time: 222222,
+          file_name: "asdasdsad",
+          id: 11,
+          status: { name: "FAILED" },
+          test_case: { name: "asdasd" },
+        },
+      ];
+    }
+
     return [
       {
-        created_time: 232323,
+        created_time: 111111,
         file_name: "asdasdsad",
         id: 11,
         status: { name: "FAILED" },

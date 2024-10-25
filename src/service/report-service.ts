@@ -1,10 +1,17 @@
 import { inject, injectable } from "inversify";
-import { IReportService } from "../interface/service/report-service-interface";
+import path from "path";
+import { container } from "../di/inversify.config";
+import { TYPES } from "../di/types";
+import { ResponseError } from "../error/response-error";
+import { IReportBuilder } from "../interface/application/report-builder-interface";
+import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
+import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
+import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IToolRepository } from "../interface/repository/tool-repository-interface";
-import { IReportRepository } from "../interface/repository/report-repository-interface";
+import { IReportService } from "../interface/service/report-service-interface";
 import {
   FileRecordRequest,
   ReportDetailInsertRequest,
@@ -12,18 +19,10 @@ import {
   ReportInsertRequest,
   ReportRequest,
 } from "../model/model";
-import { Validation } from "../validation/validation";
-import { ReportValidation } from "../validation/report-validation";
 import { AuthUtil } from "../utils/auth-util";
-import { TYPES } from "../di/types";
-import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import { FileSystem } from "../utils/file-system-util";
-import path from "path";
-import { container } from "../di/inversify.config";
-import { ReportBuilder } from "../application/report-builder";
-import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
-import { ResponseError } from "../error/response-error";
-import { IReportBuilder } from "../interface/application/report-builder-interface";
+import { ReportValidation } from "../validation/report-validation";
+import { Validation } from "../validation/validation";
 
 @injectable()
 export class ReportService implements IReportService {
