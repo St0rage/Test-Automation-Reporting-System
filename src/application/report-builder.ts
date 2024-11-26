@@ -1,12 +1,11 @@
 import fs from "fs";
+import { injectable } from "inversify";
 import jsPDF from "jspdf";
 import autoTable, { CellHookData } from "jspdf-autotable";
 import moment from "moment";
 import path from "path";
-import { ReportDetailResponse, ReportResponse } from "../model/model";
-import { injectable } from "inversify";
-import { FileSystem } from "../utils/file-system-util";
 import { IReportBuilder } from "../interface/application/report-builder-interface";
+import { ReportDetailResponse, ReportResponse } from "../model/model";
 
 @injectable()
 export class ReportBuilder implements IReportBuilder {
@@ -21,6 +20,7 @@ export class ReportBuilder implements IReportBuilder {
       orientation: "portrait",
       unit: "mm",
       format: [210, 297],
+      compress: true,
     });
 
     this.pageWidth = this.doc.internal.pageSize.width;
@@ -143,12 +143,11 @@ export class ReportBuilder implements IReportBuilder {
     const testCaseIdFontSize: number = 12;
     const imageWidth: number = 35;
     const imageHeight: number = 10;
-    const imageBuffer: Buffer = await FileSystem.getImageBinary(
-      path.join(__dirname, "..", "public", "img", "report-logo.png")
+    const image = new Uint8Array(
+      await fs.promises.readFile(
+        path.join(__dirname, "..", "public", "img", "report-logo.png")
+      )
     );
-    const image: string = `data:image/png;base64,${imageBuffer.toString(
-      "base64"
-    )}`;
 
     // Set Image
     this.doc.addImage(
@@ -157,7 +156,9 @@ export class ReportBuilder implements IReportBuilder {
       this.pageWidth - this.x - imageWidth,
       this.y,
       imageWidth,
-      imageHeight
+      imageHeight,
+      "",
+      "FAST"
     );
 
     // Set Title
@@ -623,10 +624,9 @@ export class ReportBuilder implements IReportBuilder {
       );
 
       // Set Image
-      imageBuffer = await FileSystem.getImageBinary(
-        path.join(imagePath, value.image)
+      const image = new Uint8Array(
+        await fs.promises.readFile(path.join(imagePath, value.image))
       );
-      image = `data:image/png;base64,${imageBuffer.toString("base64")}`;
 
       currentImagePosition = currentTitlePosition + imagePadding;
       this.doc.addImage(
@@ -635,7 +635,9 @@ export class ReportBuilder implements IReportBuilder {
         this.x,
         currentImagePosition,
         imageWidth,
-        imageHeight
+        imageHeight,
+        "",
+        "FAST"
       );
       this.doc.addImage(
         image,
@@ -643,7 +645,9 @@ export class ReportBuilder implements IReportBuilder {
         this.x,
         currentImagePosition,
         imageWidth,
-        imageHeight
+        imageHeight,
+        "",
+        "FAST"
       );
 
       // Set Description

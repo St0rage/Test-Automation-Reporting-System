@@ -19,8 +19,9 @@ export const stepDataMiddleware = (
   }
 
   const uploadPath = process.env.IMAGE_PATH as string;
+  const imageLimit = parseInt(process.env.IMAGE_LIMIT as string);
   const allowedFileTypes = ["image/jpeg", "image/jpg", "image/png"];
-  const maxFileSize = 2 * 1024 * 1024;
+  const maxFileSize = imageLimit * 1024 * 1024;
 
   const bb = busboy({
     headers: req.headers,
@@ -59,7 +60,7 @@ export const stepDataMiddleware = (
         file.pipe(fs.createWriteStream(saveTo));
 
         file.on("limit", async () => {
-          await FileSystem.deleteFile(saveTo);
+          // await FileSystem.deleteFile(saveTo);
           isImageFileSizeExceeded = true;
         });
       } else {
@@ -78,13 +79,16 @@ export const stepDataMiddleware = (
     isErrorOccured = true;
   });
 
-  bb.on("finish", () => {
+  bb.on("finish", async () => {
     if (isImageNotUploaded || isImageNotValid || isImageNotExist) {
       return next(new ResponseError(400, "image Required"));
     }
 
     if (isImageFileSizeExceeded) {
-      return next(new ResponseError(400, "Maximum limit image size is 2MB"));
+      await FileSystem.deleteFile(path.join(uploadPath, newFileName));
+      return next(
+        new ResponseError(400, `Maximum limit image size is ${imageLimit}MB`)
+      );
     }
 
     res.locals.reportDetails = formFields;
