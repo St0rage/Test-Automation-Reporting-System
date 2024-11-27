@@ -2,10 +2,11 @@ import busboy from "busboy";
 import { NextFunction, Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-import internal from "stream";
+import internal, { pipeline } from "stream";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../error/response-error";
 import { FileSystem } from "../utils/file-system-util";
+import sharp from "sharp";
 
 export const stepDataMiddleware = (
   req: Request,
@@ -51,17 +52,23 @@ export const stepDataMiddleware = (
 
         isImageNotExist = false;
 
-        const generatedFileName = `${uuidv4().replace(/-/g, "")}.${
-          info.mimeType.split("/")[1]
-        }`;
+        const generatedFileName = `${uuidv4().replace(/-/g, "")}.jpg`;
         newFileName = generatedFileName;
         const saveTo = path.join(uploadPath, generatedFileName);
 
-        file.pipe(fs.createWriteStream(saveTo));
+        const sharpStream = sharp().jpeg({ quality: 75 });
+        const writeStream = fs.createWriteStream(saveTo);
 
-        file.on("limit", async () => {
-          // await FileSystem.deleteFile(saveTo);
+        // file.pipe(sharpStream).pipe(writeStream);
+
+        file.on("limit", () => {
           isImageFileSizeExceeded = true;
+        });
+
+        pipeline(file, sharpStream, writeStream, (err) => {
+          if (err) {
+            return;
+          }
         });
       } else {
         file.resume();
@@ -138,7 +145,10 @@ export const reportLogoMiddleware = (
       }
 
       const saveTo = path.join(logoPath, fileName);
-      file.pipe(fs.createWriteStream(saveTo));
+      // file.pipe(fs.createWriteStream(saveTo));
+      file
+        .pipe(sharp().png({ compressionLevel: 9 }))
+        .pipe(fs.createWriteStream(saveTo));
 
       file.on("limit", async () => {
         await FileSystem.deleteFile(saveTo);
