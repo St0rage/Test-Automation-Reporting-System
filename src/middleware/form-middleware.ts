@@ -2,114 +2,82 @@ import busboy from "busboy";
 import { NextFunction, Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-import internal, { pipeline } from "stream";
+import sharp from "sharp";
+import internal, { Transform } from "stream";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../error/response-error";
 import { FileSystem } from "../utils/file-system-util";
-import sharp from "sharp";
 
-export const stepDataMiddleware = (
+export const imageMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const contentType = req.headers["content-type"];
-
-  if (!contentType?.startsWith("multipart/form-data; boundary=")) {
-    return next(new ResponseError(400, "multipart/form-data required"));
-  }
-
   const uploadPath = process.env.IMAGE_PATH as string;
   const imageLimit = parseInt(process.env.IMAGE_LIMIT as string);
-  const allowedFileTypes = ["image/jpeg", "image/jpg", "image/png"];
+  const fileSignatures: Record<string, string> = {
+    "image/jpeg": "ffd8ff",
+    "image/png": "89504e47",
+  };
   const maxFileSize = imageLimit * 1024 * 1024;
+  let receivedSize = 0;
+  let fileHeader: Buffer | null = null;
 
-  const bb = busboy({
-    headers: req.headers,
-    limits: { files: 1, fileSize: maxFileSize },
-  });
-  const formFields: Record<string, string> = {};
-  let newFileName = "";
-  let isImageNotExist = true;
-  let isImageNotUploaded = false;
-  let isImageNotValid = false;
-  let isImageFileSizeExceeded = false;
-  let isErrorOccured = false;
-
-  bb.on(
-    "file",
-    (
-      fieldName: string,
-      file: internal.Readable & { truncated?: boolean },
-      info: busboy.FileInfo
-    ) => {
-      if (fieldName === "image") {
-        if (!allowedFileTypes.includes(info.mimeType)) {
-          isImageNotValid = true;
-          file.resume();
-          return;
-        }
-
-        isImageNotExist = false;
-
-        const generatedFileName = `${uuidv4().replace(/-/g, "")}.jpg`;
-        newFileName = generatedFileName;
-        const saveTo = path.join(uploadPath, generatedFileName);
-
-        const sharpStream = sharp().jpeg({ quality: 75 });
-        const writeStream = fs.createWriteStream(saveTo);
-
-        // file.pipe(sharpStream).pipe(writeStream);
-
-        file.on("limit", () => {
-          isImageFileSizeExceeded = true;
-        });
-
-        pipeline(file, sharpStream, writeStream, (err) => {
-          if (err) {
-            return;
-          }
-        });
-      } else {
-        file.resume();
-        isImageNotUploaded = true;
+  const dataStream = new Transform({
+    transform(chunk, encoding, callback) {
+      receivedSize += chunk.length;
+      if (receivedSize > maxFileSize) {
+        return callback(
+          new ResponseError(400, `Maximum limit image size is ${imageLimit}MB`)
+        );
       }
-    }
-  );
 
-  bb.on("field", (name: string, value: string) => {
-    formFields[name] = value;
+      if (!fileHeader) {
+        fileHeader = chunk.slice(0, 4);
+        const fileHex = fileHeader?.toString("hex");
+
+        const validType = Object.entries(fileSignatures).find(
+          ([_, signature]) => fileHex?.startsWith(signature)
+        );
+
+        if (!validType) {
+          return callback(new ResponseError(400, "Invalid Image Format"));
+        }
+      }
+
+      callback(null, chunk);
+    },
   });
 
-  bb.on("error", (e) => {
-    req.unpipe();
-    isErrorOccured = true;
+  const generatedFileName = `${uuidv4().replace(/-/g, "")}.jpg`;
+  const saveTo = path.join(uploadPath, generatedFileName);
+
+  const sharpStream = sharp().jpeg({ quality: 55 });
+  const writeStream = fs.createWriteStream(saveTo);
+
+  req.pipe(dataStream).pipe(sharpStream).pipe(writeStream);
+
+  dataStream.on("error", async (err) => {
+    await FileSystem.deleteFile(path.join(uploadPath, generatedFileName));
+    dataStream.destroy();
+    sharpStream.destroy();
+    writeStream.destroy();
+    return next(err);
   });
 
-  bb.on("finish", async () => {
-    if (isImageNotUploaded || isImageNotValid || isImageNotExist) {
-      return next(new ResponseError(400, "image Required"));
+  sharpStream.on("error", () => {
+    return;
+  });
+
+  writeStream.on("finish", async () => {
+    if (receivedSize === 0) {
+      await FileSystem.deleteFile(path.join(uploadPath, generatedFileName));
+      return next(new ResponseError(400, "Image Required"));
     }
 
-    if (isImageFileSizeExceeded) {
-      await FileSystem.deleteFile(path.join(uploadPath, newFileName));
-      return next(
-        new ResponseError(400, `Maximum limit image size is ${imageLimit}MB`)
-      );
-    }
-
-    res.locals.reportDetails = formFields;
-    res.locals.stepDataImageFileName = newFileName;
+    res.locals.stepDataImageFileName = generatedFileName;
     next();
   });
-
-  bb.on("close", () => {
-    if (isErrorOccured) {
-      return next(new ResponseError(400, "multipart/form-data required"));
-    }
-  });
-
-  req.pipe(bb);
 };
 
 export const reportLogoMiddleware = (

@@ -14,6 +14,7 @@ import { IToolRepository } from "../interface/repository/tool-repository-interfa
 import { IReportService } from "../interface/service/report-service-interface";
 import {
   FileRecordRequest,
+  ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailRequest,
   ReportInsertRequest,
@@ -85,31 +86,43 @@ export class ReportService implements IReportService {
     return AuthUtil.signJwt(result);
   }
 
+  public async addTestImage(
+    imageDetail: ImageDetailRequest
+  ): Promise<{ id: number }> {
+    return this.reportDetailRepository.createImageDetail(imageDetail);
+  }
+
   public async addTestStep(
     reportDetailRequest: ReportDetailRequest
   ): Promise<void> {
-    try {
-      Validation.validate(
-        ReportValidation.reportDetailSchema,
-        reportDetailRequest
+    const reportDetail =
+      await this.reportDetailRepository.checkReportDetailIsExist(
+        reportDetailRequest.report_id,
+        reportDetailRequest.detail_id
       );
-    } catch (e: any) {
-      const imagePath = process.env.IMAGE_PATH as string;
-      await FileSystem.deleteFile(
-        path.join(imagePath, reportDetailRequest.image)
-      );
-      throw e;
+
+    if (!reportDetail) {
+      throw new ResponseError(400, "detail_id Not Found");
+    }
+
+    Validation.validate(
+      ReportValidation.reportDetailSchema,
+      reportDetailRequest
+    );
+
+    if (reportDetail.title && reportDetail.description && reportDetail.status) {
+      throw new ResponseError(400, "Test Step is Already Inserted");
     }
 
     const reportDetailInsertRequest: ReportDetailInsertRequest = {
       report_id: reportDetailRequest.report_id,
-      status_id: parseInt(reportDetailRequest.result, 10),
+      detail_id: reportDetailRequest.detail_id,
+      status_id: reportDetailRequest.status,
       title: reportDetailRequest.title,
       description: reportDetailRequest.description,
-      image: reportDetailRequest.image as string,
     };
 
-    await this.reportDetailRepository.createReportDetail(
+    await this.reportDetailRepository.updateReportDetail(
       reportDetailInsertRequest
     );
   }
@@ -123,9 +136,20 @@ export class ReportService implements IReportService {
       throw new ResponseError(400, "No Step Data Found");
     }
 
-    const isReportFailed = reportDetails.some(
-      (value) => value.status.name === "FAILED"
+    const isReportHasNullValue = reportDetails.some(
+      (value) =>
+        value.title === null ||
+        value.description === null ||
+        value.status === null
     );
+
+    const isReportFailed = reportDetails.some(
+      (value) => value.status?.name === "FAILED"
+    );
+
+    if (isReportHasNullValue) {
+      throw new ResponseError(400, "There is step data with empty detail");
+    }
 
     if (isReportFailed) {
       throw new ResponseError(
@@ -163,6 +187,17 @@ export class ReportService implements IReportService {
     const report = await this.reportRepository.getReportById(reportId);
     const reportDetails =
       await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+
+    const isReportHasNullValue = reportDetails.some(
+      (value) =>
+        value.title === null ||
+        value.description === null ||
+        value.status === null
+    );
+
+    if (isReportHasNullValue) {
+      throw new ResponseError(400, "There is step data with empty detail");
+    }
 
     const reportBuilder = container.get<IReportBuilder>(TYPES.IReportBuilder);
 

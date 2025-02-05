@@ -21,20 +21,25 @@ export type IdAndName = {
   name: string;
 };
 
+export type ImageDetailRequest = {
+  report_id: number;
+  image: string;
+};
+
 export type ReportDetailRequest = {
   report_id: number;
+  detail_id: number;
   title: string;
   description: string;
-  result: string;
-  image: string;
+  status: number;
 };
 
 export type ReportDetailInsertRequest = {
   report_id: number;
+  detail_id: number;
   status_id: number;
   title: string;
   description: string;
-  image: string;
 };
 
 export type FileRecordResponse = {
@@ -77,12 +82,12 @@ export type ReportResponse = {
 };
 
 export type ReportDetailResponse = {
-  title: string;
-  description: string;
+  title: string | null;
+  description: string | null;
   image: string;
   status: {
     name: string;
-  };
+  } | null;
 };
 
 export type FileRecordRequest = {

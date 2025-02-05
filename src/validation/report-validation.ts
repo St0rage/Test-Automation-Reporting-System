@@ -11,13 +11,11 @@ export class ReportValidation {
   });
 
   static readonly reportDetailSchema: ZodType = z.object({
+    detail_id: z.number().positive(),
     title: z.string().min(3).max(80),
     description: z.string().min(3).max(400),
-    result: z
-      .string()
-      .refine((val) => parseInt(val, 10) >= 1 && parseInt(val, 10) <= 3, {
-        message:
-          "String number must be between 1 = 'DONE', 2 = 'PASSED', 3 = 'FAILED'",
-      }),
+    status: z.number().refine((val) => val >= 1 && val <= 3, {
+      message: "Status Must be Between 1 = 'DONE', 2 = 'PASSED', 3 = 'FAILED'",
+    }),
   });
 }

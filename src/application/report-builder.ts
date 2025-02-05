@@ -602,10 +602,12 @@ export class ReportBuilder implements IReportBuilder {
     for (const value of stepData) {
       // Set Title
       this.doc.setFont("Times", "bold");
-      if (value.status.name === "FAILED") {
+      if (value.status?.name === "FAILED") {
         this.doc.setTextColor(247, 59, 59);
       } else {
-        this.doc.setTextColor(value.status.name === "DONE" ? "black" : "green");
+        this.doc.setTextColor(
+          value.status?.name === "DONE" ? "black" : "green"
+        );
       }
 
       if (index % 2 === 0) {
@@ -657,7 +659,7 @@ export class ReportBuilder implements IReportBuilder {
       currentDescriptionPosition =
         currentImagePosition + imageHeight + descriptionPadding;
       [newDescription, descriptionHeight] = getDescriptionTotalHeight(
-        value.description
+        value.description as string
       );
       this.doc.text(newDescription, this.x, currentDescriptionPosition);
 
@@ -706,20 +708,20 @@ export class ReportBuilder implements IReportBuilder {
       tableOfContentTotalPage +
       documentSummaryTotalPage;
     const totalDoneStatus: number = stepData.filter(
-      (value) => value.status.name === "DONE"
+      (value) => value.status?.name === "DONE"
     ).length;
     const totalPassedStatus: number = stepData.filter(
-      (value) => value.status.name === "PASSED"
+      (value) => value.status?.name === "PASSED"
     ).length;
     const totalFailedStatus: number = stepData.filter(
-      (value) => value.status.name === "FAILED"
+      (value) => value.status?.name === "FAILED"
     ).length;
     let newStepData: {}[] = [];
 
     stepData.forEach((value) => {
       newStepData.push({
         title: value.title,
-        status: value.status.name,
+        status: value.status?.name,
       });
     });
 

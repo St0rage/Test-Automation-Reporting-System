@@ -1,8 +1,7 @@
 import { injectable } from "inversify";
+import { prismaClient } from "../application/database";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { ReportInsertRequest, ReportResponse } from "../model/model";
-import { prismaClient } from "../application/database";
-import { number } from "zod";
 
 @injectable()
 export class ReportRepository implements IReportRepository {
