@@ -20,7 +20,6 @@ import { MockReportRepository } from "../mock/repository/mock-report-repository"
 import { MockScenarioRepository } from "../mock/repository/mock-scenario-repository";
 import { MockTestCaseRepository } from "../mock/repository/mock-test-case-repository";
 import { MockToolRepository } from "../mock/repository/mock-tool-repository";
-import { ResponseError } from "../../src/error/response-error";
 
 describe("report-service-save-report-as-failed-test", () => {
   let mockDeleteFile: jest.SpyInstance;

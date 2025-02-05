@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { IReportDetailRepository } from "../../../src/interface/repository/report-detail-repository-interface";
 import {
+  ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailResponse,
 } from "../../../src/model/model";
@@ -39,5 +40,22 @@ export class MockReportDetailRepository implements IReportDetailRepository {
     }
 
     return [];
+  }
+
+  async updateReportDetail(
+    reportDetail: ReportDetailInsertRequest
+  ): Promise<void> {}
+
+  async checkReportDetailIsExist(
+    report_id: number,
+    detail_id: number
+  ): Promise<ReportDetailResponse | null> {
+    return null;
+  }
+
+  async createImageDetail(
+    imageDetail: ImageDetailRequest
+  ): Promise<{ id: number }> {
+    return { id: 1 };
   }
 }
