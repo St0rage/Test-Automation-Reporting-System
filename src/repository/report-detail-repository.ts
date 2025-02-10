@@ -11,14 +11,6 @@ import {
 export class ReportDetailRepository implements IReportDetailRepository {
   constructor() {}
 
-  // public async createReportDetail(
-  //   reportDetail: ReportDetailInsertRequest
-  // ): Promise<void> {
-  //   await prismaClient.reportDetail.create({
-  //     data: reportDetail,
-  //   });
-  // }
-
   public async createImageDetail(
     imageDetail: ImageDetailRequest
   ): Promise<{ id: number }> {

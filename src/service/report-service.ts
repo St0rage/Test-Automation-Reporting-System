@@ -95,6 +95,11 @@ export class ReportService implements IReportService {
   public async addTestStep(
     reportDetailRequest: ReportDetailRequest
   ): Promise<void> {
+    Validation.validate(
+      ReportValidation.reportDetailSchema,
+      reportDetailRequest
+    );
+
     const reportDetail =
       await this.reportDetailRepository.checkReportDetailIsExist(
         reportDetailRequest.report_id,
@@ -104,11 +109,6 @@ export class ReportService implements IReportService {
     if (!reportDetail) {
       throw new ResponseError(400, "detail_id Not Found");
     }
-
-    Validation.validate(
-      ReportValidation.reportDetailSchema,
-      reportDetailRequest
-    );
 
     if (reportDetail.title && reportDetail.description && reportDetail.status) {
       throw new ResponseError(400, "Test Step is Already Inserted");
