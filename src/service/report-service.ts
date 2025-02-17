@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { id, inject, injectable } from "inversify";
 import path from "path";
 import { container } from "../di/inversify.config";
 import { TYPES } from "../di/types";
@@ -17,6 +17,7 @@ import {
   ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailRequest,
+  ReportDetailResponse,
   ReportInsertRequest,
   ReportRequest,
 } from "../model/model";
@@ -89,6 +90,21 @@ export class ReportService implements IReportService {
   public async addTestImage(
     imageDetail: ImageDetailRequest
   ): Promise<{ id: number }> {
+    const reportDetail =
+      await this.reportDetailRepository.checkLastReportDetail(
+        imageDetail.report_id
+      );
+
+    if (
+      reportDetail &&
+      (!reportDetail.title || !reportDetail.description || !reportDetail.status)
+    ) {
+      throw new ResponseError(
+        400,
+        `There is a step with an empty detail, with detail_id: ${reportDetail.id}`
+      );
+    }
+
     return this.reportDetailRepository.createImageDetail(imageDetail);
   }
 

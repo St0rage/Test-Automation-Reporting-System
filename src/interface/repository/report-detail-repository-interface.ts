@@ -2,14 +2,18 @@ import {
   ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailResponse,
+  ReportDetailResponseWithId,
 } from "../../model/model";
 
 export interface IReportDetailRepository {
   createImageDetail(imageDetail: ImageDetailRequest): Promise<{ id: number }>;
+  checkLastReportDetail(
+    reportId: number
+  ): Promise<ReportDetailResponseWithId | null>;
   updateReportDetail(reportDetail: ReportDetailInsertRequest): Promise<void>;
   checkReportDetailIsExist(
-    report_id: number,
-    detail_id: number
+    reportId: number,
+    detailId: number
   ): Promise<ReportDetailResponse | null>;
   findAllReportDetailByReportId(
     reportId: number

@@ -8,7 +8,6 @@ dotenv.config();
 
 const imagePath = process.env.IMAGE_PATH;
 if (!imagePath) {
-  console.log("KESINI GA SIH");
   throw Error("IMAGE_PATH not found in ENV");
 }
 const reportPath = process.env.REPORT_PATH;

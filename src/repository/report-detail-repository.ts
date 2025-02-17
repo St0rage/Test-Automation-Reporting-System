@@ -5,6 +5,7 @@ import {
   ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailResponse,
+  ReportDetailResponseWithId,
 } from "../model/model";
 
 @injectable()
@@ -22,6 +23,28 @@ export class ReportDetailRepository implements IReportDetailRepository {
     });
 
     return { id: result.id };
+  }
+
+  public async checkLastReportDetail(
+    reportId: number
+  ): Promise<ReportDetailResponseWithId | null> {
+    return prismaClient.reportDetail.findFirst({
+      orderBy: { id: "desc" },
+      where: {
+        report_id: reportId,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        image: true,
+        status: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
   }
 
   public async updateReportDetail(
@@ -43,13 +66,13 @@ export class ReportDetailRepository implements IReportDetailRepository {
   }
 
   public async checkReportDetailIsExist(
-    report_id: number,
-    detail_id: number
+    reportId: number,
+    detailId: number
   ): Promise<ReportDetailResponse | null> {
     return prismaClient.reportDetail.findFirst({
       where: {
-        report_id: report_id,
-        id: detail_id,
+        report_id: reportId,
+        id: detailId,
       },
       select: {
         title: true,

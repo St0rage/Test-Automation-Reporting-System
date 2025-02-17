@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { logger } from "../application/logger";
 import { ResponseError } from "../error/response-error";
+import { destroySessionQueue } from "../application/queue";
 
 export const errorMiddleware = (
   error: Error,
@@ -9,6 +10,7 @@ export const errorMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  const token = res.locals.token as string;
   if (error instanceof ZodError) {
     logger.warn({
       message: "Invalid Request",
@@ -65,4 +67,5 @@ export const errorMiddleware = (
       res.end();
     }
   }
+  destroySessionQueue(token);
 };

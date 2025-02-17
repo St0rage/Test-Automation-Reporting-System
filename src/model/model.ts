@@ -90,6 +90,16 @@ export type ReportDetailResponse = {
   } | null;
 };
 
+export type ReportDetailResponseWithId = {
+  id: number;
+  title: string | null;
+  description: string | null;
+  image: string;
+  status: {
+    name: string;
+  } | null;
+};
+
 export type FileRecordRequest = {
   scenario_id: number;
   test_case_id: number;

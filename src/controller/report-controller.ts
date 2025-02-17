@@ -7,6 +7,7 @@ import {
   ReportDetailRequest,
   ReportRequest,
 } from "../model/model";
+import { destroySessionQueue, setSessionQueue } from "../application/queue";
 
 @injectable()
 export class ReportController {
@@ -28,6 +29,7 @@ export class ReportController {
           token: token,
         },
       });
+      setSessionQueue(token);
     } catch (e) {
       next(e);
     }
@@ -89,6 +91,7 @@ export class ReportController {
     next: NextFunction
   ): Promise<void> {
     try {
+      const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
 
       await this.reportService.saveReport(reportId);
@@ -96,6 +99,7 @@ export class ReportController {
       res.status(201).json({
         data: "OK",
       });
+      destroySessionQueue(token);
     } catch (e) {
       next(e);
     }
@@ -107,6 +111,7 @@ export class ReportController {
     next: NextFunction
   ): Promise<void> {
     try {
+      const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
 
       await this.reportService.saveReportAsFailed(reportId);
@@ -114,6 +119,7 @@ export class ReportController {
       res.status(201).json({
         data: "OK",
       });
+      destroySessionQueue(token);
     } catch (e) {
       next(e);
     }
