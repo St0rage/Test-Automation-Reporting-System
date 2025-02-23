@@ -1,17 +1,19 @@
-import Queue from "promise-queue";
+import Bootleneck from "bottleneck";
 
-const sessionQueues = new Map<string, Queue>();
+const sessionQueues = new Map<string, Bootleneck>();
 
-export const getSessionQueue = (token: string): Queue | undefined => {
+export const getSessionQueue = (token: string): Bootleneck | undefined => {
   if (!sessionQueues.has(token)) {
-    sessionQueues.set(token, new Queue(1));
+    sessionQueues.set(
+      token,
+      new Bootleneck({
+        maxConcurrent: 1,
+        minTime: 333,
+      })
+    );
   }
 
   return sessionQueues.get(token);
-};
-
-export const setSessionQueue = (token: string) => {
-  sessionQueues.set(token, new Queue(1));
 };
 
 export const destroySessionQueue = (token: string) => {

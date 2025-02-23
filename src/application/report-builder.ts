@@ -674,7 +674,7 @@ export class ReportBuilder implements IReportBuilder {
     moment.locale("id");
     const projectName: string = report.project.name;
     const scenarioName: string = report.scenario.name;
-    const title: string = `Test Automation for ${report.project.name}`;
+    const title: string = report.project.name;
     const subTitle: string = report.activity;
     const author: string = report.author;
     const testCase: string = report.test_case.name;

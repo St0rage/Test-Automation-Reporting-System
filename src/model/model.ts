@@ -26,6 +26,12 @@ export type ImageDetailRequest = {
   image: string;
 };
 
+export type ImageDetailInsertRequest = {
+  report_id: number;
+  step_number: number | null;
+  image: string;
+};
+
 export type ReportDetailRequest = {
   report_id: number;
   detail_id: number;
@@ -82,6 +88,7 @@ export type ReportResponse = {
 };
 
 export type ReportDetailResponse = {
+  step_number: number | null;
   title: string | null;
   description: string | null;
   image: string;
@@ -92,6 +99,7 @@ export type ReportDetailResponse = {
 
 export type ReportDetailResponseWithId = {
   id: number;
+  step_number: number | null;
   title: string | null;
   description: string | null;
   image: string;

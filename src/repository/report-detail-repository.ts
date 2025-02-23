@@ -2,6 +2,7 @@ import { injectable } from "inversify";
 import { prismaClient } from "../application/database";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import {
+  ImageDetailInsertRequest,
   ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailResponse,
@@ -13,11 +14,12 @@ export class ReportDetailRepository implements IReportDetailRepository {
   constructor() {}
 
   public async createImageDetail(
-    imageDetail: ImageDetailRequest
+    imageDetail: ImageDetailInsertRequest
   ): Promise<{ id: number }> {
     const result = await prismaClient.reportDetail.create({
       data: {
         report_id: imageDetail.report_id,
+        step_number: imageDetail.step_number,
         image: imageDetail.image,
       },
     });
@@ -35,6 +37,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
       },
       select: {
         id: true,
+        step_number: true,
         title: true,
         description: true,
         image: true,
@@ -75,6 +78,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
         id: detailId,
       },
       select: {
+        step_number: true,
         title: true,
         description: true,
         image: true,
@@ -95,6 +99,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
         report_id: reportId,
       },
       select: {
+        step_number: true,
         title: true,
         description: true,
         image: true,
@@ -103,6 +108,9 @@ export class ReportDetailRepository implements IReportDetailRepository {
             name: true,
           },
         },
+      },
+      orderBy: {
+        step_number: "asc",
       },
     });
   }

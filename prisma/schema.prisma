@@ -89,6 +89,7 @@ model ReportDetail {
   id          Int @id @default(autoincrement())
   report_id   Int
   status_id   Int?
+  step_number Int?
   title       String? @db.VarChar(100)
   description String? @db.Text
   image       String @db.VarChar(50)

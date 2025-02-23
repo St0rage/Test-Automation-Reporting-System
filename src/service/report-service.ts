@@ -14,6 +14,7 @@ import { IToolRepository } from "../interface/repository/tool-repository-interfa
 import { IReportService } from "../interface/service/report-service-interface";
 import {
   FileRecordRequest,
+  ImageDetailInsertRequest,
   ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailRequest,
@@ -90,10 +91,10 @@ export class ReportService implements IReportService {
   public async addTestImage(
     imageDetail: ImageDetailRequest
   ): Promise<{ id: number }> {
+    const { report_id, image } = imageDetail;
+
     const reportDetail =
-      await this.reportDetailRepository.checkLastReportDetail(
-        imageDetail.report_id
-      );
+      await this.reportDetailRepository.checkLastReportDetail(report_id);
 
     if (
       reportDetail &&
@@ -105,7 +106,15 @@ export class ReportService implements IReportService {
       );
     }
 
-    return this.reportDetailRepository.createImageDetail(imageDetail);
+    const imageDetailInsertRequest: ImageDetailInsertRequest = {
+      report_id,
+      image,
+      step_number: (reportDetail?.step_number ?? 0) + 1, // Prevents NaN issues
+    };
+
+    return this.reportDetailRepository.createImageDetail(
+      imageDetailInsertRequest
+    );
   }
 
   public async addTestStep(

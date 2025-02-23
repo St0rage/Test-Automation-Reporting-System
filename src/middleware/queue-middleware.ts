@@ -9,7 +9,7 @@ export const queueMiddleware = (
   const token = res.locals.token as string;
   const queue = getSessionQueue(token);
 
-  queue?.add(async () => {
+  queue?.schedule(async () => {
     next();
   });
 };

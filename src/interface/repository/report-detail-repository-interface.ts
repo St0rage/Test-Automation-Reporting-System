@@ -1,4 +1,5 @@
 import {
+  ImageDetailInsertRequest,
   ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailResponse,
@@ -6,7 +7,9 @@ import {
 } from "../../model/model";
 
 export interface IReportDetailRepository {
-  createImageDetail(imageDetail: ImageDetailRequest): Promise<{ id: number }>;
+  createImageDetail(
+    imageDetail: ImageDetailInsertRequest
+  ): Promise<{ id: number }>;
   checkLastReportDetail(
     reportId: number
   ): Promise<ReportDetailResponseWithId | null>;

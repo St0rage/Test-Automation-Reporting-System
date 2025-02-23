@@ -7,7 +7,7 @@ import {
   ReportDetailRequest,
   ReportRequest,
 } from "../model/model";
-import { destroySessionQueue, setSessionQueue } from "../application/queue";
+import { destroySessionQueue } from "../application/queue";
 
 @injectable()
 export class ReportController {
@@ -29,7 +29,6 @@ export class ReportController {
           token: token,
         },
       });
-      setSessionQueue(token);
     } catch (e) {
       next(e);
     }
