@@ -13,6 +13,7 @@ import {
   ProjectScenarioResponse,
 } from "../model/model";
 import { FileSystem } from "../utils/file-system-util";
+import fs from "fs";
 
 @injectable()
 export class WebService implements IWebService {
@@ -101,14 +102,19 @@ export class WebService implements IWebService {
       "report-logo-temp.png"
     );
 
-    const imageBuffer = await FileSystem.getImageBinary(logoTemp);
-    const imageString = `data:image/png;base64,${imageBuffer.toString(
-      "base64"
-    )}`;
+    // const imageBuffer = await FileSystem.getImageBinary(logoTemp);
+    // const imageString = `data:image/png;base64,${imageBuffer.toString(
+    //   "base64"
+    // )}`;
+    const image = new Uint8Array(
+      await fs.promises.readFile(
+        path.join(__dirname, "..", "public", "img", "report-logo.png")
+      )
+    );
 
     try {
       const tempDoc = new jsPDF();
-      tempDoc.addImage(imageString, "PNG", 10, 10, 35, 10);
+      tempDoc.addImage(image, "PNG", 10, 10, 35, 10);
       await FileSystem.deleteFile(logoPath);
       await FileSystem.renameFile(logoTemp, logoPath);
       return "";

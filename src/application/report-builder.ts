@@ -1,14 +1,14 @@
 import fs from "fs";
+import { injectable } from "inversify";
 import jsPDF from "jspdf";
 import autoTable, { CellHookData } from "jspdf-autotable";
 import moment from "moment";
 import path from "path";
+import { IReportBuilder } from "../interface/application/report-builder-interface";
 import { ReportDetailResponse, ReportResponse } from "../model/model";
-import { injectable } from "inversify";
-import { FileSystem } from "../utils/file-system-util";
 
 @injectable()
-export class ReportBuilder {
+export class ReportBuilder implements IReportBuilder {
   private doc: jsPDF;
   private pageWidth: number;
   private pageHeight: number;
@@ -20,6 +20,7 @@ export class ReportBuilder {
       orientation: "portrait",
       unit: "mm",
       format: [210, 297],
+      compress: true,
     });
 
     this.pageWidth = this.doc.internal.pageSize.width;
@@ -142,12 +143,11 @@ export class ReportBuilder {
     const testCaseIdFontSize: number = 12;
     const imageWidth: number = 35;
     const imageHeight: number = 10;
-    const imageBuffer: Buffer = await FileSystem.getImageBinary(
-      path.join(__dirname, "..", "public", "img", "report-logo.png")
+    const image = new Uint8Array(
+      await fs.promises.readFile(
+        path.join(__dirname, "..", "public", "img", "report-logo.png")
+      )
     );
-    const image: string = `data:image/png;base64,${imageBuffer.toString(
-      "base64"
-    )}`;
 
     // Set Image
     this.doc.addImage(
@@ -156,7 +156,9 @@ export class ReportBuilder {
       this.pageWidth - this.x - imageWidth,
       this.y,
       imageWidth,
-      imageHeight
+      imageHeight,
+      "",
+      "FAST"
     );
 
     // Set Title
@@ -600,10 +602,12 @@ export class ReportBuilder {
     for (const value of stepData) {
       // Set Title
       this.doc.setFont("Times", "bold");
-      if (value.status.name === "FAILED") {
+      if (value.status?.name === "FAILED") {
         this.doc.setTextColor(247, 59, 59);
       } else {
-        this.doc.setTextColor(value.status.name === "DONE" ? "black" : "green");
+        this.doc.setTextColor(
+          value.status?.name === "DONE" ? "black" : "green"
+        );
       }
 
       if (index % 2 === 0) {
@@ -622,10 +626,9 @@ export class ReportBuilder {
       );
 
       // Set Image
-      imageBuffer = await FileSystem.getImageBinary(
-        path.join(imagePath, value.image)
+      const image = new Uint8Array(
+        await fs.promises.readFile(path.join(imagePath, value.image))
       );
-      image = `data:image/png;base64,${imageBuffer.toString("base64")}`;
 
       currentImagePosition = currentTitlePosition + imagePadding;
       this.doc.addImage(
@@ -634,7 +637,9 @@ export class ReportBuilder {
         this.x,
         currentImagePosition,
         imageWidth,
-        imageHeight
+        imageHeight,
+        "",
+        "FAST"
       );
       this.doc.addImage(
         image,
@@ -642,7 +647,9 @@ export class ReportBuilder {
         this.x,
         currentImagePosition,
         imageWidth,
-        imageHeight
+        imageHeight,
+        "",
+        "FAST"
       );
 
       // Set Description
@@ -652,7 +659,7 @@ export class ReportBuilder {
       currentDescriptionPosition =
         currentImagePosition + imageHeight + descriptionPadding;
       [newDescription, descriptionHeight] = getDescriptionTotalHeight(
-        value.description
+        value.description as string
       );
       this.doc.text(newDescription, this.x, currentDescriptionPosition);
 
@@ -667,7 +674,7 @@ export class ReportBuilder {
     moment.locale("id");
     const projectName: string = report.project.name;
     const scenarioName: string = report.scenario.name;
-    const title: string = `Test Automation for ${report.project.name}`;
+    const title: string = report.project.name;
     const subTitle: string = report.activity;
     const author: string = report.author;
     const testCase: string = report.test_case.name;
@@ -701,20 +708,20 @@ export class ReportBuilder {
       tableOfContentTotalPage +
       documentSummaryTotalPage;
     const totalDoneStatus: number = stepData.filter(
-      (value) => value.status.name === "DONE"
+      (value) => value.status?.name === "DONE"
     ).length;
     const totalPassedStatus: number = stepData.filter(
-      (value) => value.status.name === "PASSED"
+      (value) => value.status?.name === "PASSED"
     ).length;
     const totalFailedStatus: number = stepData.filter(
-      (value) => value.status.name === "FAILED"
+      (value) => value.status?.name === "FAILED"
     ).length;
     let newStepData: {}[] = [];
 
     stepData.forEach((value) => {
       newStepData.push({
         title: value.title,
-        status: value.status.name,
+        status: value.status?.name,
       });
     });
 

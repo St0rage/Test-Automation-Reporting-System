@@ -2,7 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../di/types";
 import { IReportService } from "../interface/service/report-service-interface";
-import { ReportDetailRequest, ReportRequest } from "../model/model";
+import {
+  ImageDetailRequest,
+  ReportDetailRequest,
+  ReportRequest,
+} from "../model/model";
+import { destroySessionQueue } from "../application/queue";
 
 @injectable()
 export class ReportController {
@@ -29,16 +34,45 @@ export class ReportController {
     }
   }
 
+  public async addTestImage(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const reportId = res.locals.reportId as number;
+      const image = res.locals.stepDataImageFileName as string;
+
+      const imageDetail: ImageDetailRequest = {
+        report_id: reportId,
+        image,
+      };
+
+      const detailId = await this.reportService.addTestImage(imageDetail);
+      res.setHeader("Content-Type", "application/json");
+      res.status(201).json({
+        data: {
+          detail_id: detailId.id,
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   public async addTestStep(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const request: ReportDetailRequest = res.locals
-        .reportDetails as ReportDetailRequest;
-      request.report_id = res.locals.reportId as number;
-      request.image = res.locals.stepDataImageFileName;
+      const request: ReportDetailRequest = {
+        report_id: res.locals.reportId as number,
+        detail_id: req.body.detail_id as number,
+        title: req.body.title as string,
+        description: req.body.description as string,
+        status: req.body.status as number,
+      };
 
       await this.reportService.addTestStep(request);
       res.setHeader("Content-Type", "application/json");
@@ -56,6 +90,7 @@ export class ReportController {
     next: NextFunction
   ): Promise<void> {
     try {
+      const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
 
       await this.reportService.saveReport(reportId);
@@ -63,6 +98,7 @@ export class ReportController {
       res.status(201).json({
         data: "OK",
       });
+      destroySessionQueue(token);
     } catch (e) {
       next(e);
     }
@@ -74,6 +110,7 @@ export class ReportController {
     next: NextFunction
   ): Promise<void> {
     try {
+      const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
 
       await this.reportService.saveReportAsFailed(reportId);
@@ -81,6 +118,7 @@ export class ReportController {
       res.status(201).json({
         data: "OK",
       });
+      destroySessionQueue(token);
     } catch (e) {
       next(e);
     }

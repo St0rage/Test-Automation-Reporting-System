@@ -47,6 +47,7 @@ CREATE TABLE "reports" (
     "scenario_id" INTEGER NOT NULL,
     "test_case_id" INTEGER NOT NULL,
     "tool_id" INTEGER NOT NULL,
+    "activity" VARCHAR(50) NOT NULL,
     "author" VARCHAR(50) NOT NULL,
 
     CONSTRAINT "reports_pkey" PRIMARY KEY ("id")
@@ -57,9 +58,9 @@ CREATE TABLE "report_details" (
     "id" SERIAL NOT NULL,
     "report_id" INTEGER NOT NULL,
     "status_id" INTEGER NOT NULL,
-    "title" VARCHAR(200) NOT NULL,
+    "title" VARCHAR(100) NOT NULL,
     "description" TEXT NOT NULL,
-    "image" VARCHAR(100) NOT NULL,
+    "image" VARCHAR(50) NOT NULL,
 
     CONSTRAINT "report_details_pkey" PRIMARY KEY ("id")
 );

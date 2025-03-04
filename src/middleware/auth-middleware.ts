@@ -30,6 +30,7 @@ export const authMiddleware = async (
     }
 
     res.locals.reportId = decoded.id;
+    res.locals.token = token.split(" ")[1];
     next();
   } catch (e) {
     next(e);

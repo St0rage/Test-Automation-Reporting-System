@@ -88,13 +88,14 @@ model Report {
 model ReportDetail {
   id          Int @id @default(autoincrement())
   report_id   Int
-  status_id   Int
-  title       String @db.VarChar(100)
-  description String @db.Text
+  status_id   Int?
+  step_number Int?
+  title       String? @db.VarChar(100)
+  description String? @db.Text
   image       String @db.VarChar(50)
 
   report      Report @relation(fields: [report_id], references: [id])
-  status      Status @relation(fields: [status_id], references: [id])
+  status      Status? @relation(fields: [status_id], references: [id])
 
   @@map("report_details")
 }
