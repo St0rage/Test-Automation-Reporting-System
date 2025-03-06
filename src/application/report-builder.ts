@@ -6,6 +6,7 @@ import moment from "moment";
 import path from "path";
 import { IReportBuilder } from "../interface/application/report-builder-interface";
 import { ReportDetailResponse, ReportResponse } from "../model/model";
+import sharp from "sharp";
 
 @injectable()
 export class ReportBuilder implements IReportBuilder {
@@ -48,7 +49,7 @@ export class ReportBuilder implements IReportBuilder {
     ];
     const headerPosition: number = 10;
     const headerTableFontSize: number = 10;
-    const footerPosition: number = 10;
+    const footerPosition: number = 17;
     const footerLineWidth: number = 0.3;
     const footerLeftText: string = "Confidential";
     const footerRightText: string = `Page ${page} of ${totalPage}`;
@@ -93,11 +94,7 @@ export class ReportBuilder implements IReportBuilder {
     this.doc.setFont("times", "italic");
     this.doc.setFontSize(footerTextFontSize);
     const footerTextPosition: number =
-      this.pageHeight -
-      this.y +
-      footerPosition +
-      footerTextFontSize / 2.5 +
-      footerLineWidth;
+      this.pageHeight - this.y + footerPosition + footerTextFontSize / 2.5 + footerLineWidth;
 
     // Footer Line
     this.doc.setLineWidth(footerLineWidth);
@@ -113,73 +110,40 @@ export class ReportBuilder implements IReportBuilder {
 
     // Footer Middle Text
     const footerMiddleTextWidth: number = this.doc.getTextWidth(projectName);
-    this.doc.text(
-      projectName,
-      this.pageWidth / 2 - footerMiddleTextWidth / 2,
-      footerTextPosition
-    );
+    this.doc.text(projectName, this.pageWidth / 2 - footerMiddleTextWidth / 2, footerTextPosition);
 
     // Footer Right Text
     const footerRightTextWidth: number = this.doc.getTextWidth(footerRightText);
-    this.doc.text(
-      footerRightText,
-      this.pageWidth - this.x - footerXPadding - footerRightTextWidth,
-      footerTextPosition
-    );
+    this.doc.text(footerRightText, this.pageWidth - this.x - footerXPadding - footerRightTextWidth, footerTextPosition);
   }
 
-  private async createCover(
-    title: string,
-    subTitle: string,
-    author: string,
-    testCaseId: string
-  ) {
+  private async createCover(title: string, subTitle: string, author: string, testCaseId: string) {
     const titleFontSize: number = 26;
     const subTitleFontSize: number = 14;
     const authorText: string = `Author`.padEnd(18, " ") + `: ${author}`;
-    const testCaseIdText: string =
-      `Test Case Id`.padEnd(15, " ") + `: ${testCaseId}`;
+    const testCaseIdText: string = `Test Case Id`.padEnd(15, " ") + `: ${testCaseId}`;
     const authorFontSize: number = 12;
     const testCaseIdFontSize: number = 12;
     const imageWidth: number = 35;
     const imageHeight: number = 10;
     const image = new Uint8Array(
-      await fs.promises.readFile(
-        path.join(__dirname, "..", "public", "img", "report-logo.png")
-      )
+      await fs.promises.readFile(path.join(__dirname, "..", "public", "img", "report-logo.png"))
     );
 
     // Set Image
-    this.doc.addImage(
-      image,
-      "PNG",
-      this.pageWidth - this.x - imageWidth,
-      this.y,
-      imageWidth,
-      imageHeight,
-      "",
-      "FAST"
-    );
+    this.doc.addImage(image, "PNG", this.pageWidth - this.x - imageWidth, this.y, imageWidth, imageHeight, "", "FAST");
 
     // Set Title
     this.doc.setFont("times", "normal");
     this.doc.setFontSize(titleFontSize);
     const titleWidth: number = this.doc.getTextWidth(title);
-    this.doc.text(
-      title,
-      this.pageWidth - this.x - titleWidth,
-      this.pageHeight / 2.5
-    );
+    this.doc.text(title, this.pageWidth - this.x - titleWidth, this.pageHeight / 2.5);
 
     // Set Sub Title
     this.doc.setFont("times", "italic");
     this.doc.setFontSize(subTitleFontSize);
     const subTitleWidth: number = this.doc.getTextWidth(subTitle);
-    this.doc.text(
-      subTitle,
-      this.pageWidth - this.x - subTitleWidth,
-      titleFontSize / 3 + this.pageHeight / 2.5
-    );
+    this.doc.text(subTitle, this.pageWidth - this.x - subTitleWidth, titleFontSize / 3 + this.pageHeight / 2.5);
 
     // Set Test Case Id Font And Size
     this.doc.setFont("times", "normal");
@@ -207,11 +171,7 @@ export class ReportBuilder implements IReportBuilder {
     );
 
     // Set Test Case Id
-    this.doc.text(
-      testCaseIdText,
-      this.pageWidth / 2 - bottomInformationWidth,
-      this.pageHeight - this.y
-    );
+    this.doc.text(testCaseIdText, this.pageWidth / 2 - bottomInformationWidth, this.pageHeight - this.y);
   }
 
   private async createTableOfContent(
@@ -229,8 +189,7 @@ export class ReportBuilder implements IReportBuilder {
     const secondContent: string = "Document Summary";
     const contentFontSize: number = 12;
     const contentPadding: number = 5;
-    const firstPagePaddingTopContent: number =
-      this.y + titleFontSize + paddingTop + contentPadding;
+    const firstPagePaddingTopContent: number = this.y + titleFontSize + paddingTop + contentPadding;
     let tempContent: string;
 
     this.doc.setPage(currentPage);
@@ -238,17 +197,12 @@ export class ReportBuilder implements IReportBuilder {
     this.doc.setFont("helvetica", "bold");
     this.doc.setFontSize(titleFontSize);
     const titleWidth = this.doc.getTextWidth(title);
-    this.doc.text(
-      title,
-      this.pageWidth / 2 - titleWidth / 2,
-      this.y + paddingTop + titleFontSize / 2.5
-    );
+    this.doc.text(title, this.pageWidth / 2 - titleWidth / 2, this.y + paddingTop + titleFontSize / 2.5);
 
     const convertContentToDotted = (title: string, page: string) => {
       const titleWidth = this.doc.getTextWidth(title);
       const pageNumberWidth = this.doc.getTextWidth(page);
-      const availableWidth =
-        this.pageWidth - titleWidth - pageNumberWidth - this.x * 2;
+      const availableWidth = this.pageWidth - titleWidth - pageNumberWidth - this.x * 2;
       const dotWidth = this.doc.getTextWidth(".");
       const numberOfDots = Math.floor(availableWidth / dotWidth);
 
@@ -271,12 +225,9 @@ export class ReportBuilder implements IReportBuilder {
     // Set Second Content
     currentPage = Math.ceil(stepData.length / firstMaxPage) + currentPage;
     tempContent = convertContentToDotted(secondContent, currentPage.toString());
-    this.doc.textWithLink(
-      tempContent,
-      this.x,
-      firstPagePaddingTopContent + contentFontSize / 2.5,
-      { pageNumber: currentPage }
-    );
+    this.doc.textWithLink(tempContent, this.x, firstPagePaddingTopContent + contentFontSize / 2.5, {
+      pageNumber: currentPage,
+    });
 
     // Set Rest Content
     currentPage = startPage + 1;
@@ -294,10 +245,7 @@ export class ReportBuilder implements IReportBuilder {
         this.doc.setFontSize(contentFontSize);
         currentPage = currentPage + 1;
       }
-      tempContent = convertContentToDotted(
-        `${index + 1}. ${value.title}`,
-        restCurrentPage.toString()
-      );
+      tempContent = convertContentToDotted(`${index + 1}. ${value.title}`, restCurrentPage.toString());
       this.doc.textWithLink(
         tempContent,
         this.x,
@@ -347,11 +295,7 @@ export class ReportBuilder implements IReportBuilder {
       body.push(stepData.slice(0, firstMaxPage));
       let stepDataLeft: number = stepData.length - firstMaxPage;
       let startIndex: number = firstMaxPage;
-      for (
-        let i = 1;
-        i <= Math.ceil((stepData.length - firstMaxPage) / restMaxPage);
-        i++
-      ) {
+      for (let i = 1; i <= Math.ceil((stepData.length - firstMaxPage) / restMaxPage); i++) {
         if (stepDataLeft > restMaxPage) {
           body.push(stepData.slice(startIndex, startIndex + restMaxPage));
           stepDataLeft = stepDataLeft - restMaxPage;
@@ -367,11 +311,7 @@ export class ReportBuilder implements IReportBuilder {
     this.doc.setFont("helvetica", "bold");
     this.doc.setFontSize(titleFontSize);
     const titleWidth = this.doc.getTextWidth(title);
-    this.doc.text(
-      title,
-      this.pageWidth / 2 - titleWidth / 2,
-      this.y + paddingTop + titleFontSize / 2.5
-    );
+    this.doc.text(title, this.pageWidth / 2 - titleWidth / 2, this.y + paddingTop + titleFontSize / 2.5);
 
     // Set Summary Total
     autoTable(this.doc, {
@@ -432,9 +372,7 @@ export class ReportBuilder implements IReportBuilder {
     };
 
     const statusColumnTextFormat = (data: CellHookData) => {
-      data.cell.text[0] =
-        data.cell.text[0].charAt(0).toUpperCase() +
-        data.cell.text[0].slice(1).toLowerCase();
+      data.cell.text[0] = data.cell.text[0].charAt(0).toUpperCase() + data.cell.text[0].slice(1).toLowerCase();
     };
 
     let currentStartPage: number = startReportPage;
@@ -495,13 +433,9 @@ export class ReportBuilder implements IReportBuilder {
         },
         didDrawCell: (data) => {
           if (data.row.index > 0 && data.column.index === 0 && i === 0) {
-            this.doc.link(
-              data.cell.x,
-              data.cell.y,
-              data.cell.width,
-              data.cell.height,
-              { pageNumber: currentStartPage }
-            );
+            this.doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, {
+              pageNumber: currentStartPage,
+            });
 
             if ((data.row.index - 1) % 2 != 0) {
               currentStartPage = currentStartPage + 1;
@@ -510,13 +444,9 @@ export class ReportBuilder implements IReportBuilder {
           }
           if (data.column.index === 0 && i > 0) {
             data.row.index;
-            this.doc.link(
-              data.cell.x,
-              data.cell.y,
-              data.cell.width,
-              data.cell.height,
-              { pageNumber: currentStartPage }
-            );
+            this.doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, {
+              pageNumber: currentStartPage,
+            });
             if ((data.row.index + 1) % 2 != 0) {
               currentStartPage = currentStartPage + 1;
             }
@@ -528,15 +458,26 @@ export class ReportBuilder implements IReportBuilder {
     }
   }
 
-  private async createContent(
-    stepData: ReportDetailResponse[],
-    startPage: number
-  ) {
+  private async getImageAndSize(
+    imagePath: string
+  ): Promise<{ image: Uint8Array; newWidth: number; newHeight: number }> {
+    const rawImage = await fs.promises.readFile(`${imagePath}`);
+    const image = new Uint8Array(rawImage);
+
+    const metadata = await sharp(image).metadata();
+
+    let newHeight = (this.pageHeight - this.y * 2) / 2.4;
+    let newWidth = ((metadata?.width as number) / (metadata?.height as number)) * newHeight;
+
+    return { image, newWidth, newHeight };
+  }
+
+  private async createContent(stepData: ReportDetailResponse[], startPage: number) {
     const fontSize: number = 12;
     const titlePadding: number = 1.5;
     const descriptionPadding: number = 5;
-    const imageWidth = this.pageWidth - this.x * 2;
-    const imageHeight = imageWidth / 2;
+    // const imageWidth = this.pageWidth - this.x * 2;
+    // const imageHeight = imageWidth / 2;
     const imagePadding: number = 3;
     const imagePath: string = process.env.IMAGE_PATH as string;
 
@@ -546,15 +487,13 @@ export class ReportBuilder implements IReportBuilder {
     let newDescription: string;
     let descriptionHeight: number = 0;
     let currentStartPage: number = startPage;
-    let imageBuffer: Buffer;
-    let image: string;
+    // let imageBuffer: Buffer;
+    // let image: string;
     let index: number = 0;
 
     this.doc.setFontSize(fontSize);
 
-    const getDescriptionTotalHeight = (
-      description: string
-    ): [string, number] => {
+    const getDescriptionTotalHeight = (description: string): [string, number] => {
       const textHeight = fontSize / 2.5;
 
       if (description.includes("\n")) {
@@ -563,10 +502,7 @@ export class ReportBuilder implements IReportBuilder {
         let lines: string[] = [];
 
         splitDescription.forEach((value) => {
-          let tempLines = this.doc.splitTextToSize(
-            value,
-            this.pageWidth - this.x * 2
-          ) as string[];
+          let tempLines = this.doc.splitTextToSize(value, this.pageWidth - this.x * 2) as string[];
 
           tempLines.forEach((tempValue) => {
             lines.push(tempValue);
@@ -583,10 +519,7 @@ export class ReportBuilder implements IReportBuilder {
         return [formatDescription, totalHeight];
       } else {
         let formatDescription: string = "";
-        const lines = this.doc.splitTextToSize(
-          description,
-          this.pageWidth - this.x * 2
-        ) as string[];
+        const lines = this.doc.splitTextToSize(description, this.pageWidth - this.x * 2) as string[];
 
         const totalLines: number = lines.length > 5 ? 5 : lines.length;
         const totalHeight: number = textHeight * totalLines;
@@ -605,9 +538,7 @@ export class ReportBuilder implements IReportBuilder {
       if (value.status?.name === "FAILED") {
         this.doc.setTextColor(247, 59, 59);
       } else {
-        this.doc.setTextColor(
-          value.status?.name === "DONE" ? "black" : "green"
-        );
+        this.doc.setTextColor(value.status?.name === "DONE" ? "black" : "green");
       }
 
       if (index % 2 === 0) {
@@ -615,52 +546,34 @@ export class ReportBuilder implements IReportBuilder {
         currentTitlePosition = this.y + titlePadding * 2;
         currentStartPage++;
       } else {
-        currentTitlePosition =
-          currentDescriptionPosition + descriptionHeight + titlePadding;
+        currentTitlePosition = currentDescriptionPosition + descriptionHeight + titlePadding;
       }
 
-      this.doc.text(
-        `${index + 1}. ${value.title}`,
-        this.x,
-        currentTitlePosition
-      );
+      this.doc.text(`${index + 1}. ${value.title}`, this.x, currentTitlePosition);
 
       // Set Image
-      const image = new Uint8Array(
-        await fs.promises.readFile(path.join(imagePath, value.image))
-      );
+      // const image = new Uint8Array(await fs.promises.readFile(path.join(imagePath, value.image)));
+      const { image, newWidth, newHeight } = await this.getImageAndSize(path.join(imagePath, value.image));
 
       currentImagePosition = currentTitlePosition + imagePadding;
       this.doc.addImage(
         image,
         "PNG",
-        this.x,
+        this.pageWidth / 2 - newWidth / 2,
         currentImagePosition,
-        imageWidth,
-        imageHeight,
+        newWidth,
+        newHeight,
         "",
         "FAST"
       );
-      this.doc.addImage(
-        image,
-        "PNG",
-        this.x,
-        currentImagePosition,
-        imageWidth,
-        imageHeight,
-        "",
-        "FAST"
-      );
+      // this.doc.addImage(image, "PNG", this.x, currentImagePosition, imageWidth, imageHeight, "", "FAST");
 
       // Set Description
       this.doc.setFont("Times", "normal");
       this.doc.setTextColor("black");
 
-      currentDescriptionPosition =
-        currentImagePosition + imageHeight + descriptionPadding;
-      [newDescription, descriptionHeight] = getDescriptionTotalHeight(
-        value.description as string
-      );
+      currentDescriptionPosition = currentImagePosition + newHeight + descriptionPadding;
+      [newDescription, descriptionHeight] = getDescriptionTotalHeight(value.description as string);
       this.doc.text(newDescription, this.x, currentDescriptionPosition);
 
       index++;
@@ -680,42 +593,24 @@ export class ReportBuilder implements IReportBuilder {
     const testCase: string = report.test_case.name;
     const tool: string = report.tool.name;
     const date: number = Math.floor(Date.now() / 1000);
-    const dateString: string = moment(date * 1000).format(
-      "DD-MMMM-YYYY_HH:mm:ss"
-    );
+    const dateString: string = moment(date * 1000).format("DD-MMMM-YYYY_HH:mm:ss");
     const stepDataLength: number = stepData.length;
     const tableOfContentStartPage: number = 2;
     const tableOfContentFirstMaxPage: number = 41;
     const tableOfContentRestMaxPage: number = 46;
     const tableOfContentTotalPage: number =
-      Math.ceil(
-        (stepDataLength - tableOfContentFirstMaxPage) /
-          tableOfContentRestMaxPage
-      ) + 1;
+      Math.ceil((stepDataLength - tableOfContentFirstMaxPage) / tableOfContentRestMaxPage) + 1;
     const documentSummaryHeader: {} = { title: "Step Name", status: "Status" };
     const documentSummaryStartPage: number = tableOfContentTotalPage + 2;
     const documentSummaryFirstMaxPage: number = 34;
     const documentSummaryRestMaxPage: number = 40;
     const documentSummaryTotalPage: number =
-      Math.ceil(
-        (stepDataLength - documentSummaryFirstMaxPage) /
-          documentSummaryRestMaxPage
-      ) + 1;
-    const startPageReport: number =
-      documentSummaryTotalPage + tableOfContentTotalPage + 2;
-    const totalAllPage: number =
-      Math.ceil(stepDataLength / 2) +
-      tableOfContentTotalPage +
-      documentSummaryTotalPage;
-    const totalDoneStatus: number = stepData.filter(
-      (value) => value.status?.name === "DONE"
-    ).length;
-    const totalPassedStatus: number = stepData.filter(
-      (value) => value.status?.name === "PASSED"
-    ).length;
-    const totalFailedStatus: number = stepData.filter(
-      (value) => value.status?.name === "FAILED"
-    ).length;
+      Math.ceil((stepDataLength - documentSummaryFirstMaxPage) / documentSummaryRestMaxPage) + 1;
+    const startPageReport: number = documentSummaryTotalPage + tableOfContentTotalPage + 2;
+    const totalAllPage: number = Math.ceil(stepDataLength / 2) + tableOfContentTotalPage + documentSummaryTotalPage;
+    const totalDoneStatus: number = stepData.filter((value) => value.status?.name === "DONE").length;
+    const totalPassedStatus: number = stepData.filter((value) => value.status?.name === "PASSED").length;
+    const totalFailedStatus: number = stepData.filter((value) => value.status?.name === "FAILED").length;
     let newStepData: {}[] = [];
 
     stepData.forEach((value) => {
@@ -729,16 +624,7 @@ export class ReportBuilder implements IReportBuilder {
 
     let startPage = 2;
     for (let i = 0; i < totalAllPage; i++) {
-      this.addPage(
-        title,
-        projectName,
-        author,
-        tool,
-        testCase,
-        dateString,
-        startPage,
-        totalAllPage + 1
-      );
+      this.addPage(title, projectName, author, tool, testCase, dateString, startPage, totalAllPage + 1);
       startPage++;
     }
 
@@ -765,21 +651,15 @@ export class ReportBuilder implements IReportBuilder {
 
     await this.createContent(stepData, startPageReport);
 
-    const fileName = `${scenarioName}_${testCase}_${moment(date * 1000).format(
-      "DD-MM-YYYY_HH-mm-ss"
-    )}.pdf`;
+    const fileName = `${scenarioName}_${testCase}_${moment(date * 1000).format("DD-MM-YYYY_HH-mm-ss")}.pdf`;
     const output = this.doc.output("arraybuffer");
     const reportPath = process.env.REPORT_PATH as string;
 
-    fs.writeFile(
-      path.join(reportPath, fileName),
-      Buffer.from(output),
-      (err) => {
-        if (err) {
-          throw err;
-        }
+    fs.writeFile(path.join(reportPath, fileName), Buffer.from(output), (err) => {
+      if (err) {
+        throw err;
       }
-    );
+    });
 
     return { fileName, date };
   }
