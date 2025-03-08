@@ -463,11 +463,16 @@ export class ReportBuilder implements IReportBuilder {
   ): Promise<{ image: Uint8Array; newWidth: number; newHeight: number }> {
     const rawImage = await fs.promises.readFile(`${imagePath}`);
     const image = new Uint8Array(rawImage);
+    const maxWidth = this.pageWidth - this.x * 2;
 
     const metadata = await sharp(image).metadata();
 
     let newHeight = (this.pageHeight - this.y * 2) / 2.4;
     let newWidth = ((metadata?.width as number) / (metadata?.height as number)) * newHeight;
+
+    if (newWidth > maxWidth) {
+      newWidth = maxWidth;
+    }
 
     return { image, newWidth, newHeight };
   }
