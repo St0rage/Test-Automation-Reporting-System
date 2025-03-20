@@ -8,10 +8,7 @@ import { number } from "zod";
 export class TestCaseRepository implements ITestCaseRepository {
   constructor() {}
 
-  async createOrGetTestCaseIdAndName(
-    testCaseName: string,
-    scenarioId: number
-  ): Promise<IdAndName> {
+  async createOrGetTestCaseIdAndName(testCaseName: string, scenarioId: number): Promise<IdAndName> {
     let result = await prismaClient.testCase.findFirst({
       where: {
         scenario_id: scenarioId,

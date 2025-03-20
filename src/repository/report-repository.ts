@@ -7,9 +7,7 @@ import { ReportInsertRequest, ReportResponse } from "../model/model";
 export class ReportRepository implements IReportRepository {
   constructor() {}
 
-  public async createReport(
-    reportInsertRequest: ReportInsertRequest
-  ): Promise<{ id: number }> {
+  public async createReport(reportInsertRequest: ReportInsertRequest): Promise<{ id: number }> {
     const result = await prismaClient.report.create({
       data: reportInsertRequest,
       select: {

@@ -46,15 +46,10 @@ export class ReportService implements IReportService {
   ) {}
 
   public async createReport(reportRequest: ReportRequest): Promise<string> {
-    const validatedRequest = Validation.validate(
-      ReportValidation.reportSchema,
-      reportRequest
-    );
+    const validatedRequest = Validation.validate(ReportValidation.reportSchema, reportRequest);
 
     // Project
-    const project = await this.projectRepository.createOrGetProjectIdAndName(
-      validatedRequest.project.toUpperCase()
-    );
+    const project = await this.projectRepository.createOrGetProjectIdAndName(validatedRequest.project.toUpperCase());
 
     // Scenario
     const scenario = await this.scenarioRepository.createOrGetScenarioIdAndName(
@@ -69,9 +64,7 @@ export class ReportService implements IReportService {
     );
 
     // Tool
-    const toolId = await this.toolRepository.createOrGetToolId(
-      validatedRequest.tool
-    );
+    const toolId = await this.toolRepository.createOrGetToolId(validatedRequest.tool);
 
     const reportInsertRequest: ReportInsertRequest = {
       project_id: project.id,
@@ -82,28 +75,17 @@ export class ReportService implements IReportService {
       author: validatedRequest.author,
     };
 
-    const result = await this.reportRepository.createReport(
-      reportInsertRequest
-    );
+    const result = await this.reportRepository.createReport(reportInsertRequest);
     return AuthUtil.signJwt(result);
   }
 
-  public async addTestImage(
-    imageDetail: ImageDetailRequest
-  ): Promise<{ id: number }> {
+  public async addTestImage(imageDetail: ImageDetailRequest): Promise<{ id: number }> {
     const { report_id, image } = imageDetail;
 
-    const reportDetail =
-      await this.reportDetailRepository.checkLastReportDetail(report_id);
+    const reportDetail = await this.reportDetailRepository.checkLastReportDetail(report_id);
 
-    if (
-      reportDetail &&
-      (!reportDetail.title || !reportDetail.description || !reportDetail.status)
-    ) {
-      throw new ResponseError(
-        400,
-        `There is a step with an empty detail, with detail_id: ${reportDetail.id}`
-      );
+    if (reportDetail && (!reportDetail.title || !reportDetail.description || !reportDetail.status)) {
+      throw new ResponseError(400, `There is a step with an empty detail, with detail_id: ${reportDetail.id}`);
     }
 
     const imageDetailInsertRequest: ImageDetailInsertRequest = {
@@ -112,24 +94,16 @@ export class ReportService implements IReportService {
       step_number: (reportDetail?.step_number ?? 0) + 1, // Prevents NaN issues
     };
 
-    return this.reportDetailRepository.createImageDetail(
-      imageDetailInsertRequest
-    );
+    return this.reportDetailRepository.createImageDetail(imageDetailInsertRequest);
   }
 
-  public async addTestStep(
-    reportDetailRequest: ReportDetailRequest
-  ): Promise<void> {
-    Validation.validate(
-      ReportValidation.reportDetailSchema,
-      reportDetailRequest
-    );
+  public async addTestStep(reportDetailRequest: ReportDetailRequest): Promise<void> {
+    Validation.validate(ReportValidation.reportDetailSchema, reportDetailRequest);
 
-    const reportDetail =
-      await this.reportDetailRepository.checkReportDetailIsExist(
-        reportDetailRequest.report_id,
-        reportDetailRequest.detail_id
-      );
+    const reportDetail = await this.reportDetailRepository.checkReportDetailIsExist(
+      reportDetailRequest.report_id,
+      reportDetailRequest.detail_id
+    );
 
     if (!reportDetail) {
       throw new ResponseError(400, "detail_id Not Found");
@@ -147,30 +121,22 @@ export class ReportService implements IReportService {
       description: reportDetailRequest.description,
     };
 
-    await this.reportDetailRepository.updateReportDetail(
-      reportDetailInsertRequest
-    );
+    await this.reportDetailRepository.updateReportDetail(reportDetailInsertRequest);
   }
 
   public async saveReport(reportId: number): Promise<void> {
     const report = await this.reportRepository.getReportById(reportId);
-    const reportDetails =
-      await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+    const reportDetails = await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
 
     if (reportDetails.length < 1) {
       throw new ResponseError(400, "No Step Data Found");
     }
 
     const isReportHasNullValue = reportDetails.some(
-      (value) =>
-        value.title === null ||
-        value.description === null ||
-        value.status === null
+      (value) => value.title === null || value.description === null || value.status === null
     );
 
-    const isReportFailed = reportDetails.some(
-      (value) => value.status?.name === "FAILED"
-    );
+    const isReportFailed = reportDetails.some((value) => value.status?.name === "FAILED");
 
     if (isReportHasNullValue) {
       throw new ResponseError(400, "There is step data with empty detail");
@@ -185,10 +151,7 @@ export class ReportService implements IReportService {
 
     const reportBuilder = container.get<IReportBuilder>(TYPES.IReportBuilder);
 
-    const { fileName, date } = await reportBuilder.createReport(
-      report,
-      reportDetails
-    );
+    const { fileName, date } = await reportBuilder.createReport(report, reportDetails);
 
     const fileRecordRequest: FileRecordRequest = {
       scenario_id: report.scenario.id,
@@ -210,14 +173,10 @@ export class ReportService implements IReportService {
 
   async saveReportAsFailed(reportId: number): Promise<void> {
     const report = await this.reportRepository.getReportById(reportId);
-    const reportDetails =
-      await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
+    const reportDetails = await this.reportDetailRepository.findAllReportDetailByReportId(reportId);
 
     const isReportHasNullValue = reportDetails.some(
-      (value) =>
-        value.title === null ||
-        value.description === null ||
-        value.status === null
+      (value) => value.title === null || value.description === null || value.status === null
     );
 
     if (isReportHasNullValue) {
@@ -226,10 +185,7 @@ export class ReportService implements IReportService {
 
     const reportBuilder = container.get<IReportBuilder>(TYPES.IReportBuilder);
 
-    const { fileName, date } = await reportBuilder.createReport(
-      report,
-      reportDetails
-    );
+    const { fileName, date } = await reportBuilder.createReport(report, reportDetails);
 
     const fileRecordRequest: FileRecordRequest = {
       scenario_id: report.scenario.id,
