@@ -2,24 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../di/types";
 import { IReportService } from "../interface/service/report-service-interface";
-import {
-  ImageDetailRequest,
-  ReportDetailRequest,
-  ReportRequest,
-} from "../model/model";
+import { ImageDetailRequest, ReportDetailRequest, ReportRequest } from "../model/model";
 import { destroySessionQueue } from "../application/queue";
 
 @injectable()
 export class ReportController {
-  constructor(
-    @inject(TYPES.IReportService) private reportService: IReportService
-  ) {}
+  constructor(@inject(TYPES.IReportService) private reportService: IReportService) {}
 
-  public async createReport(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async createReport(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const request: ReportRequest = req.body as ReportRequest;
       const token = await this.reportService.createReport(request);
@@ -34,11 +24,7 @@ export class ReportController {
     }
   }
 
-  public async addTestImage(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async addTestImage(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const reportId = res.locals.reportId as number;
       const image = res.locals.stepDataImageFileName as string;
@@ -60,11 +46,7 @@ export class ReportController {
     }
   }
 
-  public async addTestStep(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async addTestStep(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const request: ReportDetailRequest = {
         report_id: res.locals.reportId as number,
@@ -84,11 +66,7 @@ export class ReportController {
     }
   }
 
-  public async saveReport(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async saveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
@@ -104,11 +82,7 @@ export class ReportController {
     }
   }
 
-  public async saveReportAsFailed(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async saveReportAsFailed(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;

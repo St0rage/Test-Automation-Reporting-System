@@ -1,8 +1,4 @@
-import {
-  FileRecordResponse,
-  IdAndName,
-  ProjectScenarioResponse,
-} from "../../model/model";
+import { FileRecordResponse, IdAndName, ProjectScenarioResponse } from "../../model/model";
 
 export interface IWebService {
   getAllProjectAndScenario(): Promise<ProjectScenarioResponse[]>;
@@ -14,11 +10,7 @@ export interface IWebService {
     testCase: string,
     date: string
   ): Promise<FileRecordResponse[]>;
-  getTotalFileRecordByScenarioId(
-    scenarioId: number,
-    testCase: string,
-    date: string
-  ): Promise<number>;
+  getTotalFileRecordByScenarioId(scenarioId: number, testCase: string, date: string): Promise<number>;
   validateReportLogo(): Promise<string>;
   deleteFileRecordById(fileRecordId: number): Promise<void>;
 }

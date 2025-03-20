@@ -7,11 +7,7 @@ import { IFileRecordRepository } from "../interface/repository/file-record-repos
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IWebService } from "../interface/service/web-service-interface";
-import {
-  FileRecordResponse,
-  IdAndName,
-  ProjectScenarioResponse,
-} from "../model/model";
+import { FileRecordResponse, IdAndName, ProjectScenarioResponse } from "../model/model";
 import { FileSystem } from "../utils/file-system-util";
 import fs from "fs";
 
@@ -62,11 +58,7 @@ export class WebService implements IWebService {
     );
   }
 
-  async getTotalFileRecordByScenarioId(
-    scenarioId: number,
-    testCase: string,
-    date: string
-  ): Promise<number> {
+  async getTotalFileRecordByScenarioId(scenarioId: number, testCase: string, date: string): Promise<number> {
     let startDate: number | undefined;
     let endDate: number | undefined;
 
@@ -87,29 +79,15 @@ export class WebService implements IWebService {
   }
 
   async validateReportLogo(): Promise<string> {
-    const logoPath = path.join(
-      __dirname,
-      "..",
-      "public",
-      "img",
-      "report-logo.png"
-    );
-    const logoTemp = path.join(
-      __dirname,
-      "..",
-      "public",
-      "img",
-      "report-logo-temp.png"
-    );
+    const logoPath = path.join(__dirname, "..", "public", "img", "report-logo.png");
+    const logoTemp = path.join(__dirname, "..", "public", "img", "report-logo-temp.png");
 
     // const imageBuffer = await FileSystem.getImageBinary(logoTemp);
     // const imageString = `data:image/png;base64,${imageBuffer.toString(
     //   "base64"
     // )}`;
     const image = new Uint8Array(
-      await fs.promises.readFile(
-        path.join(__dirname, "..", "public", "img", "report-logo.png")
-      )
+      await fs.promises.readFile(path.join(__dirname, "..", "public", "img", "report-logo.png"))
     );
 
     try {
@@ -125,9 +103,7 @@ export class WebService implements IWebService {
   }
 
   async deleteFileRecordById(fileRecordId: number): Promise<void> {
-    const fileName = await this.fileRecordRepository.deleteFileRecordById(
-      fileRecordId
-    );
+    const fileName = await this.fileRecordRepository.deleteFileRecordById(fileRecordId);
 
     const reportPath = process.env.REPORT_PATH as string;
     const fullPath = path.join(reportPath, fileName);

@@ -9,10 +9,7 @@ const reportController = container.get<ReportController>(ReportController);
 
 export const apiRoute = express.Router();
 
-apiRoute.post(
-  "/api/create-report",
-  reportController.createReport.bind(reportController)
-);
+apiRoute.post("/api/create-report", reportController.createReport.bind(reportController));
 
 apiRoute.post(
   "/api/add-test-step",
@@ -29,12 +26,7 @@ apiRoute.post(
   reportController.addTestImage.bind(reportController)
 );
 
-apiRoute.post(
-  "/api/save-report",
-  authMiddleware,
-  queueMiddleware,
-  reportController.saveReport.bind(reportController)
-);
+apiRoute.post("/api/save-report", authMiddleware, queueMiddleware, reportController.saveReport.bind(reportController));
 
 apiRoute.post(
   "/api/save-report-failed",

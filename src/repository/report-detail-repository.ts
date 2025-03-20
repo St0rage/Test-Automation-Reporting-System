@@ -13,9 +13,7 @@ import {
 export class ReportDetailRepository implements IReportDetailRepository {
   constructor() {}
 
-  public async createImageDetail(
-    imageDetail: ImageDetailInsertRequest
-  ): Promise<{ id: number }> {
+  public async createImageDetail(imageDetail: ImageDetailInsertRequest): Promise<{ id: number }> {
     const result = await prismaClient.reportDetail.create({
       data: {
         report_id: imageDetail.report_id,
@@ -27,9 +25,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
     return { id: result.id };
   }
 
-  public async checkLastReportDetail(
-    reportId: number
-  ): Promise<ReportDetailResponseWithId | null> {
+  public async checkLastReportDetail(reportId: number): Promise<ReportDetailResponseWithId | null> {
     return prismaClient.reportDetail.findFirst({
       orderBy: { id: "desc" },
       where: {
@@ -50,9 +46,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
     });
   }
 
-  public async updateReportDetail(
-    reportDetail: ReportDetailInsertRequest
-  ): Promise<void> {
+  public async updateReportDetail(reportDetail: ReportDetailInsertRequest): Promise<void> {
     await prismaClient.reportDetail.updateMany({
       where: {
         AND: {
@@ -68,10 +62,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
     });
   }
 
-  public async checkReportDetailIsExist(
-    reportId: number,
-    detailId: number
-  ): Promise<ReportDetailResponse | null> {
+  public async checkReportDetailIsExist(reportId: number, detailId: number): Promise<ReportDetailResponse | null> {
     return prismaClient.reportDetail.findFirst({
       where: {
         report_id: reportId,
@@ -91,9 +82,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
     });
   }
 
-  public async findAllReportDetailByReportId(
-    reportId: number
-  ): Promise<ReportDetailResponse[]> {
+  public async findAllReportDetailByReportId(reportId: number): Promise<ReportDetailResponse[]> {
     return await prismaClient.reportDetail.findMany({
       where: {
         report_id: reportId,
@@ -115,9 +104,7 @@ export class ReportDetailRepository implements IReportDetailRepository {
     });
   }
 
-  public async deleteAllReportDetailByReportId(
-    reportId: number
-  ): Promise<void> {
+  public async deleteAllReportDetailByReportId(reportId: number): Promise<void> {
     await prismaClient.reportDetail.deleteMany({
       where: {
         report_id: reportId,

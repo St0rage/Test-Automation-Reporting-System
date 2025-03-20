@@ -29,10 +29,7 @@ export class FileRecordRepository implements IFileRecordRepository {
         test_case: {
           name: testCase,
         },
-        created_time:
-          startDate !== undefined
-            ? { gte: startDate, lte: endDate }
-            : undefined,
+        created_time: startDate !== undefined ? { gte: startDate, lte: endDate } : undefined,
       },
       select: {
         id: true,
@@ -69,10 +66,7 @@ export class FileRecordRepository implements IFileRecordRepository {
         test_case: {
           name: testCase,
         },
-        created_time:
-          startDate !== undefined
-            ? { gte: startDate, lte: endDate }
-            : undefined,
+        created_time: startDate !== undefined ? { gte: startDate, lte: endDate } : undefined,
       },
     });
   }

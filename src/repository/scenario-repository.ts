@@ -7,10 +7,7 @@ import { prismaClient } from "../application/database";
 export class ScenarioRepository implements IScenarioRepository {
   constructor() {}
 
-  async createOrGetScenarioIdAndName(
-    scenarioName: string,
-    projectId: number
-  ): Promise<IdAndName> {
+  async createOrGetScenarioIdAndName(scenarioName: string, projectId: number): Promise<IdAndName> {
     let result = await prismaClient.scenario.findFirst({
       where: {
         project_id: projectId,
@@ -38,10 +35,7 @@ export class ScenarioRepository implements IScenarioRepository {
     return result;
   }
 
-  async checkScenarioIsExist(
-    scenarioName: string,
-    projectId: number
-  ): Promise<Boolean> {
+  async checkScenarioIsExist(scenarioName: string, projectId: number): Promise<Boolean> {
     const count = await prismaClient.scenario.count({
       where: {
         name: scenarioName,
@@ -56,10 +50,7 @@ export class ScenarioRepository implements IScenarioRepository {
     return true;
   }
 
-  getScenarioIdByScenarioNameAndProjectId(
-    scenarioName: string,
-    projectId: number
-  ): Promise<{ id: number } | null> {
+  getScenarioIdByScenarioNameAndProjectId(scenarioName: string, projectId: number): Promise<{ id: number } | null> {
     return prismaClient.scenario.findFirst({
       where: {
         name: scenarioName,

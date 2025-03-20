@@ -7,27 +7,17 @@ import { IProjectRepository } from "../interface/repository/project-repository-i
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
 import moment from "moment";
 
-export const reportPathValidateMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const reportPathValidateMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { projectName, scenarioName } = req.params;
-    const projectRepository = container.get<IProjectRepository>(
-      TYPES.IProjectRepository
-    );
-    const scenarioRepository = container.get<IScenarioRepository>(
-      TYPES.IScenarioRepository
-    );
+    const projectRepository = container.get<IProjectRepository>(TYPES.IProjectRepository);
+    const scenarioRepository = container.get<IScenarioRepository>(TYPES.IScenarioRepository);
 
     // const isProjectExist = await projectRepository.checkProjectIsExist(
     //   projectName.toUpperCase()
     // );
 
-    const projectId = await projectRepository.getProjectIdByProjectName(
-      projectName.toUpperCase()
-    );
+    const projectId = await projectRepository.getProjectIdByProjectName(projectName.toUpperCase());
 
     if (!projectId) {
       throw new ResponseError(404, "Not Found");
@@ -38,11 +28,10 @@ export const reportPathValidateMiddleware = async (
     //   projectId.id
     // );
 
-    const scenarioId =
-      await scenarioRepository.getScenarioIdByScenarioNameAndProjectId(
-        scenarioName.toUpperCase(),
-        projectId.id
-      );
+    const scenarioId = await scenarioRepository.getScenarioIdByScenarioNameAndProjectId(
+      scenarioName.toUpperCase(),
+      projectId.id
+    );
 
     if (!scenarioId) {
       throw new ResponseError(404, "Not Found");
@@ -68,9 +57,7 @@ export const reportPathValidateMiddleware = async (
     }
 
     if (testCase && date === "") {
-      return res.redirect(
-        `/${projectName}/${scenarioName}?page=1&test_case=${testCase}`
-      );
+      return res.redirect(`/${projectName}/${scenarioName}?page=1&test_case=${testCase}`);
     }
 
     if (date && testCase === "") {
@@ -80,20 +67,14 @@ export const reportPathValidateMiddleware = async (
         return res.redirect(`/${projectName}/${scenarioName}?page=1`);
       }
 
-      return res.redirect(
-        `/${projectName}/${scenarioName}?page=1&date=${encodeURIComponent(
-          date
-        )}`
-      );
+      return res.redirect(`/${projectName}/${scenarioName}?page=1&date=${encodeURIComponent(date)}`);
     }
 
     if (testCase && date) {
       const isValidMonth = moment(date, "DD/MM/YYYY", true).isValid();
 
       if (!isValidMonth) {
-        return res.redirect(
-          `/${projectName}/${scenarioName}?page=1&test_case=${testCase}`
-        );
+        return res.redirect(`/${projectName}/${scenarioName}?page=1&test_case=${testCase}`);
       }
     }
 
@@ -109,20 +90,12 @@ export const reportPathValidateMiddleware = async (
   }
 };
 
-export const downloadMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const downloadMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const id = req.params.id;
-    const fileRecordRepository = container.get<IFileRecordRepository>(
-      TYPES.IFileRecordRepository
-    );
+    const fileRecordRepository = container.get<IFileRecordRepository>(TYPES.IFileRecordRepository);
 
-    const fileName = await fileRecordRepository.checkFileRecordIsExist(
-      parseInt(id)
-    );
+    const fileName = await fileRecordRepository.checkFileRecordIsExist(parseInt(id));
 
     if (!fileName) {
       throw new ResponseError(404, "Not Found");
@@ -136,21 +109,13 @@ export const downloadMiddleware = async (
   }
 };
 
-export const deleteFileRecordMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const deleteFileRecordMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { fileRecordId } = req.params;
 
-    const fileRecordRepository = container.get<IFileRecordRepository>(
-      TYPES.IFileRecordRepository
-    );
+    const fileRecordRepository = container.get<IFileRecordRepository>(TYPES.IFileRecordRepository);
 
-    const fileName = await fileRecordRepository.checkFileRecordIsExist(
-      parseInt(fileRecordId)
-    );
+    const fileName = await fileRecordRepository.checkFileRecordIsExist(parseInt(fileRecordId));
 
     if (!fileName) {
       throw new ResponseError(404, "Not Found");

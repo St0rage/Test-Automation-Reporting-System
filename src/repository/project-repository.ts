@@ -61,9 +61,7 @@ export class ProjectRepository implements IProjectRepository {
     return true;
   }
 
-  async getProjectIdByProjectName(
-    projectName: string
-  ): Promise<{ id: number } | null> {
+  async getProjectIdByProjectName(projectName: string): Promise<{ id: number } | null> {
     return prismaClient.project.findFirst({
       where: {
         name: projectName,

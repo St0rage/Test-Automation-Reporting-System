@@ -8,11 +8,7 @@ import { IWebService } from "../interface/service/web-service-interface";
 export class WebController {
   constructor(@inject(TYPES.IWebService) private webService: IWebService) {}
 
-  async getDashboardData(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async getDashboardData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const projects = await this.webService.getAllProjectAndScenario();
 
@@ -26,11 +22,7 @@ export class WebController {
     }
   }
 
-  async getReportData(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async getReportData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const projectName = res.locals.projectName as string;
       const scenarioName = res.locals.scenarioName as string;
@@ -42,9 +34,7 @@ export class WebController {
       const pageSize: number = 10;
 
       const projects = await this.webService.getAllProjectAndScenario();
-      const testCases = await this.webService.getAllTestCaseByScenarioId(
-        scenarioId
-      );
+      const testCases = await this.webService.getAllTestCaseByScenarioId(scenarioId);
       const fileRecords = await this.webService.getAllFileRecordByScenarioId(
         scenarioId,
         pageSize,
@@ -53,12 +43,7 @@ export class WebController {
         date
       );
 
-      const totalFileRecords =
-        await this.webService.getTotalFileRecordByScenarioId(
-          scenarioId,
-          testCaseQuery,
-          date
-        );
+      const totalFileRecords = await this.webService.getTotalFileRecordByScenarioId(scenarioId, testCaseQuery, date);
 
       res.status(200).render("page/report", {
         projects: projects,
@@ -94,11 +79,7 @@ export class WebController {
     }
   }
 
-  async settings(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async settings(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const reportLogoError = req.flash("error-logo") || "";
       const projects = await this.webService.getAllProjectAndScenario();
@@ -123,11 +104,7 @@ export class WebController {
     }
   }
 
-  async changeReportLogo(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async changeReportLogo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const message = await this.webService.validateReportLogo();
       req.flash("error-logo", message);
@@ -137,15 +114,10 @@ export class WebController {
     }
   }
 
-  async deleteFileRecord(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async deleteFileRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const fileRecordId = res.locals.fileRecordId as number;
-      const { projectName, scenarioName, page, test_case, date, length } =
-        req.body;
+      const { projectName, scenarioName, page, test_case, date, length } = req.body;
 
       await this.webService.deleteFileRecordById(fileRecordId);
 

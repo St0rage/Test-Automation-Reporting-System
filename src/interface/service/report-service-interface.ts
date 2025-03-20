@@ -1,8 +1,4 @@
-import {
-  ImageDetailRequest,
-  ReportDetailRequest,
-  ReportRequest,
-} from "../../model/model";
+import { ImageDetailRequest, ReportDetailRequest, ReportRequest } from "../../model/model";
 
 export interface IReportService {
   addTestImage(imageDetail: ImageDetailRequest): Promise<{ id: number }>;

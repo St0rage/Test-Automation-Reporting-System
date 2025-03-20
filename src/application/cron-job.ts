@@ -10,9 +10,7 @@ export const setupCronJobs = (time: string) => {
     `${minutes} ${hours} * * *`,
     async () => {
       try {
-        const reportDetailResult = await prismaClient.reportDetail.deleteMany(
-          {}
-        );
+        const reportDetailResult = await prismaClient.reportDetail.deleteMany({});
         const reportResult = await prismaClient.report.deleteMany({});
         clearSessioQueue();
         logger.info({

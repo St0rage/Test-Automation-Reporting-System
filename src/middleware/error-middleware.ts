@@ -4,12 +4,7 @@ import { logger } from "../application/logger";
 import { ResponseError } from "../error/response-error";
 import { destroySessionQueue } from "../application/queue";
 
-export const errorMiddleware = (
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const errorMiddleware = (error: Error, req: Request, res: Response, next: NextFunction): void => {
   const token = res.locals.token as string;
   if (error instanceof ZodError) {
     logger.warn({

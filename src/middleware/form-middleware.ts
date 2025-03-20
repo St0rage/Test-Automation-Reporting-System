@@ -8,11 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../error/response-error";
 import { FileSystem } from "../utils/file-system-util";
 
-export const imageMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const imageMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const uploadPath = process.env.IMAGE_PATH as string;
   const imageLimit = parseInt(process.env.IMAGE_LIMIT as string);
   const fileSignatures: Record<string, string> = {
@@ -27,18 +23,14 @@ export const imageMiddleware = async (
     transform(chunk, encoding, callback) {
       receivedSize += chunk.length;
       if (receivedSize > maxFileSize) {
-        return callback(
-          new ResponseError(400, `Maximum limit image size is ${imageLimit}MB`)
-        );
+        return callback(new ResponseError(400, `Maximum limit image size is ${imageLimit}MB`));
       }
 
       if (!fileHeader) {
         fileHeader = chunk.slice(0, 4);
         const fileHex = fileHeader?.toString("hex");
 
-        const validType = Object.entries(fileSignatures).find(
-          ([_, signature]) => fileHex?.startsWith(signature)
-        );
+        const validType = Object.entries(fileSignatures).find(([_, signature]) => fileHex?.startsWith(signature));
 
         if (!validType) {
           return callback(new ResponseError(400, "Invalid Image Format"));
@@ -80,11 +72,7 @@ export const imageMiddleware = async (
   });
 };
 
-export const reportLogoMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const reportLogoMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const logoPath = path.join(__dirname, "..", "public", "img");
   const allowedFileType = ["image/png"];
   const maxFileSize = 1 * 1024 * 1024;
@@ -98,32 +86,23 @@ export const reportLogoMiddleware = (
   let flashErrorMessage = "";
   let isLogoNotUploaded = true;
 
-  bb.on(
-    "file",
-    (
-      fieldName: string,
-      file: internal.Readable & { truncated?: boolean },
-      info: busboy.Info
-    ) => {
-      isLogoNotUploaded = false;
-      if (!allowedFileType.includes(info.mimeType)) {
-        flashErrorMessage = "Image (PNG) file required";
-        file.resume();
-        return;
-      }
-
-      const saveTo = path.join(logoPath, fileName);
-      // file.pipe(fs.createWriteStream(saveTo));
-      file
-        .pipe(sharp().png({ compressionLevel: 9 }))
-        .pipe(fs.createWriteStream(saveTo));
-
-      file.on("limit", async () => {
-        await FileSystem.deleteFile(saveTo);
-        flashErrorMessage = "Maximum limit image size is 1MB";
-      });
+  bb.on("file", (fieldName: string, file: internal.Readable & { truncated?: boolean }, info: busboy.Info) => {
+    isLogoNotUploaded = false;
+    if (!allowedFileType.includes(info.mimeType)) {
+      flashErrorMessage = "Image (PNG) file required";
+      file.resume();
+      return;
     }
-  );
+
+    const saveTo = path.join(logoPath, fileName);
+    // file.pipe(fs.createWriteStream(saveTo));
+    file.pipe(sharp().png({ compressionLevel: 9 })).pipe(fs.createWriteStream(saveTo));
+
+    file.on("limit", async () => {
+      await FileSystem.deleteFile(saveTo);
+      flashErrorMessage = "Maximum limit image size is 1MB";
+    });
+  });
 
   bb.on("finish", () => {
     if (isLogoNotUploaded) {

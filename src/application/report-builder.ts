@@ -610,7 +610,7 @@ export class ReportBuilder implements IReportBuilder {
     const documentSummaryFirstMaxPage: number = 34;
     const documentSummaryRestMaxPage: number = 40;
     const documentSummaryTotalPage: number =
-      Math.ceil((stepDataLength - documentSummaryFirstMaxPage) / documentSummaryRestMaxPage) + 1;
+      Math.ceil((stepDataLength + 1 - documentSummaryFirstMaxPage) / documentSummaryRestMaxPage) + 1;
     const startPageReport: number = documentSummaryTotalPage + tableOfContentTotalPage + 2;
     const totalAllPage: number = Math.ceil(stepDataLength / 2) + tableOfContentTotalPage + documentSummaryTotalPage;
     const totalDoneStatus: number = stepData.filter((value) => value.status?.name === "DONE").length;

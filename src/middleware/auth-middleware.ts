@@ -5,15 +5,9 @@ import { container } from "../di/inversify.config";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { TYPES } from "../di/types";
 
-export const authMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const reportRepository = container.get<IReportRepository>(
-      TYPES.IReportRepository
-    );
+    const reportRepository = container.get<IReportRepository>(TYPES.IReportRepository);
 
     const token = req.headers.authorization;
 
