@@ -1,0 +1,225 @@
+<%- include('../partial/header', {projects, activeProject, activeScenario}) %>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title"><%= projectName %> - <%= scenarioName %></div>
+              <form id="filter-form" action="/<%= projectName.toLowerCase() %>/<%= scenarioName.toLowerCase() %>" method="get">
+                <input type="hidden" name="page" value="1">
+                <div class="d-flex align-items-center">
+                  <div class="d-flex mx-3 align-items-center">
+                    <div class="px-2 text-center">
+                      <span class="fw-medium">Test Case</span>
+                    </div>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label="Small select example"
+                        name="test_case"
+                        id="test_case_select"
+                      >
+                        <option value="">all</option>
+                        <% testCases.forEach((testCase, index) => { %>
+                          <option <%= testCaseQuery === testCase.name.toLowerCase() ? 'selected' : '' %> value="<%= testCase.name.toLowerCase() %>"><%= testCase.name %></option>
+                        <% }) %>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <div class="px-2 text-center">
+                      <span>Date</span>
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        id="date-filter"
+                        placeholder="dd/mm/yyyy"
+                        name="date"
+                        value="<%= dateFilter !== undefined ? dateFilter : "" %>"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-primary ms-3"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+          </div>
+        </div>
+        <% if(fileRecords.length != 0) { %>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Test Case</th>
+                  <th scope="col">File Name</th>
+                  <th scope="col">Created At</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% fileRecords.forEach((fileRecord, index) => { %>
+                  <tr>
+                    <td><%= (page - 1) * 10 + index + 1  %></td>
+                    <td>
+                      <span class="badge <%= fileRecord.status.name === "PASSED" ? "badge-success" : "badge-danger" %> "><%= fileRecord.status.name %></span>
+                    </td>
+                    <td><%= fileRecord.test_case.name %></td>
+                    <td><%= fileRecord.file_name %></td>
+                    <% 
+                        function formatEpochTime(epochTime) {
+                          const date = new Date(epochTime * 1000)
+                          return `${ String(date.getDate()).padStart(2, '0')}-${(String(date.getMonth() + 1)).padStart(2, '0')}-${date.getFullYear()}_${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+                        }
+
+                        const formattedDate = formatEpochTime(fileRecord.created_time)
+                    %>
+                    <td><%= formattedDate %></td>
+                    <td class="d-flex justify-content-center">
+                      <a href="/report/<%= fileRecord.file_name %>" class="btn btn-primary btn-sm" target="_blank">
+                        <div class="d-flex justify-content-center">
+                          <i class="fas fa-eye"></i>
+                        </div>
+                      </a>
+                      <a href="/download/<%= fileRecord.id %>" class="btn btn-success btn-sm">
+                        <div class="d-flex justify-content-center">
+                          <i class="fas fa-cloud-download-alt"></i>
+                        </div>
+                      </a>
+                      <form action="/delete-file-record/<%= fileRecord.id %>?_method=DELETE" method="post" id="delete-record-form-<%= index %>" enctype="application/x-www-form-urlencoded">
+                        <% if (testCaseQuery) { %>
+                          <input type="hidden" name="test_case" value="<%= testCaseQuery %>">
+                        <% } %>
+                        <% if (dateFilter) { %>
+                          <input type="hidden" name="date" value="<%= dateFilter %>">
+                        <% } %>
+                        <input type="hidden" name="length" value="<%= fileRecords.length %>">
+                        <input type="hidden" name="projectName" value="<%= projectName %>">
+                        <input type="hidden" name="scenarioName" value="<%= scenarioName %>">
+                        <input type="hidden" name="page" value="<%= page %>">
+                        <button type="button" id="delete-report-alert-<%= index %>" class="btn btn-danger btn-sm">
+                          <div class="d-flex justify-content-center">
+                            <i class="fas fa-trash-alt"></i>
+                          </div>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <div
+              class="d-flex justify-content-center align-items-center"
+            >
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <% let paginationBaseUrl = `/${projectName.toLowerCase()}/${scenarioName.toLowerCase()}` %>
+                  <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
+                    <% 
+                      let previousBaseUrl =  `${paginationBaseUrl}?page=${ page - 1 }` 
+                    
+                      if (testCaseQuery && !dateFilter) {
+                        previousBaseUrl += `&test_case=${testCaseQuery}`
+                      } 
+
+                      if (dateFilter && !testCaseQuery) {
+                        previousBaseUrl += `&date=${encodeURIComponent(dateFilter)}`
+                      }
+
+                      if (dateFilter && testCaseQuery) {
+                        previousBaseUrl += `&test_case=${testCaseQuery}&date=${encodeURIComponent(dateFilter)}`
+                      }
+                    %>
+                    <a class="page-link" href="<%= previousBaseUrl %>">Previous</a>
+                  </li>
+                  <% 
+                    let currentPage = 1;
+                    const maxPagesToShow = 10;
+                    const totalPage = Math.ceil(totalFileRecords / 10);
+                    let currentMaxPages = maxPagesToShow;
+                    let endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                    if (page > endPage) {
+                      let pageStrr = 0;
+                      if (page % maxPagesToShow === 0) {
+                        pageStr = (page-1).toString();
+                      } else {
+                        pageStr = page.toString();
+                      }
+                      const firstDigitOfPage = parseInt(pageStr.substring(0, 1), 10);
+                      currentMaxPages = currentMaxPages * firstDigitOfPage
+                      currentPage += currentMaxPages
+                      endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                    }
+                  %>     
+                  <% if (endPage > maxPagesToShow) {%>
+                    <li class="page-item">
+                      <a class="page-link" href="<%= `${paginationBaseUrl}?page=${currentPage - 1}` %>">...</a>
+                    </li>
+                  <% } %>  
+                  <% for (let i = currentPage; i <= endPage; i++ ) { %>
+                    <li class="page-item  <%= i === page ? 'active' : '' %>">
+                      <% 
+                        let baseUrl = `${paginationBaseUrl}?page=${i}`
+
+                        if (testCaseQuery && !dateFilter) {
+                          baseUrl += `&test_case=${testCaseQuery}`
+                        } 
+
+                        if (dateFilter && !testCaseQuery) {
+                          baseUrl += `&date=${encodeURIComponent(dateFilter)}`
+                        }
+
+                        if (dateFilter && testCaseQuery) {
+                          baseUrl += `&test_case=${testCaseQuery}&date=${encodeURIComponent(dateFilter)}`
+                        }
+                      %>
+                      <a class="page-link" href="<%= baseUrl %>"><%= i %></a>
+                    </li>
+                  <% } %>
+                  <% if (endPage < totalPage) {%>
+                    <li class="page-item">
+                      <a class="page-link" href="<%= `${paginationBaseUrl}?page=${endPage + 1}` %>">...</a>
+                    </li>
+                  <% } %>
+                  <li class="page-item <%= page === Math.ceil(totalFileRecords / 10) ? 'disabled' : '' %>">
+                    <% 
+                      let nextBaseUrl = `${paginationBaseUrl}?page=${page + 1}`
+
+                      if (testCaseQuery && !dateFilter) {
+                        nextBaseUrl += `&test_case=${testCaseQuery}`
+                      } 
+
+                      if (dateFilter && !testCaseQuery) {
+                        nextBaseUrl += `&date=${encodeURIComponent(dateFilter)}`
+                      }
+
+                      if (dateFilter && testCaseQuery) {
+                        nextBaseUrl += `&test_case=${testCaseQuery}&date=${encodeURIComponent(dateFilter)}`
+                      }
+                    %>
+                    <a class="page-link" href="<%= nextBaseUrl %>">Next</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>  
+        <% } else { %>
+          <div class="card-body text-center">
+            <span class="fw-bold">No Report Found</span>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+<%- include('../partial/footer', {fileRecords}) %>

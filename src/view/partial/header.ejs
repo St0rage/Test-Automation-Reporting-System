@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>TARS</title>
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/public/img/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/public/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/public/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/public/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/public/css/plugins.min.css" />
+    <link rel="stylesheet" href="/public/css/kaiadmin.min.css" />
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <!-- <link rel="stylesheet" href="assets/css/demo.css" /> -->
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark2">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div
+            class="logo-header d-flex justify-content-center"
+            data-background-color="dark2"
+          >
+            <a href="/" class="logo">
+              <img
+                src="/public/img/logo_side.svg"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="50"
+              />
+            </a>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+              <li class="nav-item <%= activeProject === 'dashboard' ? 'active' : '' %>">
+                <a href="/">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                </a>
+              </li>
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Projects</h4>
+              </li>
+              <% projects.forEach((project) => { %>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#<%= project.id %>">
+                  <i class="fas fa-flask"></i>
+                  <p><%= project.name %></p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse <%= activeProject === project.name ? 'show' : '' %>" id="<%= project.id %>">
+                  <ul class="nav nav-collapse">
+                    <% project.scenarios.forEach((scenario) => { %>
+                    <li class="<%= activeScenario === scenario.id ? 'active' : '' %>">
+                      <a
+                        href="/<%= project.name.toLowerCase() %>/<%= scenario.name.toLowerCase() %><%= '?page=1' %>"
+                      >
+                        <span class="sub-item"><%= scenario.name %></span>
+                      </a>
+                    </li>
+                    <% }) %>
+                  </ul>
+                </div>
+              </li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <div class="main-header">
+          <!-- Navbar Header -->
+          <nav
+            class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
+          >
+            <div class="container-fluid">
+              <nav
+                class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
+              >
+                <h3 class="fw-bold">Test Automation Reporting System</h3>
+              </nav>
+              <nav
+                class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex px-4"
+              >
+                <a href="/settings" class="d-flex align-items-center text-reset">
+                  <i class="fas fa-cog fa-2x"></i>
+                </a>
+              </nav>
+            </div>
+          </nav>
+          <!-- End Navbar -->
+        </div>
+
+        <div class="container">
+          <div class="page-inner">
