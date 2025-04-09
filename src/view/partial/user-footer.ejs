@@ -1,0 +1,177 @@
+<!--   Core JS Files   -->
+<script src="/public/js/core/jquery-3.7.1.min.js"></script>
+<script src="/public/js/core/popper.min.js"></script>
+<script src="/public/js/core/bootstrap.min.js"></script>
+
+<!-- Sweet Alert -->
+<script src="/public/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="/public/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+<!-- jQuery Vector Maps -->
+<script src="/public/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+<script src="/public/js/plugin/jsvectormap/world.js"></script>
+
+<!-- Kaiadmin JS -->
+<script src="/public/js/kaiadmin.min.js"></script>
+
+
+<!-- Add User Validation -->
+<script>
+
+    const fields = {
+        name: $("#name-field"),
+        username: $("#username-field"),
+    };
+
+    const feedback = {
+        name: $("#name-feedback"),
+        username: $("#username-feedback"),
+    };
+
+    // Function to remove validation error
+    const removeInvalidClass = (field) => field.removeClass("is-invalid");
+
+    // Remove invalid class on input change
+    Object.values(fields).forEach((field) => {
+        field.on("input", () => removeInvalidClass(field));
+    });
+
+    // Form validation on submit
+    $("#add-user-form").submit((e) => {
+        let isValid = true;
+
+        Object.keys(fields).forEach((key) => {
+            if (!fields[key].val().trim()) {
+                fields[key].addClass("is-invalid");
+                feedback[key].text(`${key.charAt(0).toUpperCase() + key.slice(1)} Required`);
+                isValid = false;
+            }
+        });
+
+        if (!isValid) e.preventDefault();
+    });
+
+</script>
+
+
+<!-- Reset Password & Delete User Alert -->
+<% if (users.length != 0) { %>
+<script>
+    
+    const usersLength = parseInt("<%= users.length %>")
+
+    var resetAlert = (function () {
+        var initAlert = function () {
+          
+
+          for (let index = 0; index < usersLength; index++) {
+            $(`#reset-user-password-${index}`).click(function (e) {
+              swal({
+                title: "Warning",
+                text: "Anda yakin ingin mereset ulang password user ini?",
+                icon: "warning",
+                buttons: {
+                  confirm: {
+                    text: "Ya",
+                    className: "btn btn-success",
+                  },
+                  cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                  },
+                },
+              }).then((reset) => {
+                if (reset) {
+                  $(`#reset-user-password-${index}`).parent().submit()
+                } else {
+                  swal.close();
+                }
+              });
+            });
+
+            $(`#delete-user-${index}`).click(function (e) {
+              swal({
+                title: "Warning",
+                text: "Anda yakin ingin menghapus user ini?",
+                icon: "warning",
+                buttons: {
+                  confirm: {
+                    text: "Ya",
+                    className: "btn btn-success",
+                  },
+                  cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                  },
+                },
+              }).then((del) => {
+                if (del) {
+                  $(`#delete-user-${index}`).parent().submit()
+                } else {
+                  swal.close();
+                }
+              });
+            });
+          }
+        };
+  
+        return {
+          //== Init
+          init: function () {
+            initAlert();
+          },
+        };
+      })();
+
+      jQuery(document).ready(function () {
+        resetAlert.init();
+      });
+</script>
+<% } %>
+
+<!-- Alert Add User -->
+<% if (userAlert.length > 0) { %>
+<script>
+
+    const message = "<%= userAlert[0] %>"
+
+    var SweetAlert2Demo = (function () {
+        var initAlert = function () {
+
+            swal({
+                title: "Success",
+                text: message,
+                icon: "success",
+                buttons: {
+                    confirm: {
+                        visible: true,
+                        className: "btn btn-success"
+                    }
+                }
+            }).then((ok) => {
+                if (ok) {
+                    swal.close()
+                }
+            })
+        };
+  
+        return {
+          //== Init
+          init: function () {
+            initAlert();
+          },
+        };
+    })();
+
+    //== Class Initialization
+    jQuery(document).ready(function () {
+        SweetAlert2Demo.init();
+      });
+</script>    
+<% } %>
+
+
+</body>
+</html>

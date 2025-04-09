@@ -1,0 +1,88 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Add User</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/users">Users</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/users/add-user">Add User</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Registration Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="add-user-form" action="/users/add-user" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="name-field">Name</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.name !== undefined ? 'is-invalid' : ''%>"
+                    id="name-field"
+                    name="name"
+                    placeholder="Enter Name"
+                    value="<%= errorData.name !== undefined ? formData.name : (errorData.username !== undefined ? formData.name : '') %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="name-feedback">
+                    <%= errorData.name !== undefined ? errorData.name[0] : ''%>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Username</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.username !== undefined ? 'is-invalid' : ''%>"
+                    id="username-field"
+                    name="username"
+                    placeholder="Enter Username",
+                    value="<%= errorData.username !== undefined ? formData.username : ''%>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.username !== undefined ? errorData.username[0] : ''%>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1"
+                    >Role</label
+                  >
+                  <select
+                    class="form-select"
+                    id="role"
+                    name="roleId"
+                  >
+                    <% roles.forEach((role)=> { %>
+                      <option value="<%= role.id %>" <%= role.id === selectedRole ? 'selected' : '' %>><%= role.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<% userAlert = [] %>
+<% users = [] %>
+
+<%- include('../partial/user-footer') %>

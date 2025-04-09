@@ -1,4 +1,5 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
+import methodOverride from "method-override";
 import { WebController } from "../controller/web-controller";
 import { container } from "../di/inversify.config";
 import { reportLogoMiddleware } from "../middleware/form-middleware";
@@ -7,7 +8,6 @@ import {
   downloadMiddleware,
   reportPathValidateMiddleware,
 } from "../middleware/web-middleware";
-import methodOverride from "method-override";
 
 const webController = container.get<WebController>(WebController);
 
@@ -29,3 +29,19 @@ webRoute.delete(
   deleteFileRecordMiddleware,
   webController.deleteFileRecord.bind(webController)
 );
+
+webRoute.get("/login", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.status(200).render("page/login");
+  } catch (e) {
+    next(e);
+  }
+});
+
+webRoute.get("/register", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.status(200).render("page/register");
+  } catch (e) {
+    next(e);
+  }
+});

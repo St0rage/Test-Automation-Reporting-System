@@ -1,0 +1,82 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Teams</h3>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Team List</div>
+            <div class="d-flex align-items-center">
+                <form id="filter-form" action="/users" method="get">
+                    <input type="hidden" name="page" value="1">
+                    <div class="d-flex align-items-center">
+                      <div class="d-flex align-items-center">
+                        <div class="px-2 text-center">
+                          <span>Search</span>
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            class="form-control form-control-sm"
+                            id="date-filter"
+                            placeholder="username or name"
+                            name="search"
+                            value=""
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-primary ms-3"
+                      >
+                        Search
+                      </button>
+                    </div>
+                </form>
+                <div class="mx-3 border border-start border-dark-subtle border-1" style="height: 30px;"></div>
+                <a href="#" class="btn btn-primary btn-sm">Add Team</a>
+            </div>
+          </div>
+        </div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Team Name</th>
+                  <th scope="col">Leader</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>ONBOARDING</td>
+                      <td>Dani Yudistira Maulana</td>
+                      <td class="d-flex justify-content-center">
+                        <a href="#" class="btn btn-primary btn-sm">
+                          <div class="d-flex justify-content-center">
+                            <i class="fas fa-wrench"></i>
+                          </div>
+                        </a>
+                        <a href="#" class="btn btn-danger btn-sm">
+                          <div class="d-flex justify-content-center">
+                            <i class="fas fa-trash-alt"></i>
+                          </div>
+                        </a>
+                      </td>
+                    </tr>
+              </tbody>
+            </table>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<%- include('../partial/footer') %>

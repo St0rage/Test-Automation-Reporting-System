@@ -1,0 +1,110 @@
+</div>
+</div>
+</div>
+
+<!-- End Custom template -->
+</div>
+
+<!--   Core JS Files   -->
+<script src="/public/js/core/jquery-3.7.1.min.js"></script>
+<script src="/public/js/core/popper.min.js"></script>
+<script src="/public/js/core/bootstrap.min.js"></script>
+
+<!-- Sweet Alert -->
+<script src="/public/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="/public/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+<!-- jQuery Vector Maps -->
+<script src="/public/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+<script src="/public/js/plugin/jsvectormap/world.js"></script>
+
+<!-- Kaiadmin JS -->
+<script src="/public/js/kaiadmin.min.js"></script>
+
+<script>
+    $("#formFile").change((e) => {
+        $('#formFile').removeClass("is-invalid");
+    })
+
+    $("#report-logo-form").submit((e) => {
+        const fileInput = $("#formFile")[0];
+        const fileInputFeedback = $("#formFeedback");
+
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            $(fileInput).addClass("is-invalid");
+            fileInputFeedback.text("Please upload a file before submitting the form.")
+        } else {
+            const file = fileInput.files[0]
+
+            if (file.type !== 'image/png') {
+                e.preventDefault();
+                $(fileInput).addClass("is-invalid");
+                fileInputFeedback.text("Only PNG file are allowed");
+            } else if (file.size > maxSize) {
+                e.preventDefault();
+                $(fileInput).addClass("is-invalid");
+                fileInputFeedback.text("Maximum limit image size is 1MB")
+            } else {
+                $(fileInput).removeClass("is-invalid");
+                fileInputFeedback.text("");
+            }
+        }
+    })
+</script>
+
+<% if (fileRecords.length != 0) { %>
+  <script>
+      const fileRecordsLength = parseInt("<%= fileRecords.length %>")
+
+      //== Class definition
+      var SweetAlert2Demo = (function () {
+        var initAlert = function () {
+          
+
+          for (let index = 0; index < fileRecordsLength; index++) {
+            $(`#delete-report-alert-${index}`).click(function (e) {
+              swal({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: {
+                  confirm: {
+                    text: "Yes, delete it!",    
+                    className: "btn btn-success",
+                  },
+                  cancel: {
+                    visible: true,
+                    className: "btn btn-danger",
+                  },
+                },
+              }).then((Delete) => {
+                if (Delete) {
+                  $(`#delete-report-alert-${index}`).parent().submit()
+                } else {
+                  swal.close();
+                }
+              });
+            });
+          }
+        };
+  
+        return {
+          //== Init
+          init: function () {
+            initAlert();
+          },
+        };
+      })();
+  
+      //== Class Initialization
+      jQuery(document).ready(function () {
+        SweetAlert2Demo.init();
+      });
+  </script>
+<% } %>
+
+</body>
+</html>

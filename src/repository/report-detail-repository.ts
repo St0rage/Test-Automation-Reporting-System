@@ -3,7 +3,6 @@ import { prismaClient } from "../application/database";
 import { IReportDetailRepository } from "../interface/repository/report-detail-repository-interface";
 import {
   ImageDetailInsertRequest,
-  ImageDetailRequest,
   ReportDetailInsertRequest,
   ReportDetailResponse,
   ReportDetailResponseWithId,

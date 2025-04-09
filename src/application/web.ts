@@ -9,6 +9,7 @@ import { logResponseMiddleware } from "../middleware/log-response-middleware";
 import { apiRoute } from "../route/api-route";
 import { webRoute } from "../route/web-route";
 import { notFoundMiddleware } from "../middleware/not-found-middleware";
+import { adminRoute } from "../route/admin-route";
 
 dotenv.config();
 
@@ -35,7 +36,8 @@ if (useStatic === "Y") {
 }
 web.use(logRequestMiddleware);
 web.use(logResponseMiddleware);
-web.use(apiRoute);
-web.use(webRoute);
+// web.use(apiRoute);
+// web.use(webRoute);
+web.use(adminRoute);
 web.use(notFoundMiddleware);
 web.use(errorMiddleware);

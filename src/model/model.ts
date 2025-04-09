@@ -115,3 +115,41 @@ export type FileRecordRequest = {
   file_name: string;
   created_time: number;
 };
+
+export type CreateUserRequest = {
+  name: string;
+  username: string;
+  roleId: string;
+};
+
+export type CreateUserInsertRequest = {
+  name: string;
+  username: string;
+  roleId: number;
+  password: string;
+  tempPassword: string;
+  reset: boolean;
+};
+
+export type UserResponse = {
+  id: number;
+  name: string;
+  username: string;
+  tempPassword: string | null;
+  reset: boolean;
+  roles: {
+    name: string;
+  };
+  userTeams: {
+    team: {
+      name: string;
+    };
+  }[];
+};
+
+export type EditUserRequest = {
+  id: number;
+  name: string;
+  username: string;
+  roleId: string;
+};
