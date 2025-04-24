@@ -1,12 +1,20 @@
 import { Container } from "inversify";
 import { ReportBuilder } from "../application/report-builder";
 import { IReportBuilder } from "../interface/application/report-builder-interface";
-import { IUserRepository } from "../interface/repository/repository-interface";
+import {
+  ITeamRepository,
+  IToolRepository,
+  IUserRepository,
+  IUserTeamRepository,
+} from "../interface/repository/repository-interface";
 import { AdminService } from "../service/admin-service";
 import { TYPES } from "./types";
 import { UserRepository } from "../repository/user-repository";
 import { IAdminService } from "../interface/service/service-interface";
 import { AdminController } from "../controller/admin-controller";
+import { TeamRepository } from "../repository/team-repository";
+import { UserTeamRepository } from "../repository/user-team-repository";
+import { ToolRepository } from "../repository/tool-repository";
 // import { ProjectRepository } from "../repository/drizzle/project-repository";
 // import { ScenarioRepository } from "../repository/drizzle/scenario-repository";
 // import { TestCaseRepository } from "../repository/drizzle/testcase-repository";
@@ -59,6 +67,9 @@ container.bind<IReportBuilder>(TYPES.IReportBuilder).to(ReportBuilder);
 
 // Repository
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
+container.bind<ITeamRepository>(TYPES.ITeamRepository).to(TeamRepository);
+container.bind<IUserTeamRepository>(TYPES.IUserTeamRepository).to(UserTeamRepository);
+container.bind<IToolRepository>(TYPES.IToolRepository).to(ToolRepository);
 // Service
 container.bind<IAdminService>(TYPES.IAdminService).to(AdminService);
 // Controller

@@ -1,0 +1,62 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Edit Team</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/teams">Teams</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/teams/edit-team/<%= originalTeamName.toLowerCase()  %>">Edit Team</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Edit Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="add-team-form" action="/teams/edit-team/<%= originalTeamName.toLowerCase() %>?_method=PATCH" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <input type="hidden" name="id" value="<%= currentTeamId %>">
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="team-name-field">Team Name</label>
+                  <input
+                    type="text"
+                    class="form-control <%= teamNameError !== undefined ? "is-invalid" : "" %>"
+                    id="team-name-field"
+                    name="teamName"
+                    placeholder="Enter Team Name"
+                    value="<%= currentTeamName %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="team-name-feedback">
+                    <%= teamNameError !== undefined ? teamNameError : "" %>
+                  </div>
+                </div>
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+
+<% teamAlert = [] %>
+<% teams = [] %>
+
+
+<%- include('../partial/team-footer') %>

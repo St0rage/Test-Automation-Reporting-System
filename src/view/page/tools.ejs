@@ -1,7 +1,132 @@
 <%- include('../partial/admin-sidebar') %>
 
-<!-- <div class="text-center">
-    <span class="fs-1 fw-bold">TEST AUTOMATION REPORTING SYSTEM</span>
-</div> -->
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Tools</h3>
+</div>
 
-<%- include('../partial/footer') %>
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Tool List</div>
+            <div class="d-flex align-items-center">
+                <form id="filter-form" action="/tools" method="get">
+                    <input type="hidden" name="page" value="1">
+                    <div class="d-flex align-items-center">
+                      <div class="d-flex align-items-center">
+                        <div class="px-2 text-center">
+                          <span>Search</span>
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            class="form-control form-control-sm"
+                            id="date-filter"
+                            placeholder="tool name"
+                            name="search"
+                            value="<%= searchQuery !== undefined ? searchQuery : "" %>"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-primary ms-3"
+                      >
+                        Search
+                      </button>
+                    </div>
+                </form>
+                <div class="mx-3 border border-start border-dark-subtle border-1" style="height: 30px;"></div>
+                <a href="/tools/add-tool" class="btn btn-primary btn-sm">Add New Tool</a>
+            </div>
+          </div>
+        </div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Tool Name</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% tools.forEach((tool, index) => { %>
+                  <tr>
+                    <td><%= (page - 1) * 10 + index + 1  %></td>
+                    <td><%= tool.name %></td>
+                    <td class="d-flex justify-content-center">
+                        <a href="/tools/edit-tool/<%= tool.name.toLowerCase() %>" type="button" class="btn btn-primary btn-sm">
+                            <div class="d-flex justify-content-center">
+                                <i class="fas fa-pen"></i>
+                            </div>
+                        </a>
+                        <button type="button" id="delete-tool-<%= index  %>" class="btn btn-danger btn-sm">
+                            <div class="d-flex justify-content-center">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                        </button>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+            <% if (tools.length !== 0) { %>
+              <div
+                class="d-flex justify-content-center align-items-center"
+              >
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
+                      <a class="page-link" href="/tools?page=<%= page - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Previous</a>
+                    </li>
+                    <% 
+                      let currentPage = 1;
+                      const maxPagesToShow = 10;
+                      const totalPage = Math.ceil(totalTools / 10);
+                      let currentMaxPages = maxPagesToShow;
+                      let endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                      if (page > endPage) {
+                        let pageStrr = 0;
+                        if (page % maxPagesToShow === 0) {
+                          pageStr = (page-1).toString();
+                        } else {
+                          pageStr = page.toString();
+                        }
+                        const firstDigitOfPage = parseInt(pageStr.substring(0, 1), 10);
+                        currentMaxPages = currentMaxPages * firstDigitOfPage
+                        currentPage += currentMaxPages
+                        endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                      }
+                    %>     
+                    <% if (endPage > maxPagesToShow) {%>
+                      <li class="page-item">
+                        <a class="page-link" href="/tools?page=<%= currentPage - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">...</a>
+                      </li>
+                    <% } %>  
+                    <% for (let i = currentPage; i <= endPage; i++ ) { %>
+                      <li class="page-item  <%= i === page ? 'active' : '' %>">
+                        <a class="page-link" href="/tools?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %>"><%= i %></a>
+                      </li>
+                    <% } %>
+                    <% if (endPage < totalPage) {%>
+                      <li class="page-item">
+                        <a class="page-link" href="/tools?page=<%= endPage + 1 %>">...</a>
+                      </li>
+                    <% } %>
+                    <li class="page-item <%= page === Math.ceil(totalTools / 10) ? 'disabled' : '' %>">
+                      <a class="page-link" href="/tools?page=<%= page + 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Next</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            <% } %>
+          </div>  
+      </div>
+    </div>
+  </div>
+
+<%- include('../partial/tool-footer') %>

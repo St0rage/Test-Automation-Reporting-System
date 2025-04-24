@@ -1,0 +1,205 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Team Member</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-item">
+      <a href="/teams">Teams</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="/teams/team-member/<%= originalTeamName.toLowerCase() %>">Team Member</a>
+    </li>
+  </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title"><%= originalTeamName.toUpperCase() %> Members</div>
+            <div class="d-flex align-items-center">
+                <form id="filter-form" action="/teams/team-member/<%= originalTeamName.toLowerCase() %>" method="get">
+                    <input type="hidden" name="page" value="1">
+                    <div class="d-flex align-items-center">
+                      <div class="d-flex align-items-center">
+                        <div class="px-2 text-center">
+                          <span>Search</span>
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            class="form-control form-control-sm"
+                            id="date-filter"
+                            placeholder="search user"
+                            name="search"
+                            value="<%= searchQuery !== undefined ? searchQuery : "" %>"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-primary ms-3"
+                      >
+                        Search
+                      </button>
+                    </div>
+                </form>
+                <div class="mx-3 border border-start border-dark-subtle border-1" style="height: 30px;"></div>
+                <a href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member" class="btn btn-primary btn-sm">Add Member</a>
+            </div>
+          </div>
+        </div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Username</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Leader</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach((user, index) => { %>
+                  <tr>
+                    <td><%= (page - 1) * 10 + index + 1  %></td>
+                    <td><%= user.username %></td>
+                    <td><%= user.name %></td>
+                    <td>
+                      <% if (user.leader) { %>
+                        <div class="d-flex justify-content-center">
+                          <button class="btn btn-primary" disabled>
+                            <div class="d-flex justify-content-center">
+                              <i class="fas fa-check"></i>
+                            </div>
+                          </div>
+                        </div>
+                      <% } %>
+                    </td>
+                    <td>
+                      <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary btn-sm" id="edit-member-modal-<%= index %>" data-userid="<%= user.id %>" data-username="<%= user.username %>" data-leader="<%= user.leader %>">
+                          <div class="d-flex justify-content-center">
+                            <i class="fas fa-pen"></i>
+                          </div>
+                        </button>
+                        <form action="/teams/team-member/<%= originalTeamName.toLowerCase() %>/delete-member?_method=DELETE" method="post">
+                          <% if (searchQuery) { %>
+                            <input type="hidden" name="searchQuery" value="<%= searchQuery %>">
+                          <% } %>
+                          <input type="hidden" name="userId" value="<%= user.id %>">
+                          <input type="hidden" name="page" value="<%= page %>">
+                          <button type="button" id="delete-team-member-<%= index %>" href="#" class="btn btn-danger btn-sm">
+                            <div class="d-flex justify-content-center">
+                              <i class="fas fa-times"></i>
+                            </div>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+            <% if ( users.length !== 0) { %>
+              <div
+                class="d-flex justify-content-center align-items-center"
+              >
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
+                      <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>?page=<%= page - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Previous</a>
+                    </li>
+                    <% 
+                      let currentPage = 1;
+                      const maxPagesToShow = 10;
+                      const totalPage = Math.ceil(totalUsers / 10);
+                      let currentMaxPages = maxPagesToShow;
+                      let endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                      if (page > endPage) {
+                        let pageStrr = 0;
+                        if (page % maxPagesToShow === 0) {
+                          pageStr = (page-1).toString();
+                        } else {
+                          pageStr = page.toString();
+                        }
+                        const firstDigitOfPage = parseInt(pageStr.substring(0, 1), 10);
+                        currentMaxPages = currentMaxPages * firstDigitOfPage
+                        currentPage += currentMaxPages
+                        endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                      }
+                    %>     
+                    <% if (endPage > maxPagesToShow) {%>
+                      <li class="page-item">
+                        <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>?page=<%= currentPage - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">...</a>
+                      </li>
+                    <% } %>  
+                    <% for (let i = currentPage; i <= endPage; i++ ) { %>
+                      <li class="page-item  <%= i === page ? 'active' : '' %>">
+                        <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %>"><%= i %></a>
+                      </li>
+                    <% } %>
+                    <% if (endPage < totalPage) {%>
+                      <li class="page-item">
+                        <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>?page=<%= endPage + 1 %>">...</a>
+                      </li>
+                    <% } %>
+                    <li class="page-item <%= page === Math.ceil(totalUsers / 10) ? 'disabled' : '' %>">
+                      <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>?page=<%= page + 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Next</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            <% } %>
+          </div>  
+      </div>
+    </div>
+</div>
+
+ <!-- Modal -->
+ <div class="modal fade" id="editMemberModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="h1-title-edit-modal"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/teams/team-member/<%= originalTeamName.toLowerCase() %>/edit-member?_method=PATCH" method="post">
+        <div class="modal-body">
+          <input type="hidden" name="userId" id="userid-edit-modal" value="">
+          <div class="form-group">
+            <label for="exampleFormControlSelect1"
+              >Team Leader</label
+            >
+            <select
+              class="form-select"
+              id="editTeamLeader"
+              name="teamLeader"
+            >
+            <option value="false">NO</option>
+            <option value="true">YES</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success btn-sm" type="submit">
+            Edit Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<% teams = [] %>
+
+<%- include('../partial/team-footer') %>

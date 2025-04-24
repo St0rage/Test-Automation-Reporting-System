@@ -1,7 +1,24 @@
 <%- include('../partial/admin-sidebar') %>
 
 <div class="page-header">
-    <h3 class="fw-bold mb-3">Users</h3>
+  <h3 class="fw-bold mb-3">Add Member to <%= originalTeamName.toUpperCase()  %></h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-item">
+      <a href="/teams">Teams</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="/teams/team-member/<%= originalTeamName.toLowerCase() %>">Team Member</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member">Add Member</a>
+    </li>
+  </ul>
 </div>
 
 <div class="row">
@@ -13,7 +30,7 @@
           >
             <div class="card-title">User List</div>
             <div class="d-flex align-items-center">
-                <form id="filter-form" action="/users" method="get">
+                <form id="filter-form" action="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member" method="get">
                     <input type="hidden" name="page" value="1">
                     <div class="d-flex align-items-center">
                       <div class="d-flex align-items-center">
@@ -39,8 +56,6 @@
                       </button>
                     </div>
                 </form>
-                <div class="mx-3 border border-start border-dark-subtle border-1" style="height: 30px;"></div>
-                <a href="/users/add-user" class="btn btn-primary btn-sm">Add New User</a>
             </div>
           </div>
         </div>
@@ -51,57 +66,26 @@
                   <th scope="col">#</th>
                   <th scope="col">Username</th>
                   <th scope="col">Name</th>
-                  <th scope="col">Role</th>
-                  <th scope="col">Reset Password</th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
               <tbody>
-                  <% users.forEach((user, index) => { %>   
-                    <tr>
-                      <td><%= (page - 1) * 10 + index + 1  %></td>
-                      <td><%= user.username %></td>
-                      <td><%= user.name %></td>
-                      <td><%= user.roles.name %></td>
-                      <td><%= user.reset ? user.tempPassword : '-' %></td>
-                      <td class="d-flex justify-content-center">
-                        <a href="/users/<%= user.username %>" class="btn btn-warning btn-sm">
+                <% users.forEach((user, index) => { %>
+                  <tr>
+                    <td><%= (page - 1) * 10 + index + 1  %></td>
+                    <td><%= user.username %></td>
+                    <td><%= user.name %></td>
+                    <td>
+                      <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-success btn-sm" id="add-member-modal-<%= index %>" data-userid="<%= user.id %>" data-username="<%= user.username %>">
                           <div class="d-flex justify-content-center">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-plus"></i>
                           </div>
-                        </a>
-                        <a href="/users/edit-user/<%= user.username %>" class="btn btn-primary btn-sm">
-                          <div class="d-flex justify-content-center">
-                            <i class="fas fa-pen"></i>
-                          </div>
-                        </a>
-                        <form action="/users/reset-password?_method=PATCH" method="post">
-                          <% if (searchQuery) { %>
-                            <input type="hidden" name="searchQuery" value="<%= searchQuery %>">
-                          <% } %>
-                          <input type="hidden" name="id" value="<%= user.id %>">
-                          <input type="hidden" name="page" value="<%= page %>">
-                          <button type="button" id="reset-user-password-<%= index %>" class="btn btn-success btn-sm">
-                            <div class="d-flex justify-content-center">
-                              <i class="fas fa-sync-alt"></i>
-                            </div>
-                          </button>
-                        </form>
-                        <form action="/users/delete?_method=DELETE" method="post">
-                          <% if (searchQuery) { %>
-                            <input type="hidden" name="searchQuery" value="<%= searchQuery %>">
-                          <% } %>
-                          <input type="hidden" name="id" value="<%= user.id %>">
-                          <input type="hidden" name="page" value="<%= page %>">
-                          <button type="button" id="delete-user-<%= index %>" class="btn btn-danger btn-sm">
-                            <div class="d-flex justify-content-center">
-                                <i class="fas fa-trash-alt"></i>
-                              </div>
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }); %>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>  
               </tbody>
             </table>
             <% if (users.length !== 0) { %>
@@ -111,7 +95,7 @@
                 <nav aria-label="Page navigation example">
                   <ul class="pagination">
                     <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
-                      <a class="page-link" href="/users?page=<%= page - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Previous</a>
+                      <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member?page=<%= page - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Previous</a>
                     </li>
                     <% 
                       let currentPage = 1;
@@ -134,29 +118,69 @@
                     %>     
                     <% if (endPage > maxPagesToShow) {%>
                       <li class="page-item">
-                        <a class="page-link" href="/users?page=<%= currentPage - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">...</a>
+                        <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member?page=<%= currentPage - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">...</a>
                       </li>
                     <% } %>  
                     <% for (let i = currentPage; i <= endPage; i++ ) { %>
                       <li class="page-item  <%= i === page ? 'active' : '' %>">
-                        <a class="page-link" href="/users?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %>"><%= i %></a>
+                        <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %>"><%= i %></a>
                       </li>
                     <% } %>
                     <% if (endPage < totalPage) {%>
                       <li class="page-item">
-                        <a class="page-link" href="/users?page=<%= endPage + 1 %>">...</a>
+                        <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member?page=<%= endPage + 1 %>">...</a>
                       </li>
                     <% } %>
                     <li class="page-item <%= page === Math.ceil(totalUsers / 10) ? 'disabled' : '' %>">
-                      <a class="page-link" href="/users?page=<%= page + 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Next</a>
+                      <a class="page-link" href="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member?page=<%= page + 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Next</a>
                     </li>
                   </ul>
                 </nav>
               </div>
             <% } %>
+
           </div>  
       </div>
     </div>
   </div>
 
-<%- include('../partial/user-footer', {userAlert}) %>
+  <!-- Modal -->
+<div class="modal fade" id="addMemberModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="h1-title-modal"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/teams/team-member/<%= originalTeamName.toLowerCase() %>/add-member" method="post">
+        <div class="modal-body">
+          <input type="hidden" name="userId" id="userid-modal" value="">
+          <div class="form-group">
+            <label for="exampleFormControlSelect1"
+              >Team Leader</label
+            >
+            <select
+              class="form-select"
+              id="teamLeader"
+              name="teamLeader"
+            >
+            <option value="false" selected>NO</option>
+            <option value="true">YES</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success btn-sm" type="submit">
+            Add Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<% teams = [] %>
+<% teamAlert = [] %>
+
+<%- include('../partial/team-footer') %>

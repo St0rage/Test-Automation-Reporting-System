@@ -1,0 +1,58 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Edit Tool</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/tools">Tools</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/tools/edit-tool/<%= originalToolName.toLowerCase() %>">Edit Tool</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Edit Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="add-tool-form" action="#" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="name-field">Tool Name</label>
+                  <input
+                    type="text"
+                    class="form-control <%= toolNameError !== undefined ? "is-invalid" : "" %>"
+                    id="name-field"
+                    name="toolName"
+                    placeholder="Enter Tool Name"
+                    value="<%= currentToolName %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="name-feedback">
+                    <%= toolNameError !== undefined ? toolNameError : "" %>
+                  </div>
+                </div>
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<% toolAlert = [] %>
+
+<%- include('../partial/tool-footer') %>

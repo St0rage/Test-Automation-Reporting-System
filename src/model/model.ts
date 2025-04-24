@@ -140,11 +140,29 @@ export type UserResponse = {
   roles: {
     name: string;
   };
+};
+
+export type UserDetailResponse = {
+  id: number;
+  name: string;
+  username: string;
+  tempPassword: string | null;
+  reset: boolean;
+  roles: {
+    name: string;
+  };
   userTeams: {
+    leader: boolean;
     team: {
       name: string;
     };
   }[];
+};
+
+export type UserMemberResponse = {
+  id: number;
+  username: string;
+  name: string;
 };
 
 export type EditUserRequest = {
@@ -152,4 +170,17 @@ export type EditUserRequest = {
   name: string;
   username: string;
   roleId: string;
+};
+
+export type UserTeamRequest = {
+  userId: number;
+  teamId: number;
+  leader: boolean;
+};
+
+export type UserTeamResponse = {
+  id: number;
+  username: string;
+  name: string;
+  leader: boolean;
 };

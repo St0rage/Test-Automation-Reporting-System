@@ -1,0 +1,94 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">View User</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/users">Users</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/users/add-user">View User</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">User Detail</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="add-user-form" action="#" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="name-field">Name</label>
+                  <input
+                    type="text"
+                    class="form-control user-detail-view"
+                    id="name-field"
+                    name="name"
+                    placeholder="Enter Name"
+                    value="<%= user.name  %>"
+                    disabled
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Username</label>
+                  <input
+                    type="text"
+                    class="form-control user-detail-view"
+                    id="username-field"
+                    name="username"
+                    placeholder="Enter Username"
+                    value="<%= user.username  %>"
+                    disabled
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="role-field">Role</label>
+                  <input
+                    type="text"
+                    class="form-control user-detail-view"
+                    id="name-field"
+                    name="role"
+                    placeholder="Enter Name"
+                    value="<%= user.roles.name  %>"
+                    disabled
+                  />
+                </div>
+                <% if (user.roles.name === 'USER') { %>
+                  <div class="form-group">
+                    <label for="teams-field">Teams</label>
+                    <div>
+                      <ul class="list-group">
+                        <% user.userTeams.forEach((userTeam) => { %>
+                          <li class="list-group-item">
+                            <%= userTeam.team.name %>
+                            <% if (userTeam.leader) { %>
+                              <span class="badge text-bg-primary rounded-pill">Leader</span>
+                            <% } %>
+                          </li>
+                        <% }); %>
+                      </ul>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<% userAlert = [] %>
+<% users = [] %>
+
+<%- include('../partial/user-footer') %>

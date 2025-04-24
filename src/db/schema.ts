@@ -186,10 +186,10 @@ export const teams = pgTable("teams", {
 export const userTeams = pgTable("user_teams", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   teamId: integer("team_id")
-    .references(() => teams.id)
+    .references(() => teams.id, { onDelete: "cascade" })
     .notNull(),
   leader: boolean("leader").notNull(),
 });
@@ -197,7 +197,7 @@ export const userTeams = pgTable("user_teams", {
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   teamId: integer("team_id")
-    .references(() => teams.id)
+    .references(() => teams.id, { onDelete: "cascade" })
     .notNull(),
   toolId: integer("tool_id")
     .references(() => tools.id)

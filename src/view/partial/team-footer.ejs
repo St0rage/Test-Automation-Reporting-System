@@ -1,0 +1,200 @@
+<!--   Core JS Files   -->
+<script src="/public/js/core/jquery-3.7.1.min.js"></script>
+<script src="/public/js/core/popper.min.js"></script>
+<script src="/public/js/core/bootstrap.min.js"></script>
+
+<!-- Sweet Alert -->
+<script src="/public/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="/public/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+<!-- jQuery Vector Maps -->
+<script src="/public/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+<script src="/public/js/plugin/jsvectormap/world.js"></script>
+
+<!-- Kaiadmin JS -->
+<script src="/public/js/kaiadmin.min.js"></script>
+
+
+<script>
+  const teamNameField = $("#team-name-field")
+
+  teamNameField.on("input", function() {
+    this.value = this.value.toUpperCase()
+  })
+
+  $("#add-team-form").submit((e) => {
+    if (!teamNameField.val().trim()) {
+      teamNameField.addClass("is-invalid")
+      $("#team-name-feedback").text("Team Name Required")
+      e.preventDefault()
+    }
+  })
+</script>
+
+<!-- Delete Team Alert -->
+<% if (teams.length != 0) { %>
+  <script>
+      
+      const teamLength = parseInt("<%= teams.length %>")
+  
+      var resetAlert = (function () {
+          var initAlert = function () {
+            
+  
+            for (let index = 0; index < teamLength; index++) {
+              $(`#delete-team-${index}`).click(function (e) {
+                swal({
+                  title: "Warning",
+                  text: "Tindakan ini dapat menghapus seluruh project didalamnya, anda yakin?",
+                  icon: "warning",
+                  buttons: {
+                    confirm: {
+                      text: "Ya",
+                      className: "btn btn-success",
+                    },
+                    cancel: {
+                      visible: true,
+                      className: "btn btn-danger",
+                    },
+                  },
+                }).then((del) => {
+                  if (del) {
+                    $(`#delete-team-${index}`).parent().submit()
+                  } else {
+                    swal.close();
+                  }
+                });
+              });
+            }
+          };
+    
+          return {
+            //== Init
+            init: function () {
+              initAlert();
+            },
+          };
+        })();
+  
+        jQuery(document).ready(function () {
+          resetAlert.init();
+        });
+  </script>
+  <% } %>
+
+<!-- Alert Team -->
+<% if (teamAlert.length > 0) { %>
+  <script>
+  
+      const message = "<%= teamAlert[0] %>"
+  
+      var SweetAlert2Demo = (function () {
+          var initAlert = function () {
+  
+              swal({
+                  title: "Success",
+                  text: message,
+                  icon: "success",
+                  buttons: {
+                      confirm: {
+                          visible: true,
+                          className: "btn btn-success"
+                      }
+                  }
+              }).then((ok) => {
+                  if (ok) {
+                      swal.close()
+                  }
+              })
+          };
+    
+          return {
+            //== Init
+            init: function () {
+              initAlert();
+            },
+          };
+      })();
+  
+      //== Class Initialization
+      jQuery(document).ready(function () {
+          SweetAlert2Demo.init();
+        });
+  </script>    
+<% } %>
+
+<% if(users.length != 0) { %>
+  <script>
+    const userLength = parseInt("<%= users.length %>")
+  
+    for (let index = 0; index < userLength; index++) {
+      $(`#add-member-modal-${index}`).click(function(e) {
+        $("#userid-modal").val($(this).data('userid'))
+        $("#h1-title-modal").text($(this).data('username'))
+        $("#addMemberModal").modal("show")
+      })
+      
+
+      $(`#edit-member-modal-${index}`).click(function(e) {
+        $("#userid-edit-modal").val($(this).data('userid'))
+        $("#h1-title-edit-modal").text($(this).data('username'))
+
+        const leader = $(this).data('leader')
+
+        $("#editTeamLeader option").each(function() {
+          if ($(this).val() === leader.toString()) {
+            $(this).attr('selected', 'selected')
+          } else {
+            $(this).removeAttr('selected')
+          }
+        })
+
+        $("#editMemberModal").modal("show")
+      })
+    }
+
+    var resetAlert = (function () {
+      var initAlert = function () {
+        for (let index = 0; index < userLength; index++) {
+          $(`#delete-team-member-${index}`).click(function (e) {
+            swal({
+              title: "Warning",
+              text: "Anda yakin ingin menghapus member ini?",
+              icon: "warning",
+              buttons: {
+                confirm: {
+                  ext: "Ya",
+                  className: "btn btn-success",
+                },
+                cancel: {
+                  visible: true,
+                  className: "btn btn-danger",
+                },
+              },
+            }).then((del) => {
+              if (del) {
+                $(`#delete-team-member-${index}`).parent().submit()
+              } else {
+                swal.close();
+              }})
+            })}
+          };
+    
+          return {
+            //== Init
+            init: function () {
+              initAlert();
+            },
+        };
+      })();
+  
+    jQuery(document).ready(function () {
+        resetAlert.init();
+    });
+  </script>
+<% } %>
+
+</body>
+</html>

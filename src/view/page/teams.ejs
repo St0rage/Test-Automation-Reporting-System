@@ -13,7 +13,7 @@
           >
             <div class="card-title">Team List</div>
             <div class="d-flex align-items-center">
-                <form id="filter-form" action="/users" method="get">
+                <form id="filter-form" action="/teams" method="get">
                     <input type="hidden" name="page" value="1">
                     <div class="d-flex align-items-center">
                       <div class="d-flex align-items-center">
@@ -25,9 +25,9 @@
                             type="text"
                             class="form-control form-control-sm"
                             id="date-filter"
-                            placeholder="username or name"
+                            placeholder="team name"
                             name="search"
-                            value=""
+                            value="<%= searchQuery !== undefined ? searchQuery : "" %>"
                           />
                         </div>
                       </div>
@@ -40,7 +40,7 @@
                     </div>
                 </form>
                 <div class="mx-3 border border-start border-dark-subtle border-1" style="height: 30px;"></div>
-                <a href="#" class="btn btn-primary btn-sm">Add Team</a>
+                <a href="/teams/add-team" class="btn btn-primary btn-sm">Add New Team</a>
             </div>
           </div>
         </div>
@@ -50,33 +50,97 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Team Name</th>
-                  <th scope="col">Leader</th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
               <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>ONBOARDING</td>
-                      <td>Dani Yudistira Maulana</td>
-                      <td class="d-flex justify-content-center">
-                        <a href="#" class="btn btn-primary btn-sm">
-                          <div class="d-flex justify-content-center">
-                            <i class="fas fa-wrench"></i>
-                          </div>
-                        </a>
-                        <a href="#" class="btn btn-danger btn-sm">
+                <% teams.forEach((team, index) => { %>
+                  <tr>
+                    <td><%= (page - 1) * 10 + index + 1  %></td>
+                    <td><%= team.name %></td>
+                    <td class="d-flex justify-content-center">
+                      <a href="/teams/team-member/<%= team.name.toLowerCase() %>" class="btn btn-success btn-sm">
+                        <div class="d-flex justify-content-center">
+                          <i class="fas fa-users"></i>
+                        </div>
+                      </a>
+                      <a href="/teams/edit-team/<%= team.name.toLowerCase() %>" class="btn btn-primary btn-sm">
+                        <div class="d-flex justify-content-center">
+                          <i class="fas fa-pen"></i>
+                        </div>
+                      </a>
+                      <form action="/teams/delete?_method=DELETE" method="post">
+                        <% if (searchQuery) { %>
+                          <input type="hidden" name="searchQuery" value="<%= searchQuery %>">
+                        <% } %>
+                        <input type="hidden" name="id" value="<%= team.id %>">
+                        <input type="hidden" name="page" value="<%= page %>">
+                        <button type="button" id="delete-team-<%= index %>" class="btn btn-danger btn-sm">
                           <div class="d-flex justify-content-center">
                             <i class="fas fa-trash-alt"></i>
                           </div>
-                        </a>
-                      </td>
-                    </tr>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
               </tbody>
             </table>
+            <% if (teams.length !== 0) { %>
+              <div
+                class="d-flex justify-content-center align-items-center"
+              >
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    <li class="page-item <%= page === 1 ? 'disabled' : '' %> ">
+                      <a class="page-link" href="/teams?page=<%= page - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Previous</a>
+                    </li>
+                    <% 
+                      let currentPage = 1;
+                      const maxPagesToShow = 10;
+                      const totalPage = Math.ceil(totalTeams / 10);
+                      let currentMaxPages = maxPagesToShow;
+                      let endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                      if (page > endPage) {
+                        let pageStrr = 0;
+                        if (page % maxPagesToShow === 0) {
+                          pageStr = (page-1).toString();
+                        } else {
+                          pageStr = page.toString();
+                        }
+                        const firstDigitOfPage = parseInt(pageStr.substring(0, 1), 10);
+                        currentMaxPages = currentMaxPages * firstDigitOfPage
+                        currentPage += currentMaxPages
+                        endPage = Math.min(currentPage + maxPagesToShow - 1, totalPage)
+                      }
+                    %>     
+                    <% if (endPage > maxPagesToShow) {%>
+                      <li class="page-item">
+                        <a class="page-link" href="/teams?page=<%= currentPage - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">...</a>
+                      </li>
+                    <% } %>  
+                    <% for (let i = currentPage; i <= endPage; i++ ) { %>
+                      <li class="page-item  <%= i === page ? 'active' : '' %>">
+                        <a class="page-link" href="/teams?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %>"><%= i %></a>
+                      </li>
+                    <% } %>
+                    <% if (endPage < totalPage) {%>
+                      <li class="page-item">
+                        <a class="page-link" href="/teams?page=<%= endPage + 1 %>">...</a>
+                      </li>
+                    <% } %>
+                    <li class="page-item <%= page === Math.ceil(totalTeams / 10) ? 'disabled' : '' %>">
+                      <a class="page-link" href="/teams?page=<%= page + 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %>">Next</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            <% } %>
           </div>  
       </div>
     </div>
 </div>
 
-<%- include('../partial/footer') %>
+<% users = [] %>
+
+<%- include('../partial/team-footer') %>
