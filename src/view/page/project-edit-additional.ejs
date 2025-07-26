@@ -1,0 +1,112 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3"><%= project.name %></h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/projects">Projects</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional">Additional</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional/edit">Edit</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Edit Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="edit-project-dashboard" action="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional/edit?_method=PATCH" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <input type="hidden" name="id" value="<%= additionalData.id %>">
+              <input type="hidden" name="teamId" value="<%= project.teamId %>">
+              <input type="hidden" name="projectName" value="<%= project.name %>">
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="name-field">Project Repository</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.repository !== undefined ? 'is-invalid' : '' %>"
+                    id="repository-field"
+                    name="repository"
+                    placeholder="Enter Repository Link"
+                    value="<%= additionalData.repository %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="name-feedback">
+                    <%= errorData.repository !== undefined ? errorData.repository[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Main Jira</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.jira !== undefined ? 'is-invalid' : '' %>"
+                    id="jira-field"
+                    name="jira"
+                    placeholder="Enter Jira Main Link",
+                    value="<%= additionalData.jira %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.jira !== undefined ? errorData.jira[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">External Resource</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.externalRsc ? 'is-invalid' : '' %>"
+                    id="externalRsc-field"
+                    name="externalRsc"
+                    placeholder="Enter External Resource Link",
+                    value="<%= additionalData.externalRsc %>"                    
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.externalRsc !== undefined ? errorData.externalRsc[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Test Script Automation</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.testScript !== undefined ? 'is-invalid' : '' %>"
+                    id="testScript-field"
+                    name="testScript"
+                    placeholder="Enter Test Script Link",
+                    value="<%= additionalData.testScript %>"                    
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.testScript !== undefined ? errorData.testScript[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<% projectViewAlert = [] %>
+
+<%- include('../partial/project-view-footer') %>

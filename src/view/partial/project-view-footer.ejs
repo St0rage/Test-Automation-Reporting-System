@@ -1,0 +1,61 @@
+<!--   Core JS Files   -->
+<script src="/public/js/core/jquery-3.7.1.min.js"></script>
+<script src="/public/js/core/popper.min.js"></script>
+<script src="/public/js/core/bootstrap.min.js"></script>
+
+<!-- Sweet Alert -->
+<script src="/public/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="/public/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+<!-- jQuery Vector Maps -->
+<script src="/public/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+<script src="/public/js/plugin/jsvectormap/world.js"></script>
+
+<!-- Kaiadmin JS -->
+<script src="/public/js/kaiadmin.min.js"></script>
+
+<!-- Alert Tool -->
+<% if (projectViewAlert.length > 0) { %>
+    <script>
+    
+        const message = "<%= projectViewAlert[0] %>"
+    
+        var SweetAlert2Demo = (function () {
+            var initAlert = function () {
+    
+                swal({
+                    title: message.toLowerCase().includes("gagal") ? "Failed" : "Success" ,
+                    text: message,
+                    icon: message.toLowerCase().includes("gagal") ? "error" : "success",
+                    buttons: {
+                        confirm: {
+                            visible: true,
+                            className: "btn btn-success"
+                        }
+                    }
+                }).then((ok) => {
+                    if (ok) {
+                        swal.close()
+                    }
+                })
+            };
+      
+            return {
+              //== Init
+              init: function () {
+                initAlert();
+              },
+            };
+        })();
+    
+        //== Class Initialization
+        jQuery(document).ready(function () {
+            SweetAlert2Demo.init();
+          });
+    </script>    
+<% } %>
+
+</body>
+</html>

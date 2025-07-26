@@ -1,0 +1,96 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Add New Project</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/projects">Projects</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/add-project">Add New Project</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Registration Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="add-project-form" action="/projects/add-project" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="project-name-field">Project Name</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.name !== undefined ? 'is-invalid' : ''%>"
+                    id="name-field"
+                    name="name"
+                    placeholder="Enter Name"
+                    value="<%=  formData.name !== undefined ? formData.name : '' %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="name-feedback">
+                    <%= errorData.name !== undefined ? errorData.name[0] : ''%>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1"
+                    >Tool</label
+                  >
+                  <select
+                    class="form-select <%= errorData.toolId !== undefined ? 'is-invalid' : ''%>"
+                    id="tool"
+                    name="toolId"
+                  >
+                    <option value="0" <%= formData.toolId !== undefined ? (formData.toolId == "0" ? 'selected' : '') : '' %>>-- Select a Tool --</option>
+                    <% tools.forEach((tool) => { %>
+                      <option value="<%= tool.id %>" <%= formData.toolId !== undefined ? (formData.toolId == tool.id ? 'selected' : '') : '' %>><%= tool.name %></option>
+                    <% }) %>
+                  </select>
+                   <div class="invalid-feedback" id="name-feedback">
+                    <%= errorData.toolId !== undefined ? errorData.toolId[0] : ''%>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1"
+                    >Assigned Team</label
+                  >
+                  <select
+                    class="form-select <%= errorData.teamId !== undefined ? 'is-invalid' : ''%>"
+                    id="team"
+                    name="teamId"
+                  >
+                    <option value="0" <%= formData.teamId !== undefined ? (formData.teamId == "0" ? 'selected' : '') : '' %>>-- Select a Team --</option>
+                    <% teams.forEach((team) => { %>
+                      <option value="<%= team.id %>" <%= formData.teamId !== undefined ? (formData.teamId == team.id ? 'selected' : '') : '' %>><%= team.name %></option>
+                    <% }) %>
+                  </select>
+                   <div class="invalid-feedback" id="name-feedback">
+                    <%= errorData.teamId !== undefined ? errorData.teamId[0] : ''%>
+                  </div>
+                </div>
+                
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<% projectAlert = [] %>
+<% projects = [] %>
+
+<%- include('../partial/project-footer') %>

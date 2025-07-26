@@ -1,0 +1,93 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3"><%= project.name %></h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/projects">Projects</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional">Additional</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <ul class="nav nav-tabs nav-line nav-color-secondary" id="line-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link" id="line-dashboard-tab" href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard" role="tab">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="line-home-tab" href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/modules" role="tab">Modules</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="line-profile-tab" href="#line-profile" role="tab">Activities</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" id="line-contact-tab" href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional" role="tab">Additional</a>
+            </li>
+          </ul>
+          <div class="tab-content mt-3 mb-3" id="line-tabContent">
+            <div class="card-body d-flex justify-content-evenly">
+              <div class="col-md-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                  <div class="col-auto">
+                    <label class="col-form-label">Project Repository :</label>
+                  </div>
+                  <div class="col-auto">
+                    <% 
+                      const repositoryLink = additionalData.repository && additionalData.repository.length > 40 ? additionalData.repository.slice(0, 40) + '...' : additionalData.repository
+                    %>
+                    <a href="<%= additionalData.repository %>" target="_blank"><%= repositoryLink %></a>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Main Jira :</label>
+                  </div>
+                  <div class="col-auto">
+                    <% 
+                      const jiraLink = additionalData.jira && additionalData.jira.length > 40 ? additionalData.jira.slice(0, 40) + '...' : additionalData.jira
+                    %>
+                    <a href="<%= additionalData.jira %>" target="_blank"><%= jiraLink %></a>
+                  </div>
+                </div> 
+                <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional/edit" class="btn btn-primary btn-sm mt-4">Edit</a>
+              </div>
+              <div class="col-md-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                  <div class="col-auto">
+                    <label class="col-form-label">External Resource :</label>
+                  </div>
+                  <div class="col-auto">
+                    <% 
+                      const externalRscLink = additionalData.externalRsc && additionalData.externalRsc.length > 40 ? additionalData.externalRsc.slice(0, 40) + '...' : additionalData.externalRsc
+                    %>
+                    <a href="<%= additionalData.externalRsc %>" target="_blank"><%= externalRscLink %></a>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Test Script Automation :</label>
+                  </div>
+                  <div class="col-auto">
+                    <% 
+                      const testScriptLink = additionalData.testScript && additionalData.testScript.length > 40 ? additionalData.testScript.slice(0, 40) + '...' : additionalData.testScript
+                    %>
+                    <a href="<%= additionalData.testScript %>" target="_blank"><%= testScriptLink %></a>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<%- include('../partial/project-view-footer') %>

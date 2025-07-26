@@ -1,0 +1,68 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3"><%= project.name %></h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/projects">Projects</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.team.id %>/<%= project.name.toLowerCase() %>/modules">Modules</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.team.id %>/<%= project.name.toLowerCase() %>/modules/add-module">Add New Modules</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Registration Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="add-tool-form" action="/projects/<%= project.team.id %>/<%= project.name.toLowerCase() %>/modules/add-module" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <input type="hidden" name="id" value="<%= project.id %>">
+              <input type="hidden" name="teamId" value="<%= project.team.id %>">
+              <input type="hidden" name="projectName" value="<%= project.name %>">
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="name-field">Module Name</label>
+                  <input
+                    type="text"
+                    class="form-control <%= moduleNameError !== undefined ? "is-invalid" : "" %>"
+                    id="module-field"
+                    name="moduleName"
+                    placeholder="Enter Module Name"
+                    value="<%= moduleNameError !== undefined ? moduleName : "" %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="name-feedback">
+                    <%= moduleNameError !== undefined ? moduleNameError : "" %>
+                  </div>
+                </div>
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+
+<% projectViewAlert = [] %>
+
+<%- include('../partial/project-view-footer') %>

@@ -1,0 +1,112 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3"><%= project.name %></h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/projects">Projects</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard">Dashboard</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard/edit">Edit</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex justify-content-between align-items-center"
+          >
+            <div class="card-title">Edit Form</div>
+          </div>
+        </div>
+          <div class="card-body">
+            <form id="edit-project-dashboard" action="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard/edit?_method=PATCH" method="post" class="need-validation d-flex justify-content-center" class="need-validation" novalidate>
+              <input type="hidden" name="id" value="<%= dashboardData.id %>">
+              <input type="hidden" name="teamId" value="<%= project.teamId %>">
+              <input type="hidden" name="projectName" value="<%= project.name %>">
+              <div class="col-lg-7">
+                <div class="form-group">
+                  <label for="name-field">Total Module Manual</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.manualModule !== undefined ? 'is-invalid' : '' %>"
+                    id="manual-module-field"
+                    name="manualModule"
+                    placeholder="Enter Total Module"
+                    value="<%= dashboardData.manualModule !== null ? dashboardData.manualModule : 0 %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="name-feedback">
+                    <%= errorData.manualModule !== undefined ? errorData.manualModule[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Total Scenario Manual</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.manualScenario !== undefined ? 'is-invalid' : '' %>"
+                    id="manual-scenario-field"
+                    name="manualScenario"
+                    placeholder="Enter Total Scenario",
+                    value="<%= dashboardData.manualScenario !== null ? dashboardData.manualScenario : 0 %>"
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.manualScenario !== undefined ? errorData.manualScenario[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Total Test Case Manual</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.manualTestcase ? 'is-invalid' : '' %>"
+                    id="manual-testcase-field"
+                    name="manualTestcase"
+                    placeholder="Enter Total Test Case",
+                    value="<%= dashboardData.manualTestcase !== null ? dashboardData.manualTestcase : 0 %>"                    
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.manualTestcase !== undefined ? errorData.manualTestcase[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="username-field">Possible Test Case By Automation</label>
+                  <input
+                    type="text"
+                    class="form-control <%= errorData.possibleTestcase !== undefined ? 'is-invalid' : '' %>"
+                    id="possible-testcase-field"
+                    name="possibleTestcase"
+                    placeholder="Enter Total Test Case",
+                    value="<%= dashboardData.possibleTestcase !== null ? dashboardData.possibleTestcase : 0 %>"                    
+                    required
+                  />
+                  <div class="invalid-feedback" id="username-feedback">
+                    <%= errorData.possibleTestcase !== undefined ? errorData.possibleTestcase[0] : '' %>
+                  </div>
+                </div>
+                <div class="form-group">                
+                  <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>  
+      </div>
+    </div>
+</div>
+
+<% projectViewAlert = [] %>
+
+<%- include('../partial/project-view-footer') %>

@@ -1,0 +1,124 @@
+<%- include('../partial/admin-sidebar') %>
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3"><%= project.name %></h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-item">
+        <a href="/projects">Projects</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard">Dashboard</a>
+      </li>
+    </ul>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <ul class="nav nav-tabs nav-line nav-color-secondary" id="line-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="line-dashboard-tab" href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard" role="tab">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="line-home-tab" href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/modules" role="tab">Modules</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="line-profile-tab" href="#line-profile" role="tab">Activities</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="line-contact-tab" href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/additional" role="tab">Additional</a>
+            </li>
+          </ul>
+          <div class="tab-content mt-3 mb-3" id="line-tabContent">
+            <div class="card-body d-flex justify-content-evenly">
+              <div class="col-md-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                  <div class="col-auto">
+                    <label class="col-form-label">Total Module Manual :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="<%= dashboardData.manualModule !== null ? dashboardData.manualModule : 0 %>" disabled>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Total Scenario Manual :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="<%= dashboardData.manualScenario !== null ? dashboardData.manualScenario : 0 %>" disabled>
+                  </div>
+                </div> 
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Total Test Case Manual :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="<%= dashboardData.manualTestcase !== null ? dashboardData.manualTestcase : 0 %>" disabled>
+                  </div>
+                </div> 
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Possible Test Case By Automation :</label>
+                  </div>
+                  <div class="col-auto">
+                    <% 
+                      const coverage = Math.round((dashboardData.possibleTestcase / dashboardData.manualTestcase) * 100)  
+                    %>
+                    <input type="text" class="form-control project-view" value="<%= dashboardData.possibleTestcase !== null ? dashboardData.possibleTestcase : 0 %> | (<%= !isNaN(coverage) ? coverage : 0 %>)%" disabled>
+                  </div>
+                </div>
+                <a href="/projects/<%= project.teamId %>/<%= project.name.toLowerCase() %>/dashboard/edit" class="btn btn-primary btn-sm mt-4">Edit</a>
+              </div>
+              <div class="col-md-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                  <div class="col-auto">
+                    <label class="col-form-label">Team :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="<%= dashboardData.team.name %>" disabled>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Tool :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="<%= dashboardData.tool.name %>" disabled>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Total Module Automation :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="1000" disabled>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Total Scenario Automation :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="1000" disabled>
+                  </div>
+                </div>
+                <div class="row g-3 align-items-center justify-content-between mt-2">
+                  <div class="col-auto">
+                    <label class="col-form-label">Total Test Case Automation :</label>
+                  </div>
+                  <div class="col-auto">
+                    <input type="text" class="form-control project-view" value="1000" disabled>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<%- include('../partial/project-view-footer') %>
