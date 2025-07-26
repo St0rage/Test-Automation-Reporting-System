@@ -337,16 +337,6 @@ export class AdminController {
     }
   }
 
-  async projectsView(req: Request, res: Response, next: NextFunction) {
-    try {
-      res.status(200).render("page/projects", {
-        activeMenu: "Projects",
-      });
-    } catch (e) {
-      next(e);
-    }
-  }
-
   async toolsView(req: Request, res: Response, next: NextFunction) {
     try {
       const pageNumber: number = parseInt(req.query.page as string);
@@ -401,12 +391,44 @@ export class AdminController {
       const tool = await this.adminService.getToolByName(toolName);
 
       res.status(200).render("page/tool-edit", {
-        activeMenu: "Teams",
+        activeMenu: "Tools",
         originalToolName: tool.name,
         currentToolId: tool.id,
         currentToolName: tool.name,
         toolNameError: undefined,
       });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async editTool(req: Request, res: Response, next: NextFunction) {
+    try {
+      const toolId: string = req.body.id;
+      const toolName: string = req.body.toolName;
+
+      await this.adminService.editTool(parseInt(toolId), toolName);
+
+      req.flash("tool-alert", "Berhasil Mengubah Tool");
+      return res.status(200).redirect("/tools");
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteTool(req: Request, res: Response, next: NextFunction) {
+    try {
+      const toolId: number = parseInt(req.body.id);
+      const page: string = req.body.page;
+      const searchQuery: string = req.body.searchQuery;
+
+      const isDeleteSuccess = await this.adminService.deleteTool(toolId);
+
+      isDeleteSuccess
+        ? req.flash("tool-alert", "Berhasil Delete Tool")
+        : req.flash("tool-alert", "Gagal Delete Tool, Terdapat Project Menggunakan Tool Ini");
+
+      return res.status(200).redirect(`/tools?page=${page}${searchQuery ? "&search=" + searchQuery : ""}`);
     } catch (e) {
       next(e);
     }

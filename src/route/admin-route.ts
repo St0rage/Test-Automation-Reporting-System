@@ -16,6 +16,7 @@ import {
   userUrlValidationMiddleware,
   userViewMiddleware,
   toolUrlValidationMiddleware,
+  editToolMiddleware,
 } from "../middleware/admin-middleware";
 
 const adminController = container.get<AdminController>(AdminController);
@@ -87,8 +88,6 @@ adminRoute.delete(
   adminController.deleteTeamMember.bind(adminController)
 );
 
-adminRoute.get("/projects", adminController.projectsView.bind(adminController));
-
 adminRoute.get("/tools", toolViewMiddleware, adminController.toolsView.bind(adminController));
 adminRoute.get("/tools/add-tool", adminController.addToolView.bind(adminController));
 adminRoute.post("/tools/add-tool", addToolMiddleware, adminController.addTool.bind(adminController));
@@ -97,3 +96,10 @@ adminRoute.get(
   toolUrlValidationMiddleware,
   adminController.editToolView.bind(adminController)
 );
+adminRoute.patch(
+  "/tools/edit-tool/:toolName",
+  toolUrlValidationMiddleware,
+  editToolMiddleware,
+  adminController.editTool.bind(adminController)
+);
+adminRoute.delete("/tools/delete", adminController.deleteTool.bind(adminController));

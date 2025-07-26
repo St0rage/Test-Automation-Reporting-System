@@ -3,3 +3,14 @@ input.user-detail-view:disabled {
   color: #212529 !important;
   opacity: 1 !important;
 }
+
+input.project-view:disabled {
+  background-color: white !important;
+  color: #212529 !important;
+  opacity: 1 !important;
+  border: none;
+}
+
+.swal-modal .swal-text {
+  text-align: center;
+}

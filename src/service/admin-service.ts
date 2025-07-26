@@ -222,4 +222,30 @@ export class AdminService implements IAdminService {
 
     return tool;
   }
+
+  async getToolById(id: number): Promise<IdAndName> {
+    const tool = await this.toolRepository.getToolById(id);
+
+    if (!tool) {
+      throw new ResponseError(404, "Not Found");
+    }
+
+    return tool;
+  }
+
+  async editTool(id: number, toolName: string): Promise<void> {
+    await this.toolRepository.updateTool(id, toolName);
+  }
+
+  async deleteTool(id: number): Promise<boolean> {
+    const countUsedTool = await this.toolRepository.countUsedToolInProject(id);
+
+    if (countUsedTool > 0) {
+      return false;
+    }
+
+    await this.toolRepository.deleteTool(id);
+
+    return true;
+  }
 }

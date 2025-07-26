@@ -1,7 +1,17 @@
 import {
+  CreateModuleRequest,
+  CreateProjectRequest,
   CreateUserInsertRequest,
+  EditProjectRequest,
   EditUserRequest,
   IdAndName,
+  ModuleResponse,
+  ProjectAdditional,
+  ProjectAdditionalEditRequest,
+  ProjectDashboard,
+  ProjectDashboardEditRequest,
+  ProjectResponse,
+  ProjectResponseEdit,
   UserDetailResponse,
   UserMemberResponse,
   UserResponse,
@@ -31,6 +41,7 @@ export interface ITeamRepository {
   createTeam(teamName: string): Promise<void>;
   checkTeamIsExist(teamName: string): Promise<boolean>;
   getTeams(page: number, search?: string): Promise<IdAndName[]>;
+  getAllTeams(): Promise<IdAndName[]>;
   countTotalTeams(search?: string): Promise<number>;
   deleteTeam(id: number): Promise<void>;
   getTeamById(id: number): Promise<IdAndName | undefined>;
@@ -48,7 +59,33 @@ export interface IToolRepository {
   createTool(toolName: string): Promise<void>;
   checkToolIsExist(toolName: string): Promise<boolean>;
   getTools(page: number, search?: string): Promise<IdAndName[]>;
+  getAllTools(): Promise<IdAndName[]>;
   countTotalTools(search?: string): Promise<number>;
   getToolByName(toolName: string): Promise<IdAndName | undefined>;
+  getToolById(id: number): Promise<IdAndName | undefined>;
   updateTool(id: number, toolName: string): Promise<void>;
+  deleteTool(id: number): Promise<void>;
+  countUsedToolInProject(id: number): Promise<number>;
+}
+
+export interface IProjectRepository {
+  createProject(projectRequest: CreateProjectRequest): Promise<void>;
+  checkProjectIsExist(projectName: string): Promise<boolean>;
+  checkProjectIsExistByTeamId(projectName: string, teamId: number): Promise<boolean>;
+  getProjects(page: number, search?: string): Promise<ProjectResponse[]>;
+  countTotalProjects(search?: string): Promise<number>;
+  getProjectById(id: number): Promise<ProjectResponseEdit | undefined>;
+  getProjectByNameAndByTeamId(projectName: string, teamId: number): Promise<ProjectResponseEdit | undefined>;
+  updateProject(editProjectRequest: EditProjectRequest): Promise<void>;
+  deleteProject(id: number): Promise<void>;
+  getProjectDashboardByNameAndTeamId(projectName: string, teamId: number): Promise<ProjectDashboard | undefined>;
+  updateProjectDashboard(editProjectDashboardReq: ProjectDashboardEditRequest): Promise<void>;
+  getProjectAdditionalByNameAndTeamId(projectName: string, teamId: number): Promise<ProjectAdditional | undefined>;
+  updateProjectAdditional(editProjectAdditionalReq: ProjectAdditionalEditRequest): Promise<void>;
+}
+
+export interface IModuleRepository {
+  createModule(moduleRequest: CreateModuleRequest): Promise<void>;
+  checkModuleIsExist(moduleName: string, projectId: number): Promise<boolean>;
+  getModulesByProjectId(projectId: number): Promise<ModuleResponse[]>;
 }

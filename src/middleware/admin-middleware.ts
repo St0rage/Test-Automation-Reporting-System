@@ -351,3 +351,49 @@ export const toolUrlValidationMiddleware = async (req: Request, res: Response, n
     next(e);
   }
 };
+
+export const editToolMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const adminService = container.get<IAdminService>(TYPES.IAdminService);
+    let isToolNameValid = false;
+    const currentToolId: string = req.body.id;
+    const currentToolName: string = req.body.toolName;
+    const result = ToolValidation.createToolSchema.safeParse(currentToolName);
+    let isError: boolean = false;
+    let toolNameError: string = "";
+    const tool: IdAndName = await adminService.getToolById(parseInt(currentToolId));
+
+    if (!result.success) {
+      isError = true;
+      toolNameError = result.error.formErrors.formErrors[0];
+    } else {
+      if (tool.name.toLowerCase() === currentToolName.toLowerCase()) {
+        isToolNameValid = true;
+      }
+
+      if (!isToolNameValid) {
+        const isTeamExist = await adminService.checkToolNameIsExist(currentToolName);
+        if (isTeamExist) {
+          toolNameError = "Nama Tool Sudah Terdaftar";
+          isError = true;
+        } else {
+          isError = false;
+        }
+      }
+    }
+
+    if (isError) {
+      return res.status(400).render("page/tool-edit", {
+        activeMenu: "Teams",
+        originalToolName: tool.name,
+        currentToolId: currentToolId,
+        currentToolName: currentToolName,
+        toolNameError: toolNameError,
+      });
+    }
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+};

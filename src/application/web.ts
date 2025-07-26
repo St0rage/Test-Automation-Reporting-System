@@ -1,15 +1,14 @@
+import flash from "connect-flash";
 import dotenv from "dotenv";
 import express from "express";
-import path from "path";
 import session from "express-session";
-import flash from "connect-flash";
+import path from "path";
 import { errorMiddleware } from "../middleware/error-middleware";
 import { logRequestMiddleware } from "../middleware/log-request-middleware";
 import { logResponseMiddleware } from "../middleware/log-response-middleware";
-import { apiRoute } from "../route/api-route";
-import { webRoute } from "../route/web-route";
 import { notFoundMiddleware } from "../middleware/not-found-middleware";
 import { adminRoute } from "../route/admin-route";
+import { projectRoute } from "../route/project-route";
 
 dotenv.config();
 
@@ -39,5 +38,6 @@ web.use(logResponseMiddleware);
 // web.use(apiRoute);
 // web.use(webRoute);
 web.use(adminRoute);
+web.use(projectRoute);
 web.use(notFoundMiddleware);
 web.use(errorMiddleware);

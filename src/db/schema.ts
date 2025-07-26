@@ -203,6 +203,14 @@ export const projects = pgTable("projects", {
     .references(() => tools.id)
     .notNull(),
   name: varchar("name", { length: 100 }).notNull(),
+  manualModule: integer("manual_module"),
+  manualScenario: integer("manual_scenario"),
+  manualTestcase: integer("manual_testcase"),
+  possibleTestcase: integer("possible_testcase"),
+  repository: text("repository"),
+  jira: text("jira"),
+  externalRsc: text("external_rsc"),
+  testScript: text("test_script"),
 });
 
 export const tools = pgTable("tools", {
@@ -219,19 +227,10 @@ export const activities = pgTable("activities", {
   key: varchar("key", { length: 40 }).notNull(),
 });
 
-export const moduleLevels = pgTable("module_level", {
-  id: serial("id").primaryKey(),
-  format: varchar("format", { length: 15 }).notNull(),
-  description: text("description"),
-});
-
 export const modules = pgTable("modules", {
   id: serial("id").primaryKey(),
   projectId: integer("project_id")
     .references(() => projects.id)
-    .notNull(),
-  moduleLeveId: integer("module_leve_id")
-    .references(() => moduleLevels.id)
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
 });
@@ -347,18 +346,10 @@ export const activitiesRelations = relations(activities, ({ one, many }) => ({
   reports: many(reports),
 }));
 
-export const moduleLevelsRelations = relations(moduleLevels, ({ many }) => ({
-  modules: many(modules),
-}));
-
 export const modulesRelations = relations(modules, ({ one, many }) => ({
   project: one(projects, {
     fields: [modules.projectId],
     references: [projects.id],
-  }),
-  moduleLevel: one(moduleLevels, {
-    fields: [modules.moduleLeveId],
-    references: [moduleLevels.id],
   }),
   activityModules: many(activityModules),
   scenarios: many(scenarios),

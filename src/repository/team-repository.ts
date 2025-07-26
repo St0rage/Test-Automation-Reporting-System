@@ -30,6 +30,10 @@ export class TeamRepository implements ITeamRepository {
     });
   }
 
+  async getAllTeams(): Promise<IdAndName[]> {
+    return await drizzleClient.select({ id: teams.id, name: teams.name }).from(teams);
+  }
+
   async countTotalTeams(search?: string): Promise<number> {
     const rowCount = await drizzleClient
       .select({ count: count() })

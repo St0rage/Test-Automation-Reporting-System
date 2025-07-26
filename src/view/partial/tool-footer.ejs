@@ -17,7 +17,58 @@
 <script src="/public/js/kaiadmin.min.js"></script>
 
 
-<!-- Alert Team -->
+<!-- Delete Tool Alert -->
+<% if (tools.length != 0) { %>
+    <script>
+        
+        const toolLength = parseInt("<%= tools.length %>")
+    
+        var resetAlert = (function () {
+            var initAlert = function () {
+              
+    
+              for (let index = 0; index < toolLength; index++) {
+                $(`#delete-tool-${index}`).click(function (e) {
+                  swal({
+                    title: "Warning",
+                    text: "Anda yakin ingin menghapus tool ini?",
+                    icon: "warning",
+                    buttons: {
+                      confirm: {
+                        text: "Ya",
+                        className: "btn btn-success",
+                      },
+                      cancel: {
+                        visible: true,
+                        className: "btn btn-danger",
+                      },
+                    }
+                  }).then((del) => {
+                    if (del) {
+                      $(`#delete-tool-${index}`).parent().submit()
+                    } else {
+                      swal.close();
+                    }
+                  });
+                });
+              }
+            };
+      
+            return {
+              //== Init
+              init: function () {
+                initAlert();
+              },
+            };
+          })();
+    
+          jQuery(document).ready(function () {
+            resetAlert.init();
+          });
+    </script>
+    <% } %>
+
+<!-- Alert Tool -->
 <% if (toolAlert.length > 0) { %>
     <script>
     
@@ -27,9 +78,9 @@
             var initAlert = function () {
     
                 swal({
-                    title: "Success",
+                    title: message.toLowerCase().includes("gagal") ? "Failed" : "Success" ,
                     text: message,
-                    icon: "success",
+                    icon: message.toLowerCase().includes("gagal") ? "error" : "success",
                     buttons: {
                         confirm: {
                             visible: true,

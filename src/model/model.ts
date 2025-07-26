@@ -184,3 +184,100 @@ export type UserTeamResponse = {
   name: string;
   leader: boolean;
 };
+
+export type CreateProjectRequest = {
+  name: string;
+  teamId: number;
+  toolId: number;
+};
+
+export type EditProjectRequest = {
+  id: number;
+  name: string;
+  teamId: number;
+  toolId: number;
+};
+
+export type ProjectResponse = {
+  id: number;
+  name: string;
+  team: {
+    id: number;
+    name: string;
+  };
+};
+
+export type ProjectResponseEdit = {
+  id: number;
+  name: string;
+  team: {
+    id: number;
+    name: string;
+  };
+  tool: {
+    id: number;
+    name: string;
+  };
+};
+
+export type ProjectDashboard = {
+  id: number;
+  name: string;
+  manualModule: number | null;
+  manualScenario: number | null;
+  manualTestcase: number | null;
+  possibleTestcase: number | null;
+  team: {
+    id: number;
+    name: string;
+  };
+  tool: {
+    name: string;
+  };
+};
+
+export type ProjectDashboardEditRequest = {
+  id: number;
+  teamId: number;
+  projectName: string;
+  manualModule: number;
+  manualScenario: number;
+  manualTestcase: number;
+  possibleTestcase: number;
+};
+
+export type ProjectAdditional = {
+  id: number;
+  name: string;
+  repository: string | null;
+  jira: string | null;
+  externalRsc: string | null;
+  testScript: string | null;
+  team: {
+    id: number;
+  };
+};
+
+export type ProjectAdditionalEditRequest = {
+  id: number;
+  teamId: number;
+  projectName: string;
+  repository: string;
+  jira: string;
+  externalRsc: string;
+  testScript: string;
+};
+
+export type CreateModuleRequest = {
+  id: number;
+  teamId: number;
+  projectName: string;
+  moduleName: string;
+};
+
+export type ModuleResponse = {
+  id: number;
+  name: string;
+  totalScenarios: number;
+  totalTestCases: number;
+};

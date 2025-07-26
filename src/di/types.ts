@@ -3,6 +3,7 @@ export const TYPES = {
   IReportBuilder: Symbol.for("IReportBuilder"),
   // Repository Interface
   IProjectRepository: Symbol.for("IProjectRepository"),
+  IModuleRepository: Symbol.for("IModuleRepository"),
   IScenarioRepository: Symbol.for("IScenarioRepository"),
   ITestCaseRepository: Symbol.for("ITestCaseRepository"),
   IReportRepository: Symbol.for("IReportRepository"),
@@ -17,4 +18,6 @@ export const TYPES = {
   IWebService: Symbol.for("IWebService"),
   IUserService: Symbol.for("IUserService"),
   IAdminService: Symbol.for("IAdminService"),
+  IProjectService: Symbol.for("IProjectService"),
+  IModuleService: Symbol.for("IModuleService"),
 };
