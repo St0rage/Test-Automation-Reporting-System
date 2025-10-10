@@ -1,5 +1,5 @@
-import { ReportDetailResponse, ReportResponse } from "../../model/model";
+import { ReportResponse, SectionFullRespone } from "../../model/model";
 
 export interface IReportBuilder {
-  createReport(report: ReportResponse, stepDate: ReportDetailResponse[]): Promise<{ fileName: string; date: number }>;
+  createReport(report: ReportResponse, sections: SectionFullRespone[]): Promise<{ fileName: string; date: number }>;
 }

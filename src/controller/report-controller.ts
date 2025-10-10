@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../di/types";
 import { IReportService } from "../interface/service/report-service-interface";
-import { ImageDetailRequest, ReportDetailRequest, ReportRequest } from "../model/model";
+import { ImageDetailRequest, ReportRequest, SectionRequest, TestStepRequest } from "../model/model";
 import { destroySessionQueue } from "../application/queue";
 
 @injectable()
@@ -24,21 +24,38 @@ export class ReportController {
     }
   }
 
+  public async addSection(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const sectionRequest: SectionRequest = {
+        report_id: res.locals.reportId as number,
+        name: req.body.name as string,
+      };
+
+      await this.reportService.addSection(sectionRequest);
+
+      res.setHeader("Content-Type", "application/json");
+      res.status(201).json({
+        data: "OK",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   public async addTestImage(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const reportId = res.locals.reportId as number;
       const image = res.locals.stepDataImageFileName as string;
 
       const imageDetail: ImageDetailRequest = {
-        report_id: reportId,
         image,
       };
 
-      const detailId = await this.reportService.addTestImage(imageDetail);
+      const testStepId = await this.reportService.addTestImage(reportId, imageDetail);
       res.setHeader("Content-Type", "application/json");
       res.status(201).json({
         data: {
-          detail_id: detailId.id,
+          test_step_id: testStepId.id,
         },
       });
     } catch (e) {
@@ -48,15 +65,16 @@ export class ReportController {
 
   public async addTestStep(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const request: ReportDetailRequest = {
-        report_id: res.locals.reportId as number,
-        detail_id: req.body.detail_id as number,
+      const reportId = res.locals.reportId as number;
+
+      const request: TestStepRequest = {
+        test_step_id: req.body.test_step_id as number,
         title: req.body.title as string,
         description: req.body.description as string,
         status: req.body.status as number,
       };
 
-      await this.reportService.addTestStep(request);
+      await this.reportService.addTestStep(reportId, request);
       res.setHeader("Content-Type", "application/json");
       res.status(201).json({
         data: "OK",
@@ -71,7 +89,7 @@ export class ReportController {
       const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
 
-      await this.reportService.saveReport(reportId);
+      await this.reportService.saveReport(reportId, true);
       res.setHeader("Content-Type", "application/json");
       res.status(201).json({
         data: "OK",
@@ -87,7 +105,7 @@ export class ReportController {
       const token = res.locals.token as string;
       const reportId = res.locals.reportId as number;
 
-      await this.reportService.saveReportAsFailed(reportId);
+      await this.reportService.saveReport(reportId, false);
       res.setHeader("Content-Type", "application/json");
       res.status(201).json({
         data: "OK",

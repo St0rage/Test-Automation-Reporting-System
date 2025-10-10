@@ -15,8 +15,11 @@ datasource db {
 
 model Project {
   id        Int     @id @default(autoincrement())
+  tool_id   Int
   name      String  @db.VarChar(50)
+  platform  String  @db.VarChar(50)
 
+  tool      Tool @relation(fields: [tool_id], references: [id])
   scenarios Scenario[]
   reports   Report[]
 
@@ -30,29 +33,32 @@ model Scenario {
 
   project       Project @relation(fields: [project_id], references: [id])
   test_cases    TestCase[]
-  reports       Report[]
-  file_records  FileRecord[]
 
   @@map("scenarios")
 }
 
 model TestCase {
-  id          Int     @id @default(autoincrement())
-  scenario_id Int
-  name        String  @db.VarChar(100)
+  id              Int     @id @default(autoincrement())
+  scenario_id     Int
+  name            String  @db.VarChar(100)
+  unique_id       String  @db.VarChar(50)
+  expected_result String  @db.VarChar(100)
+  criteria        String  @db.VarChar(50)
+  description     String  @db.Text
 
   scenario      Scenario @relation(fields: [scenario_id], references: [id])
   reports       Report[]
   file_records  FileRecord[]
 
   @@map("test_cases")
+  @@unique([scenario_id, unique_id])
 }
 
 model Tool {
   id      Int     @id @default(autoincrement())
   name    String  @db.VarChar(50)
 
-  report  Report[]
+  project  Project[]
 
   @@map("tools")
 }
@@ -61,7 +67,7 @@ model Status {
   id              Int     @id @default(autoincrement())
   name            String  @db.VarChar(10)
 
-  report_details  ReportDetail[]
+  test_steps      TestStep[]
   file_records    FileRecord[]
 
   @@map("statuses")
@@ -70,45 +76,51 @@ model Status {
 model Report {
   id            Int @id @default(autoincrement())
   project_id    Int
-  scenario_id   Int
   test_case_id  Int
-  tool_id       Int
   activity      String @db.VarChar(50)
   author        String @db.VarChar(50)
 
-  project         Project       @relation(fields: [project_id], references: [id])
-  scenario        Scenario      @relation(fields: [scenario_id], references: [id])
-  test_case       TestCase      @relation(fields: [test_case_id], references: [id])
-  tool            Tool          @relation(fields: [tool_id], references: [id])
-  report_details  ReportDetail[]
+  project         Project   @relation(fields: [project_id], references: [id])
+  test_case       TestCase  @relation(fields: [test_case_id], references: [id])
+  sections        Section[]  
 
   @@map("reports")
 }
 
-model ReportDetail {
+model Section {
+  id              Int    @id @default(autoincrement())
+  report_id       Int
+  section_number  Int
+  name            String @db.VarChar(100)
+
+  report          Report      @relation(fields: [report_id], references: [id], onDelete: Cascade)
+  test_steps      TestStep[]  
+
+  @@map("sections")
+}
+
+model TestStep {
   id          Int @id @default(autoincrement())
-  report_id   Int
+  section_id  Int
   status_id   Int?
   step_number Int?
   title       String? @db.VarChar(100)
   description String? @db.Text
   image       String @db.VarChar(50)
 
-  report      Report @relation(fields: [report_id], references: [id])
+  section     Section @relation(fields: [section_id], references: [id], onDelete: Cascade)
   status      Status? @relation(fields: [status_id], references: [id])
 
-  @@map("report_details")
+  @@map("test_steps")
 }
 
 model FileRecord {
   id            Int @id @default(autoincrement())
-  scenario_id   Int
   test_case_id  Int
   status_id     Int
   file_name     String @db.VarChar(255)
   created_time  Int
 
-  scenario      Scenario  @relation(fields: [scenario_id], references: [id])
   test_case     TestCase  @relation(fields: [test_case_id], references: [id])
   status        Status    @relation(fields: [status_id], references: [id])
 

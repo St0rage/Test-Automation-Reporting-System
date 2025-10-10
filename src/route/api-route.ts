@@ -11,6 +11,8 @@ export const apiRoute = express.Router();
 
 apiRoute.post("/api/create-report", reportController.createReport.bind(reportController));
 
+apiRoute.post("/api/add-section", authMiddleware, reportController.addSection.bind(reportController));
+
 apiRoute.post(
   "/api/add-test-step",
   authMiddleware,

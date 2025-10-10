@@ -7,7 +7,8 @@ export const TYPES = {
   ITestCaseRepository: Symbol.for("ITestCaseRepository"),
   IToolRepository: Symbol.for("IToolRepository"),
   IReportRepository: Symbol.for("IReportRepository"),
-  IReportDetailRepository: Symbol.for("IReportDetailRepository"),
+  ISectionRepository: Symbol.for("ISectionRepository"),
+  ITestStepRepository: Symbol.for("ITestStepRepository"),
   IFileRecordRepository: Symbol.for("IFileRecord"),
   // Service Interface
   IReportService: Symbol.for("IReportService"),

@@ -1,9 +1,9 @@
-import { ImageDetailRequest, ReportDetailRequest, ReportRequest } from "../../model/model";
+import { ImageDetailRequest, ReportRequest, SectionRequest, TestStepRequest } from "../../model/model";
 
 export interface IReportService {
-  addTestImage(imageDetail: ImageDetailRequest): Promise<{ id: number }>;
+  addTestImage(reportId: number, imageDetail: ImageDetailRequest): Promise<{ id: number }>;
   createReport(reportRequest: ReportRequest): Promise<string>;
-  addTestStep(reportDetailRequest: ReportDetailRequest): Promise<void>;
-  saveReport(reportId: number): Promise<void>;
-  saveReportAsFailed(reportId: number): Promise<void>;
+  addSection(sectionRequest: SectionRequest): Promise<void>;
+  addTestStep(reportId: number, testStepRequest: TestStepRequest): Promise<void>;
+  saveReport(reportId: number, status: boolean): Promise<void>;
 }

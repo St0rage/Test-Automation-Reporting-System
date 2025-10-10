@@ -28,10 +28,7 @@ export const reportPathValidateMiddleware = async (req: Request, res: Response, 
     //   projectId.id
     // );
 
-    const scenarioId = await scenarioRepository.getScenarioIdByScenarioNameAndProjectId(
-      scenarioName.toUpperCase(),
-      projectId.id
-    );
+    const scenarioId = await scenarioRepository.getScenarioIdByScenarioNameAndProjectId(scenarioName, projectId.id);
 
     if (!scenarioId) {
       throw new ResponseError(404, "Not Found");

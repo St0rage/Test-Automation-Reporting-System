@@ -1,6 +1,6 @@
-import { IdAndName } from "../../model/model";
+import { IdAndName, IdAndUniqueId, TestCaseInsertRequest } from "../../model/model";
 
 export interface ITestCaseRepository {
-  createOrGetTestCaseIdAndName(testCaseName: string, scenarioId: number): Promise<IdAndName>;
-  findAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndName[]>;
+  createOrUpdateTestCaseIdAndName(testCaseInsertRequest: TestCaseInsertRequest): Promise<IdAndName>;
+  findAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndUniqueId[]>;
 }

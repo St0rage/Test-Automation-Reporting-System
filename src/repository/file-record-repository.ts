@@ -17,17 +17,15 @@ export class FileRecordRepository implements IFileRecordRepository {
     scenarioId: number,
     pageSize: number,
     page: number,
-    testCase?: string,
+    testCaseId?: string,
     startDate?: number,
     endDate?: number
   ): Promise<FileRecordResponse[]> {
     return prismaClient.fileRecord.findMany({
       where: {
-        scenario: {
-          id: scenarioId,
-        },
         test_case: {
-          name: testCase,
+          scenario_id: scenarioId,
+          unique_id: testCaseId,
         },
         created_time: startDate !== undefined ? { gte: startDate, lte: endDate } : undefined,
       },
@@ -42,7 +40,7 @@ export class FileRecordRepository implements IFileRecordRepository {
         },
         test_case: {
           select: {
-            name: true,
+            unique_id: true,
           },
         },
       },
@@ -60,10 +58,8 @@ export class FileRecordRepository implements IFileRecordRepository {
   ): Promise<number> {
     return prismaClient.fileRecord.count({
       where: {
-        scenario: {
-          id: scenarioId,
-        },
         test_case: {
+          scenario_id: scenarioId,
           name: testCase,
         },
         created_time: startDate !== undefined ? { gte: startDate, lte: endDate } : undefined,
