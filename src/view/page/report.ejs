@@ -24,7 +24,7 @@
                       >
                         <option value="">all</option>
                         <% testCases.forEach((testCase, index) => { %>
-                          <option <%= testCaseQuery === testCase.name.toLowerCase() ? 'selected' : '' %> value="<%= testCase.name.toLowerCase() %>"><%= testCase.name %></option>
+                          <option <%= testCaseQuery === testCase.unique_id.toLowerCase() ? 'selected' : '' %> value="<%= testCase.unique_id.toLowerCase() %>"><%= testCase.unique_id %></option>
                         <% }) %>
                       </select>
                     </div>
@@ -61,7 +61,7 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Status</th>
-                  <th scope="col">Test Case</th>
+                  <th scope="col">Test Case ID</th>
                   <th scope="col">File Name</th>
                   <th scope="col">Created At</th>
                   <th scope="col">Action</th>
@@ -74,7 +74,7 @@
                     <td>
                       <span class="badge <%= fileRecord.status.name === "PASSED" ? "badge-success" : "badge-danger" %> "><%= fileRecord.status.name %></span>
                     </td>
-                    <td><%= fileRecord.test_case.name %></td>
+                    <td><%= fileRecord.test_case.unique_id %></td>
                     <td><%= fileRecord.file_name %></td>
                     <% 
                         function formatEpochTime(epochTime) {

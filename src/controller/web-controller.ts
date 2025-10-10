@@ -79,41 +79,6 @@ export class WebController {
     }
   }
 
-  async settings(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const reportLogoError = req.flash("error-logo") || "";
-      const projects = await this.webService.getAllProjectAndScenario();
-
-      if (reportLogoError[0] === "" || reportLogoError[0] === undefined) {
-        res.status(200).render("page/setting", {
-          projects: projects,
-          activeProject: "",
-          activeScenario: "",
-          reportLogoError: "",
-        });
-      } else {
-        res.status(400).render("page/setting", {
-          projects: projects,
-          activeProject: "",
-          activeScenario: "",
-          reportLogoError: reportLogoError[0],
-        });
-      }
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async changeReportLogo(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const message = await this.webService.validateReportLogo();
-      req.flash("error-logo", message);
-      return res.redirect("/settings");
-    } catch (e) {
-      next(e);
-    }
-  }
-
   async deleteFileRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const fileRecordId = res.locals.fileRecordId as number;

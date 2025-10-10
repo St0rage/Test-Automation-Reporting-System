@@ -53,7 +53,10 @@ export class ScenarioRepository implements IScenarioRepository {
   getScenarioIdByScenarioNameAndProjectId(scenarioName: string, projectId: number): Promise<{ id: number } | null> {
     return prismaClient.scenario.findFirst({
       where: {
-        name: scenarioName,
+        name: {
+          equals: scenarioName,
+          mode: "insensitive",
+        },
         project_id: projectId,
       },
       select: {

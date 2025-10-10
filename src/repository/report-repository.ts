@@ -41,23 +41,28 @@ export class ReportRepository implements IReportRepository {
         project: {
           select: {
             name: true,
-          },
-        },
-        scenario: {
-          select: {
-            id: true,
-            name: true,
+            platform: true,
+            tool: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
         test_case: {
           select: {
             id: true,
             name: true,
-          },
-        },
-        tool: {
-          select: {
-            name: true,
+            unique_id: true,
+            expected_result: true,
+            criteria: true,
+            description: true,
+            scenario: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
         activity: true,

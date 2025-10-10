@@ -1,17 +1,41 @@
 export type ReportRequest = {
-  project: string;
+  project: {
+    name: string;
+    platform: string;
+    tool: string;
+  };
   scenario: string;
-  test_case: string;
-  tool: string;
-  activity: string;
-  author: string;
+  test_case: {
+    name: string;
+    unique_id: string;
+    expected_result: string;
+    criteria: string;
+    description: string;
+  };
+  report: {
+    activity: string;
+    author: string;
+  };
+};
+
+export type ProjectInsertRequest = {
+  tool_id: number;
+  name: string;
+  platform: string;
+};
+
+export type TestCaseInsertRequest = {
+  scenario_id: number;
+  name: string;
+  unique_id: string;
+  expected_result: string;
+  criteria: string;
+  description: string;
 };
 
 export type ReportInsertRequest = {
   project_id: number;
-  scenario_id: number;
   test_case_id: number;
-  tool_id: number;
   activity: string;
   author: string;
 };
@@ -21,28 +45,47 @@ export type IdAndName = {
   name: string;
 };
 
-export type ImageDetailRequest = {
+export type IdAndUniqueId = {
+  id: number;
+  unique_id: string;
+};
+
+export type SectionRequest = {
   report_id: number;
+  name: string;
+};
+
+export type SectionInsertRequest = {
+  report_id: number;
+  section_number: number;
+  name: string;
+};
+
+export type SectionResponse = {
+  id: number;
+  name: string;
+  section_number: number;
+};
+
+export type ImageDetailRequest = {
   image: string;
 };
 
 export type ImageDetailInsertRequest = {
-  report_id: number;
+  section_id: number;
   step_number: number | null;
   image: string;
 };
 
-export type ReportDetailRequest = {
-  report_id: number;
-  detail_id: number;
+export type TestStepRequest = {
+  test_step_id: number;
   title: string;
   description: string;
   status: number;
 };
 
-export type ReportDetailInsertRequest = {
-  report_id: number;
-  detail_id: number;
+export type TestStepInsertRequest = {
+  test_step_id: number;
   status_id: number;
   title: string;
   description: string;
@@ -53,7 +96,7 @@ export type FileRecordResponse = {
   file_name: string;
   created_time: number;
   test_case: {
-    name: string;
+    unique_id: string;
   };
   status: {
     name: string;
@@ -73,21 +116,32 @@ export type ReportResponse = {
   author: string;
   project: {
     name: string;
-  };
-  scenario: {
-    id: number;
-    name: string;
+    platform: string;
+    tool: {
+      name: string;
+    };
   };
   test_case: {
     id: number;
     name: string;
-  };
-  tool: {
-    name: string;
+    unique_id: string;
+    expected_result: string;
+    criteria: string;
+    description: string;
+    scenario: {
+      id: number;
+      name: string;
+    };
   };
 };
 
-export type ReportDetailResponse = {
+export type SectionFullRespone = {
+  section_number: number;
+  name: string;
+  test_steps: TestStepResponse[];
+};
+
+export type TestStepResponse = {
   step_number: number | null;
   title: string | null;
   description: string | null;
@@ -97,7 +151,7 @@ export type ReportDetailResponse = {
   } | null;
 };
 
-export type ReportDetailResponseWithId = {
+export type TestStepResponseWithId = {
   id: number;
   step_number: number | null;
   title: string | null;
@@ -109,7 +163,6 @@ export type ReportDetailResponseWithId = {
 };
 
 export type FileRecordRequest = {
-  scenario_id: number;
   test_case_id: number;
   status_id: number;
   file_name: string;

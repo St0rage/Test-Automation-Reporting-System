@@ -1,3 +1,4 @@
+import fs from "fs";
 import { inject, injectable } from "inversify";
 import jsPDF from "jspdf";
 import moment from "moment";
@@ -7,9 +8,8 @@ import { IFileRecordRepository } from "../interface/repository/file-record-repos
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IWebService } from "../interface/service/web-service-interface";
-import { FileRecordResponse, IdAndName, ProjectScenarioResponse } from "../model/model";
+import { FileRecordResponse, IdAndUniqueId, ProjectScenarioResponse } from "../model/model";
 import { FileSystem } from "../utils/file-system-util";
-import fs from "fs";
 
 @injectable()
 export class WebService implements IWebService {
@@ -26,7 +26,7 @@ export class WebService implements IWebService {
     return this.projectRepository.findAllProjectAndScenario();
   }
 
-  async getAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndName[]> {
+  async getAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndUniqueId[]> {
     return this.testCaseRepository.findAllTestCaseByScenarioId(scenarioId);
   }
 
@@ -34,7 +34,7 @@ export class WebService implements IWebService {
     scenarioId: number,
     pageSize: number,
     page: number,
-    testCase: string,
+    testCaseId: string,
     date: string
   ): Promise<FileRecordResponse[]> {
     let startDate: number | undefined;
@@ -52,7 +52,7 @@ export class WebService implements IWebService {
       scenarioId,
       pageSize,
       page,
-      testCase !== undefined ? testCase.toUpperCase() : testCase,
+      testCaseId !== undefined ? testCaseId.toUpperCase() : testCaseId,
       startDate,
       endDate
     );
@@ -76,30 +76,6 @@ export class WebService implements IWebService {
       startDate,
       endDate
     );
-  }
-
-  async validateReportLogo(): Promise<string> {
-    const logoPath = path.join(__dirname, "..", "public", "img", "report-logo.png");
-    const logoTemp = path.join(__dirname, "..", "public", "img", "report-logo-temp.png");
-
-    // const imageBuffer = await FileSystem.getImageBinary(logoTemp);
-    // const imageString = `data:image/png;base64,${imageBuffer.toString(
-    //   "base64"
-    // )}`;
-    const image = new Uint8Array(
-      await fs.promises.readFile(path.join(__dirname, "..", "public", "img", "report-logo.png"))
-    );
-
-    try {
-      const tempDoc = new jsPDF();
-      tempDoc.addImage(image, "PNG", 10, 10, 35, 10);
-      await FileSystem.deleteFile(logoPath);
-      await FileSystem.renameFile(logoTemp, logoPath);
-      return "";
-    } catch (e) {
-      await FileSystem.deleteFile(logoTemp);
-      return "Upload failed. Please ensure the image is not compressed.";
-    }
   }
 
   async deleteFileRecordById(fileRecordId: number): Promise<void> {

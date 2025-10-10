@@ -1,49 +1,37 @@
 import { injectable } from "inversify";
-import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
-import { IdAndName } from "../model/model";
 import { prismaClient } from "../application/database";
-import { number } from "zod";
+import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
+import { IdAndName, IdAndUniqueId, TestCaseInsertRequest } from "../model/model";
 
 @injectable()
 export class TestCaseRepository implements ITestCaseRepository {
   constructor() {}
 
-  async createOrGetTestCaseIdAndName(testCaseName: string, scenarioId: number): Promise<IdAndName> {
-    let result = await prismaClient.testCase.findFirst({
+  async createOrUpdateTestCaseIdAndName(testCaseInsertRequest: TestCaseInsertRequest): Promise<IdAndName> {
+    return prismaClient.testCase.upsert({
       where: {
-        scenario_id: scenarioId,
-        name: testCaseName,
+        scenario_id_unique_id: {
+          scenario_id: testCaseInsertRequest.scenario_id,
+          unique_id: testCaseInsertRequest.unique_id,
+        },
       },
+      update: testCaseInsertRequest,
+      create: testCaseInsertRequest,
       select: {
         id: true,
         name: true,
       },
     });
-
-    if (result == null) {
-      result = await prismaClient.testCase.create({
-        data: {
-          scenario_id: scenarioId,
-          name: testCaseName,
-        },
-        select: {
-          id: true,
-          name: true,
-        },
-      });
-    }
-
-    return result;
   }
 
-  async findAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndName[]> {
+  async findAllTestCaseByScenarioId(scenarioId: number): Promise<IdAndUniqueId[]> {
     return prismaClient.testCase.findMany({
       where: {
         scenario_id: scenarioId,
       },
       select: {
         id: true,
-        name: true,
+        unique_id: true,
       },
     });
   }

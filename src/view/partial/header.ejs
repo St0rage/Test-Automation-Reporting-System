@@ -91,7 +91,7 @@
                       <a
                         href="/<%= project.name.toLowerCase() %>/<%= scenario.name.toLowerCase() %><%= '?page=1' %>"
                       >
-                        <span class="sub-item"><%= scenario.name %></span>
+                        <span class="sub-item"><%= scenario.name.toUpperCase() %></span>
                       </a>
                     </li>
                     <% }) %>
@@ -116,13 +116,6 @@
                 class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
               >
                 <h3 class="fw-bold">Test Automation Reporting System</h3>
-              </nav>
-              <nav
-                class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex px-4"
-              >
-                <a href="/settings" class="d-flex align-items-center text-reset">
-                  <i class="fas fa-cog fa-2x"></i>
-                </a>
               </nav>
             </div>
           </nav>

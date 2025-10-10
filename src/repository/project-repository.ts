@@ -1,16 +1,16 @@
 import { injectable } from "inversify";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
-import { IdAndName, ProjectScenarioResponse } from "../model/model";
+import { IdAndName, ProjectInsertRequest, ProjectScenarioResponse } from "../model/model";
 import { prismaClient } from "../application/database";
 
 @injectable()
 export class ProjectRepository implements IProjectRepository {
   constructor() {}
 
-  async createOrGetProjectIdAndName(projectName: string): Promise<IdAndName> {
+  async createOrGetProjectIdAndName(projectInsertRequest: ProjectInsertRequest): Promise<IdAndName> {
     let result = await prismaClient.project.findFirst({
       where: {
-        name: projectName,
+        name: projectInsertRequest.name,
       },
       select: {
         id: true,
@@ -19,9 +19,7 @@ export class ProjectRepository implements IProjectRepository {
     });
     if (result == null) {
       result = await prismaClient.project.create({
-        data: {
-          name: projectName,
-        },
+        data: projectInsertRequest,
         select: {
           id: true,
           name: true,
