@@ -7,27 +7,18 @@ import { prismaClient } from "../application/database";
 export class ProjectRepository implements IProjectRepository {
   constructor() {}
 
-  async createOrGetProjectIdAndName(projectInsertRequest: ProjectInsertRequest): Promise<IdAndName> {
-    let result = await prismaClient.project.findFirst({
+  async createOrUpdateProject(projectInsertRequest: ProjectInsertRequest): Promise<IdAndName> {
+    return prismaClient.project.upsert({
       where: {
         name: projectInsertRequest.name,
       },
+      update: projectInsertRequest,
+      create: projectInsertRequest,
       select: {
         id: true,
         name: true,
       },
     });
-    if (result == null) {
-      result = await prismaClient.project.create({
-        data: projectInsertRequest,
-        select: {
-          id: true,
-          name: true,
-        },
-      });
-    }
-
-    return result;
   }
 
   async findAllProjectAndScenario(): Promise<ProjectScenarioResponse[]> {

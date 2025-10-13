@@ -16,7 +16,7 @@ datasource db {
 model Project {
   id        Int     @id @default(autoincrement())
   tool_id   Int
-  name      String  @db.VarChar(50)
+  name      String  @db.VarChar(50) @unique
   platform  String  @db.VarChar(50)
 
   tool      Tool @relation(fields: [tool_id], references: [id])
