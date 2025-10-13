@@ -63,7 +63,7 @@ export class ReportService implements IReportService {
       platform: validatedRequest.project.platform,
     };
 
-    const project = await this.projectRepository.createOrGetProjectIdAndName(projectInsertRequest);
+    const project = await this.projectRepository.createOrUpdateProject(projectInsertRequest);
 
     // Scenario
     const scenario = await this.scenarioRepository.createOrGetScenarioIdAndName(validatedRequest.scenario, project.id);
@@ -78,7 +78,7 @@ export class ReportService implements IReportService {
       description: validatedRequest.test_case.description,
     };
 
-    const testCase = await this.testCaseRepository.createOrUpdateTestCaseIdAndName(testCaseInsertRequest);
+    const testCase = await this.testCaseRepository.createOrUpdateTestCase(testCaseInsertRequest);
 
     const reportInsertRequest: ReportInsertRequest = {
       project_id: project.id,
@@ -156,8 +156,6 @@ export class ReportService implements IReportService {
       throw new ResponseError(400, "Cannot add test step detail. Section is required.");
     }
 
-    console.info(section.id);
-
     const testStep = await this.testStepRepository.checkTestStepIsExist(section.id, testStepRequest.test_step_id);
 
     if (!testStep) {
@@ -174,8 +172,6 @@ export class ReportService implements IReportService {
       title: testStepRequest.title,
       description: testStepRequest.description,
     };
-
-    console.info(testStepInsertRequest);
 
     await this.testStepRepository.updateTestStep(testStepInsertRequest);
   }

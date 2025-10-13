@@ -7,7 +7,7 @@ import { IdAndName, IdAndUniqueId, TestCaseInsertRequest } from "../model/model"
 export class TestCaseRepository implements ITestCaseRepository {
   constructor() {}
 
-  async createOrUpdateTestCaseIdAndName(testCaseInsertRequest: TestCaseInsertRequest): Promise<IdAndName> {
+  async createOrUpdateTestCase(testCaseInsertRequest: TestCaseInsertRequest): Promise<IdAndName> {
     return prismaClient.testCase.upsert({
       where: {
         scenario_id_unique_id: {
