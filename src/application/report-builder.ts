@@ -158,9 +158,10 @@ export class ReportBuilder implements IReportBuilder {
       "This document contains proprietary information that is confidential to Bank Negara Indonesia. Disclosure of this document in full or in part, may result in material damage to Bank Negara Indonesia. ";
 
     // Set Header Left Image
-    const rawHeaderImage = await fs.promises.readFile("./LogoBNI.png");
-    const headerImage = new Uint8Array(rawHeaderImage);
-    this.doc.addImage(headerImage, "PNG", this.x + this.xPadding, headerPosition, headerImagewidth, headerImageHeight);
+    const image = new Uint8Array(
+      await fs.promises.readFile(path.join(__dirname, "..", "public", "img", "report-logo.png"))
+    );
+    this.doc.addImage(image, "PNG", this.x + this.xPadding, headerPosition, headerImagewidth, headerImageHeight);
 
     this.doc.setFontSize(textFontSize);
 
@@ -173,8 +174,7 @@ export class ReportBuilder implements IReportBuilder {
       headerPosition + 1.2 + headerImageHeight / 2
     );
 
-    const rawImage = await fs.promises.readFile("./LogoBNI.png");
-    const image = new Uint8Array(rawImage);
+    
 
     // Set Image
     this.doc.addImage(image, "PNG", this.pageWidth - coverX - imageWidth, coverY, imageWidth, imageHeight, "", "FAST");
