@@ -19,7 +19,45 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
     const isReportExist = await reportRepository.checkReportIsExist(decoded.id);
 
-    if (!isReportExist) {
+    if (isReportExist) {
+      const isPlain = await reportRepository.getReportPlainStatus(decoded.id);
+
+      if (isPlain) {
+        throw new ResponseError(401, "Unauthorized");
+      }
+    } else {
+      throw new ResponseError(401, "Unauthorized");
+    }
+
+    res.locals.reportId = decoded.id;
+    res.locals.token = token.split(" ")[1];
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const authPlainMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const reportRepository = container.get<IReportRepository>(TYPES.IReportRepository);
+
+    const token = req.headers.authorization;
+
+    if (!token) {
+      throw new ResponseError(401, "Unauthorized");
+    }
+
+    const decoded = await AuthUtil.verifyJwt(token.split(" ")[1]);
+
+    const isReportExist = await reportRepository.checkReportIsExist(decoded.id);
+
+    if (isReportExist) {
+      const isPlain = await reportRepository.getReportPlainStatus(decoded.id);
+
+      if (!isPlain) {
+        throw new ResponseError(401, "Unauthorized");
+      }
+    } else {
       throw new ResponseError(401, "Unauthorized");
     }
 

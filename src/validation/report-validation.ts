@@ -106,4 +106,12 @@ export class ReportValidation {
       message: "Status Must be Between 1 = 'DONE', 2 = 'PASSED', 3 = 'FAILED'",
     }),
   });
+
+  static readonly plainTestStepSchema: ZodType = z.object({
+    title: z.string().min(3).max(80),
+    description: z.string().min(3),
+    status: z.number().refine((val) => val >= 1 && val <= 3, {
+      message: "Status Must be Between 1 = 'DONE', 2 = 'PASSED', 3 = 'FAILED'",
+    }),
+  });
 }

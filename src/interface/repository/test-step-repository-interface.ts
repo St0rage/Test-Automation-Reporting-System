@@ -10,6 +10,4 @@ export interface ITestStepRepository {
   checkLastTestStep(sectionId: number): Promise<TestStepResponseWithId | null>;
   updateTestStep(reportDetail: TestStepInsertRequest): Promise<void>;
   checkTestStepIsExist(sectionId: number, detailId: number): Promise<TestStepResponse | null>;
-  // findAllTestStepBySectionId(sectionId: number): Promise<TestStepResponse[]>;
-  // deleteAllTestStepBySectionId(sectionId: number): Promise<void>;
 }

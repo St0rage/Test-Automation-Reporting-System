@@ -18,7 +18,7 @@ export class ReportRepository implements IReportRepository {
     return result;
   }
 
-  public async checkReportIsExist(id: number): Promise<Boolean> {
+  public async checkReportIsExist(id: number): Promise<boolean> {
     const count = await prismaClient.report.count({
       where: {
         id: id,
@@ -30,6 +30,19 @@ export class ReportRepository implements IReportRepository {
     }
 
     return true;
+  }
+
+  public async getReportPlainStatus(id: number): Promise<boolean> {
+    const report = await prismaClient.report.findFirst({
+      where: {
+        id: id,
+      },
+      select: {
+        is_plain: true,
+      },
+    });
+
+    return report!.is_plain;
   }
 
   public async getReportById(id: number): Promise<ReportResponse> {

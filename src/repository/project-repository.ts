@@ -36,20 +36,6 @@ export class ProjectRepository implements IProjectRepository {
     });
   }
 
-  async checkProjectIsExist(projectName: string): Promise<Boolean> {
-    const count = await prismaClient.project.count({
-      where: {
-        name: projectName,
-      },
-    });
-
-    if (count != 1) {
-      return false;
-    }
-
-    return true;
-  }
-
   async getProjectIdByProjectName(projectName: string): Promise<{ id: number } | null> {
     return prismaClient.project.findFirst({
       where: {

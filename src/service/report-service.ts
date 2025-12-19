@@ -16,6 +16,8 @@ import {
   FileRecordRequest,
   ImageDetailInsertRequest,
   ImageDetailRequest,
+  PlainTestStepInsertRequest,
+  PlainTestStepRequest,
   ProjectInsertRequest,
   ReportInsertRequest,
   ReportRequest,
@@ -30,6 +32,8 @@ import { FileSystem } from "../utils/file-system-util";
 import { ReportValidation } from "../validation/report-validation";
 import { Validation } from "../validation/validation";
 import { ISectionRepository } from "../interface/repository/section-repository-interface";
+import { ITestStepPlainRepository } from "../interface/repository/test-step-plain-repository-interface";
+import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -46,11 +50,13 @@ export class ReportService implements IReportService {
     @inject(TYPES.ISectionRepository) private sectionRepository: ISectionRepository,
     @inject(TYPES.ITestStepRepository)
     private testStepRepository: ITestStepRepository,
+    @inject(TYPES.ITestStepPlainRepository)
+    private testStepPlainRepository: ITestStepPlainRepository,
     @inject(TYPES.IFileRecordRepository)
     private fileRecordRepository: IFileRecordRepository
   ) {}
 
-  public async createReport(reportRequest: ReportRequest): Promise<string> {
+  public async createReport(reportRequest: ReportRequest, isPlain: boolean): Promise<string> {
     const validatedRequest = Validation.validate(ReportValidation.reportSchema, reportRequest);
 
     // Tool
@@ -85,6 +91,7 @@ export class ReportService implements IReportService {
       test_case_id: testCase.id,
       activity: validatedRequest.report.activity,
       author: validatedRequest.report.author,
+      is_plain: isPlain,
     };
 
     const result = await this.reportRepository.createReport(reportInsertRequest);
@@ -176,6 +183,22 @@ export class ReportService implements IReportService {
     await this.testStepRepository.updateTestStep(testStepInsertRequest);
   }
 
+  public async addPlainTestStep(reportId: number, plainTestStepRequest: PlainTestStepRequest): Promise<void> {
+    Validation.validate(ReportValidation.plainTestStepSchema, plainTestStepRequest);
+
+    const plainTestStep = await this.testStepPlainRepository.checkLastPlainTestStep(reportId);
+
+    const plainTestStepInsertRequest: PlainTestStepInsertRequest = {
+      report_id: reportId,
+      title: plainTestStepRequest.title,
+      description: plainTestStepRequest.description,
+      status_id: plainTestStepRequest.status,
+      step_number: (plainTestStep?.step_number ?? 0) + 1, // Prevents NaN issues
+    };
+
+    await this.testStepPlainRepository.createPlainTestStep(plainTestStepInsertRequest);
+  }
+
   public async saveReport(reportId: number, status: boolean): Promise<void> {
     const report = await this.reportRepository.getReportById(reportId);
     const sections = await this.sectionRepository.findAllSectionAndTestStepByReportId(reportId);
@@ -225,5 +248,35 @@ export class ReportService implements IReportService {
         await FileSystem.deleteFile(path.join(imagePath, testStep.image));
       }
     }
+  }
+
+  public async savePlainReport(reportId: number, status: boolean): Promise<void> {
+    const report = await this.reportRepository.getReportById(reportId);
+    const plainTestSteps = await this.testStepPlainRepository.findAllPlainTestStep(reportId);
+
+    if (status) {
+      const isReportFailed = plainTestSteps.some((plainTestStep) => plainTestStep.status?.name === "FAILED");
+
+      if (isReportFailed) {
+        throw new ResponseError(
+          400,
+          "One or more steps have a failed status. Please save the report using '/api/save-plain-report-failed'."
+        );
+      }
+    }
+
+    const plainReportBuilder = container.get<IPlainReportBuilder>(TYPES.IPlainReportBuilder);
+
+    const { fileName, date } = await plainReportBuilder.createReport(report, plainTestSteps);
+
+    const fileRecordRequest: FileRecordRequest = {
+      test_case_id: report.test_case.id,
+      status_id: status ? 2 : 3,
+      file_name: fileName,
+      created_time: date,
+    };
+
+    await this.fileRecordRepository.createFileRecord(fileRecordRequest);
+    await this.reportRepository.deleteReportById(reportId);
   }
 }
