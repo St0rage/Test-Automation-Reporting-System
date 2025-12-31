@@ -67,8 +67,8 @@ model Status {
   id              Int     @id @default(autoincrement())
   name            String  @db.VarChar(10)
 
-  test_steps      TestStep[]
-  file_records    FileRecord[]
+  test_steps        TestStep[]
+  file_records      FileRecord[]
 
   @@map("statuses")
 }
@@ -79,10 +79,11 @@ model Report {
   test_case_id  Int
   activity      String @db.VarChar(50)
   author        String @db.VarChar(50)
+  is_plain      Boolean
 
-  project         Project   @relation(fields: [project_id], references: [id])
-  test_case       TestCase  @relation(fields: [test_case_id], references: [id])
-  sections        Section[]  
+  project           Project   @relation(fields: [project_id], references: [id])
+  test_case         TestCase  @relation(fields: [test_case_id], references: [id])
+  sections          Section[]  
 
   @@map("reports")
 }
@@ -106,7 +107,7 @@ model TestStep {
   step_number Int?
   title       String? @db.VarChar(100)
   description String? @db.Text
-  image       String @db.VarChar(50)
+  image       String? @db.VarChar(50)
 
   section     Section @relation(fields: [section_id], references: [id], onDelete: Cascade)
   status      Status? @relation(fields: [status_id], references: [id])

@@ -38,6 +38,7 @@ export type ReportInsertRequest = {
   test_case_id: number;
   activity: string;
   author: string;
+  is_plain: boolean;
 };
 
 export type IdAndName = {
@@ -86,6 +87,20 @@ export type TestStepRequest = {
 
 export type TestStepInsertRequest = {
   test_step_id: number;
+  status_id: number;
+  title: string;
+  description: string;
+};
+
+export type PlainTestStepRequest = {
+  title: string;
+  description: string;
+  status: number;
+};
+
+export type PlainTestStepInsertRequest = {
+  section_id: number;
+  step_number: number;
   status_id: number;
   title: string;
   description: string;
@@ -141,11 +156,17 @@ export type SectionFullRespone = {
   test_steps: TestStepResponse[];
 };
 
+export type SectionFullPlainRespone = {
+  section_number: number;
+  name: string;
+  test_steps: PlainTestStepResponse[];
+};
+
 export type TestStepResponse = {
   step_number: number | null;
   title: string | null;
   description: string | null;
-  image: string;
+  image: string | null;
   status: {
     name: string;
   } | null;
@@ -156,10 +177,23 @@ export type TestStepResponseWithId = {
   step_number: number | null;
   title: string | null;
   description: string | null;
-  image: string;
+  image: string | null;
   status: {
     name: string;
   } | null;
+};
+
+export type PlainTestStepResponse = {
+  step_number: number | null;
+  title: string | null;
+  description: string | null;
+  status: {
+    name: string;
+  } | null;
+};
+
+export type PlainTestStepNumRespone = {
+  step_number: number;
 };
 
 export type FileRecordRequest = {

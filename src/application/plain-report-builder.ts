@@ -4,9 +4,8 @@ import { jsPDF } from "jspdf";
 import autoTable, { CellHookData } from "jspdf-autotable";
 import moment from "moment";
 import path from "path";
-import sharp from "sharp";
-import { IReportBuilder } from "../interface/application/report-builder-interface";
-import { ReportResponse, SectionFullRespone } from "../model/model";
+import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
+import { PlainTestStepResponse, ReportResponse, SectionFullPlainRespone, SectionFullRespone } from "../model/model";
 
 type CoverData = {
   projectName: string;
@@ -35,6 +34,14 @@ type DocumentAttributeData = {
   platform: string;
 };
 
+type StepData = {
+  title: string;
+  description: string;
+  status: {
+    name: string;
+  };
+};
+
 type SummaryStatus = {
   totalPassed: number;
   totalFailed: number;
@@ -47,13 +54,8 @@ type SummaryData = {
   status: string;
 };
 
-type ContentData = SummaryData & {
-  description: string;
-  image: string;
-};
-
 @injectable()
-export class ReportBuilder implements IReportBuilder {
+export class PlainReportBuilder implements IPlainReportBuilder {
   private doc: jsPDF;
   private pageWidth: number;
   private pageHeight: number;
@@ -79,15 +81,12 @@ export class ReportBuilder implements IReportBuilder {
     this.page = 2;
   }
 
-  private async addPage(totalPage: number) {
+  private async addPage() {
     const textFontSize = 10;
     const headerPosition = 8;
     const headerImagewidth = 24;
     const headerImageHeight = 7;
     const headerRightText = "Automation Test Execution Document";
-    const footerPosition = 8;
-    const footerLeftText = `Copyright © (${moment().year()}) by BNI-APS. Testing Strategy Execution Form`;
-    const footerRightText = `Page ${this.page} of ${totalPage}`;
 
     // Add Page
     this.doc.addPage();
@@ -127,9 +126,20 @@ export class ReportBuilder implements IReportBuilder {
       headerPosition + 1.2 + headerImageHeight / 2
     );
 
+    this.page += 1;
+  }
+
+  private async updateFooter(currentPage: number) {
+    const textFontSize = 10;
+    const footerPosition = 8;
+    const footerLeftText = `Copyright © (${moment().year()}) by BNI-APS. Testing Strategy Execution Form`;
+    const footerRightText = `Page ${currentPage} of ${this.page - 1}`;
+
+    this.doc.setPage(currentPage);
+
     // Create Footer Information
     this.doc.setFont("times", "italic");
-    // this.doc.setFontSize(textFontSize);
+    this.doc.setFontSize(textFontSize);
     const footerTextPosition: number = this.pageHeight - this.y + footerPosition;
 
     // Set Footer Left Text
@@ -138,8 +148,6 @@ export class ReportBuilder implements IReportBuilder {
     // Set Footer Right Text
     const footerRightTextWidth: number = this.doc.getTextWidth(footerRightText);
     this.doc.text(footerRightText, this.pageWidth - this.x - this.xPadding - footerRightTextWidth, footerTextPosition);
-
-    this.page += 1;
   }
 
   private async createCover(coverData: CoverData) {
@@ -160,11 +168,11 @@ export class ReportBuilder implements IReportBuilder {
     const authorName = `Prepared By ${coverData.authorName}`;
     const dateFontSize = 12;
     const copyRightFontSize = 11;
-    // const copyRightNotice = " ";
+    // const copyRightNotice = "COPYRIGHT NOTICE";
     const copyRight = "CONFIDENTIALITY";
     const copyRightDetailFontSize = 8;
     const copyRightDetail =
-      "This document contains proprietary information that is confidential to Bank Negara Indonesia. Disclosure of this document in full or in part, may result in material damage to Bank Negara Indonesia. ";
+      "This document contains proprietary information that is confidential to Bank Negara Indonesia. Disclosure of this document in full or in part, may result in material damage to Bank Negara Indonesia.";
 
     // Get Image
     const image = new Uint8Array(
@@ -235,7 +243,7 @@ export class ReportBuilder implements IReportBuilder {
     const authorNameWidth = this.doc.getTextWidth(authorName);
     this.doc.text(authorName, this.pageWidth - coverX - authorNameWidth, titleHeight + titleFontSize / 2.5);
 
-    // Set Data
+    // Set Date
     this.doc.setFont("times", "normal");
     this.doc.setFontSize(dateFontSize);
     const dateWidth = this.doc.getTextWidth(coverData.date);
@@ -1150,137 +1158,179 @@ export class ReportBuilder implements IReportBuilder {
     }
   }
 
-  private async createContent(contentData: ContentData[]) {
+  private async createContent(sections: SectionFullPlainRespone[], startPage: number): Promise<SummaryData[]> {
     const sectionFontSize = 12;
     const fontSize = 11;
     const titlePadding = 2;
     const descPadding = 6;
-    const imagePadding = 3;
 
-    const getImageAndSize = async (
-      imagePath: string
-    ): Promise<{ image: Uint8Array; newImageWidth: number; newImageHeight: number }> => {
-      const rawImage = await fs.promises.readFile(`${imagePath}`);
-      const image = new Uint8Array(rawImage);
-      const metadata = await sharp(image).metadata();
-      const maxWidth = this.pageWidth - (this.x + this.xPadding + 16) * 2;
-
-      let newImageHeight = (this.pageHeight - (this.y + this.yPadding + 16) * 2) / 2.4;
-      let newImageWidth = ((metadata?.width as number) / (metadata?.height as number)) * newImageHeight;
-
-      if (newImageWidth > maxWidth) {
-        newImageWidth = maxWidth;
-      }
-
-      return { image, newImageWidth, newImageHeight };
-    };
-
-    const getDescriptionTotalHeight = (description: string): [string, number] => {
+    const splitDescription = (desc: string, allowedDescHeight: number): [string, number, string] => {
+      let allLines: string[] = [];
+      const fitLines: string[] = [];
+      const overflowLines: string[] = [];
       let lineHeight: number = 0;
+      let usedHeight: number = 0;
+      let fitLineHeight: number = 0;
 
-      if (description.includes("\n")) {
-        let formatDescription: string = "";
-        const splitDescription = description.split("\n");
-        let lines: string[] = [];
+      if (desc.includes("\n")) {
+        const lines = desc.split("\n");
 
-        splitDescription.forEach((value) => {
+        lines.forEach((value) => {
           let tempLines = this.doc.splitTextToSize(value, this.pageWidth - (this.x + this.xPadding) * 2) as string[];
 
           tempLines.forEach((tempValue) => {
-            lines.push(tempValue);
+            allLines.push(tempValue);
           });
         });
-
-        const totalLines: number = lines.length > 5 ? 5 : lines.length;
-
-        for (let i = 0; i < totalLines; i++) {
-          formatDescription += `${lines[i]}${i === totalLines ? "" : "\n"}`;
-          let dim = this.doc.getTextDimensions(lines[i]);
-          lineHeight += dim.h;
-        }
-
-        return [formatDescription, lineHeight + 2.5];
       } else {
-        let formatDescription: string = "";
-        const lines = this.doc.splitTextToSize(description, this.pageWidth - (this.x + this.xPadding) * 2) as string[];
+        allLines = this.doc.splitTextToSize(desc, this.pageWidth - (this.x + this.xPadding) * 2) as string[];
+      }
 
-        const totalLines: number = lines.length > 5 ? 5 : lines.length;
+      for (const line of allLines) {
+        lineHeight = this.doc.getTextDimensions(line).h * 1.15;
+        if (usedHeight + lineHeight <= allowedDescHeight) {
+          fitLines.push(line);
+          fitLineHeight += lineHeight;
+          usedHeight += lineHeight;
+        } else {
+          overflowLines.push(line);
+        }
+      }
 
-        for (let i = 0; i < totalLines; i++) {
-          formatDescription += `${lines[i]}${i === totalLines ? "" : "\n"}`;
-          let dim = this.doc.getTextDimensions(lines[i]);
-          lineHeight += dim.h;
+      return [fitLines.join("\n"), fitLineHeight, overflowLines.join("\n")];
+    };
+
+    const summaryData: SummaryData[] = [];
+    let currentPage = startPage;
+    let remainingSpace = this.pageHeight - this.y * 2;
+    let currentTitlePosition: number = this.y + this.yPadding + 8;
+    let currentDescriptionPosition: number = 0;
+    let fitDescHeight: number = 0;
+
+    const getTitleHeight = (title: string, isFirstTitle: boolean): number => {
+      let titleHeight: number = 0;
+      let titleBlockHeight: number = 0;
+
+      // Get Title Height
+      this.doc.setFont("times", "bold");
+      this.doc.setFontSize(fontSize);
+      titleHeight = this.doc.getTextDimensions(title).h * 1.15;
+      if (isFirstTitle) {
+        titleBlockHeight = this.yPadding + titlePadding + 8 + titleHeight + descPadding;
+      } else {
+        titleBlockHeight = titlePadding + titleHeight + descPadding;
+      }
+
+      return titleBlockHeight;
+    };
+
+    const getSectionHeight = (section: string): number => {
+      let sectionHeight: number = 0;
+      let sectionBlockHeight: number = 0;
+
+      // Get Section Height
+      this.doc.setFont("times", "bold");
+      this.doc.setFontSize(sectionFontSize);
+      sectionHeight = this.doc.getTextDimensions(section).h * 1.15;
+      sectionBlockHeight = this.yPadding + 3 + sectionHeight;
+
+      return sectionBlockHeight;
+    };
+
+    const drawContent = async (sectionData: SectionFullPlainRespone, sectionNum: number) => {
+      const section: string = `${sectionNum}. ${sectionData.name}`;
+      const sectionBlockHeight: number = getSectionHeight(section);
+
+      // Set Section
+      this.doc.setFont("times", "bold");
+      this.doc.setFontSize(sectionFontSize);
+      const sectionWidth = this.doc.getTextWidth(section);
+      const sectionPosition = this.y + this.yPadding + 3;
+      this.doc.text(section, this.pageWidth / 2 - sectionWidth / 2, sectionPosition);
+      remainingSpace -= sectionBlockHeight;
+      summaryData.push({
+        title: section,
+        linkNumber: currentPage.toString(),
+        status: "-",
+      });
+
+      let stepIndex = 0;
+      for (const stepData of sectionData.test_steps) {
+        let fitDesc: string = "";
+        let overflowDesc: string = "";
+        const title: string = `${sectionNum}.${stepIndex + 1} ${stepData.title as string}`;
+        const titleBlockHeight = getTitleHeight(title, stepIndex == 0);
+
+        // Set Title
+        if (titleBlockHeight > remainingSpace) {
+          currentPage++;
+          remainingSpace = this.pageHeight - this.y * 2;
+          await this.addPage();
+          this.doc.setPage(currentPage);
+          currentTitlePosition = this.y + this.yPadding + 4;
+        } else {
+          if (stepIndex == 0) {
+            currentTitlePosition += currentDescriptionPosition + fitDescHeight + titlePadding;
+          } else {
+            currentTitlePosition = currentDescriptionPosition + fitDescHeight + titlePadding;
+          }
+        }
+        this.doc.setFont("times", "bold");
+        this.doc.setFontSize(fontSize);
+        if (stepData.status?.name === "FAILED") {
+          this.doc.setTextColor(247, 59, 59);
+        } else {
+          this.doc.setTextColor(stepData.status?.name === "DONE" ? "black" : "green");
+        }
+        this.doc.text(title, this.x + this.xPadding, currentTitlePosition);
+        remainingSpace -= titleBlockHeight;
+        summaryData.push({
+          title: title,
+          linkNumber: currentPage.toString(),
+          status: stepData.status?.name as string,
+        });
+
+        // Set Description
+        this.doc.setFont("times", "normal");
+        this.doc.setTextColor("black");
+        this.doc.setFontSize(fontSize);
+        [fitDesc, fitDescHeight, overflowDesc] = splitDescription(stepData.description as string, remainingSpace);
+        currentDescriptionPosition = currentTitlePosition + descPadding;
+        this.doc.text(fitDesc, this.x + this.xPadding, currentDescriptionPosition);
+        remainingSpace -= fitDescHeight;
+        while (overflowDesc.length > 0) {
+          currentPage++;
+          remainingSpace = this.pageHeight - this.y * 2;
+          await this.addPage();
+          this.doc.setPage(currentPage);
+          this.doc.setFont("times", "normal");
+          this.doc.setTextColor("black");
+          this.doc.setFontSize(fontSize);
+          remainingSpace -= titleBlockHeight;
+          [fitDesc, fitDescHeight, overflowDesc] = splitDescription(overflowDesc, remainingSpace);
+          currentDescriptionPosition = this.y + this.yPadding + 4;
+          this.doc.text(fitDesc, this.x + this.xPadding, currentDescriptionPosition);
+          remainingSpace -= fitDescHeight;
         }
 
-        return [formatDescription, lineHeight + 2.5];
+        stepIndex++;
       }
     };
 
-    let currentTitlePosition: number = 0;
-    let currentImagePosition: number = 0;
-    let currentDescriptionPosition: number = 0;
-    let image: Uint8Array;
-    let newImageWidth: number;
-    let newImageHeight: number;
-    let newDesc: string = "";
-    let descHeight: number = 0;
-    let previousLink: number = 0;
-
-    for (const contentItem of contentData) {
-      this.doc.setPage(Number(contentItem.linkNumber));
-
-      // Set Section
-      if (contentItem.status === "-") {
-        this.doc.setFont("times", "bold");
-        this.doc.setFontSize(sectionFontSize);
-        const titleWidth = this.doc.getTextWidth(contentItem.title);
-        const titlePosition = this.y + this.yPadding + 3;
-        this.doc.text(contentItem.title, this.pageWidth / 2 - titleWidth / 2, titlePosition);
-
-        continue;
-      }
-
-      // Set Title
-      this.doc.setFont("times", "bold");
-      this.doc.setFontSize(fontSize);
-      if (contentItem.status === "FAILED") {
-        this.doc.setTextColor(247, 59, 59);
-      } else {
-        this.doc.setTextColor(contentItem.status === "DONE" ? "black" : "green");
-      }
-
-      if (Number(contentItem.linkNumber) !== previousLink && contentItem.title.includes(".1 ")) {
-        currentTitlePosition = this.y + this.yPadding + titlePadding + 8;
-      } else if (Number(contentItem.linkNumber) !== previousLink && !contentItem.title.includes(".1 ")) {
-        currentTitlePosition = this.y + this.yPadding + titlePadding + 4;
-      } else {
-        currentTitlePosition = currentDescriptionPosition + descHeight + titlePadding;
-      }
-      this.doc.text(contentItem.title, this.x + this.xPadding, currentTitlePosition);
-
-      // Set Image
-      ({ image, newImageWidth, newImageHeight } = await getImageAndSize(contentItem.image));
-      currentImagePosition = currentTitlePosition + imagePadding;
-      this.doc.addImage(
-        image,
-        "PNG",
-        this.pageWidth / 2 - newImageWidth / 2,
-        currentImagePosition,
-        newImageWidth,
-        newImageHeight,
-        "",
-        "FAST"
-      );
-
-      // Set Description
-      this.doc.setFont("times", "normal");
-      this.doc.setTextColor("black");
-      currentDescriptionPosition = currentImagePosition + newImageHeight + descPadding;
-      [newDesc, descHeight] = getDescriptionTotalHeight(contentItem.description);
-      this.doc.text(newDesc, this.x + this.xPadding, currentDescriptionPosition);
-
-      previousLink = Number(contentItem.linkNumber);
+    let stepIndex = 0;
+    for (const section of sections) {
+      await this.addPage();
+      this.doc.setPage(currentPage);
+      await drawContent(section, stepIndex + 1);
+      stepIndex++;
+      currentPage++;
+      remainingSpace = this.pageHeight - this.y * 2;
+      currentTitlePosition = this.y + this.yPadding + 8;
+      currentDescriptionPosition = 0;
+      fitDescHeight = 0;
     }
+
+    return summaryData;
   }
 
   private async wrapText(text: string, fontSize: number): Promise<[string, number]> {
@@ -1299,17 +1349,14 @@ export class ReportBuilder implements IReportBuilder {
 
   public async createReport(
     report: ReportResponse,
-    sections: SectionFullRespone[]
+    sections: SectionFullPlainRespone[]
   ): Promise<{ fileName: string; date: number }> {
     moment.locale("id");
     // Date
     const date: number = Math.floor(Date.now() / 1000);
     // Content Page
     const stepDataTotalLength = sections.reduce((acc, cur) => acc + cur.test_steps.length, 0);
-    let contentTotalPage = 0;
-    sections.forEach((value, index) => {
-      contentTotalPage += Math.ceil(value.test_steps.length / 2);
-    });
+
     const sectionTotalLength = sections.length;
     // Harcoded Page
     const coverTotalPage = 1;
@@ -1328,7 +1375,7 @@ export class ReportBuilder implements IReportBuilder {
         Math.max(0, stepDataTotalLength + sectionTotalLength - docSummFirstPageLength) / docSummRestPageLength
       ) + 1;
     // Total Page
-    const totalPage = beritaAcaraTotalPage + tocTotalPage + docSummTotalPage + contentTotalPage;
+    const totalPage = beritaAcaraTotalPage + tocTotalPage + docSummTotalPage;
     const startContentNum = coverTotalPage + beritaAcaraTotalPage + tocTotalPage + docSummTotalPage + 1;
 
     // Create Cover
@@ -1343,7 +1390,7 @@ export class ReportBuilder implements IReportBuilder {
 
     // Add Pages
     for (let i = 0; i < totalPage; i++) {
-      await this.addPage(totalPage + coverTotalPage);
+      await this.addPage();
     }
 
     // Create Berita Acara
@@ -1367,58 +1414,35 @@ export class ReportBuilder implements IReportBuilder {
     await this.createBeritaAcaraPage3(4, beritaAcaraData);
     await this.createBeritaAcaraPage4(5);
 
-    // Create Summary and ContentData
-    const imagePath: string = process.env.IMAGE_PATH as string;
-    const summaryData: SummaryData[] = [];
-    const contentData: ContentData[] = [];
-    const summaryStatus: SummaryStatus = {
-      totalPassed: sections.reduce((acc, section) => {
-        return acc + section.test_steps.filter((step) => step.status?.name === "PASSED").length;
-      }, 0),
-      totalFailed: sections.reduce((acc, section) => {
-        return acc + section.test_steps.filter((step) => step.status?.name === "FAILED").length;
-      }, 0),
-      totalDone: sections.reduce((acc, section) => {
-        return acc + section.test_steps.filter((step) => step.status?.name === "DONE").length;
-      }, 0),
-    };
-
-    let linkNumber = startContentNum;
-
-    sections.forEach((sectionVal, sectionIdx) => {
-      if (sectionIdx != 0) linkNumber++;
-
-      const sectionBase = {
-        title: `${sectionVal.section_number}. ${sectionVal.name}`,
-        linkNumber: linkNumber.toString(),
-        status: "-",
-      };
-
-      summaryData.push(sectionBase);
-      contentData.push({ ...sectionBase, description: "-", image: "-" });
-
-      sectionVal.test_steps.forEach((stepVal, stepIdx) => {
-        const stepBase = {
-          title: `${sectionVal.section_number}.${stepVal.step_number} ${stepVal.title}`,
-          linkNumber: linkNumber.toString(),
-          status: stepVal.status?.name as string,
-        };
-
-        summaryData.push(stepBase);
-        contentData.push({
-          ...stepBase,
-          description: stepVal.description as string,
-          image: path.join(imagePath, stepVal.image as string),
-        });
-
-        if ((stepIdx + 1) % 2 === 0 && stepIdx !== sectionVal.test_steps.length - 1) linkNumber++;
-      });
-    });
+    // Content
+    const summaryData = await this.createContent(sections, startContentNum);
 
     // Table of Content
     await this.createTableOfContent(summaryData, tocStartPage, docSummStartPage, tocFirstPageLength, tocRestPageLength);
 
     // Document Summary Pages
+    const summaryStatus: SummaryStatus = summaryData.reduce(
+      (acc, item) => {
+        switch (item.status) {
+          case "PASSED":
+            acc.totalPassed++;
+            break;
+          case "FAILED":
+            acc.totalFailed++;
+            break;
+          case "DONE":
+            acc.totalDone++;
+            break;
+        }
+        return acc;
+      },
+      {
+        totalPassed: 0,
+        totalFailed: 0,
+        totalDone: 0,
+      }
+    );
+
     await this.createDocumentSummary(
       summaryData,
       docSummStartPage,
@@ -1427,7 +1451,9 @@ export class ReportBuilder implements IReportBuilder {
       summaryStatus
     );
 
-    await this.createContent(contentData);
+    for (let i = 2; i < this.page; i++) {
+      await this.updateFooter(i);
+    }
 
     const fileName = `${report.test_case.scenario.name}_${report.test_case.unique_id}_${moment(date * 1000).format(
       "DD-MM-YYYY_HH-mm-ss"

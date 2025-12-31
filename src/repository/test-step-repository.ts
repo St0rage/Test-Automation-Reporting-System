@@ -3,6 +3,8 @@ import { prismaClient } from "../application/database";
 import { ITestStepRepository } from "../interface/repository/test-step-repository-interface";
 import {
   ImageDetailInsertRequest,
+  PlainTestStepInsertRequest,
+  PlainTestStepResponse,
   TestStepInsertRequest,
   TestStepResponse,
   TestStepResponseWithId,
@@ -24,6 +26,18 @@ export class TestStepRepository implements ITestStepRepository {
     return { id: result.id };
   }
 
+  public async createPlainTestStep(plainTestStepInsertRequest: PlainTestStepInsertRequest): Promise<void> {
+    await prismaClient.testStep.create({
+      data: {
+        section_id: plainTestStepInsertRequest.section_id,
+        step_number: plainTestStepInsertRequest.step_number,
+        title: plainTestStepInsertRequest.title,
+        description: plainTestStepInsertRequest.description,
+        status_id: plainTestStepInsertRequest.status_id,
+      },
+    });
+  }
+
   public async checkLastTestStep(section_id: number): Promise<TestStepResponseWithId | null> {
     return prismaClient.testStep.findFirst({
       orderBy: { step_number: "desc" },
@@ -36,6 +50,25 @@ export class TestStepRepository implements ITestStepRepository {
         title: true,
         description: true,
         image: true,
+        status: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+  public async checkLastPlainTestStep(sectionId: number): Promise<PlainTestStepResponse | null> {
+    return prismaClient.testStep.findFirst({
+      orderBy: { step_number: "desc" },
+      where: {
+        section_id: sectionId,
+      },
+      select: {
+        step_number: true,
+        title: true,
+        description: true,
         status: {
           select: {
             name: true,

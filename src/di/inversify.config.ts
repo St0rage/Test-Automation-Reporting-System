@@ -24,10 +24,13 @@ import { ToolRepository } from "../repository/tool-repository";
 import { ReportService } from "../service/report-service";
 import { WebService } from "../service/web-service";
 import { TYPES } from "./types";
+import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
+import { PlainReportBuilder } from "../application/plain-report-builder";
 
 const container = new Container();
 // Application
 container.bind<IReportBuilder>(TYPES.IReportBuilder).to(ReportBuilder);
+container.bind<IPlainReportBuilder>(TYPES.IPlainReportBuilder).to(PlainReportBuilder);
 
 // Repository
 container.bind<IProjectRepository>(TYPES.IProjectRepository).to(ProjectRepository);

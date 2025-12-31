@@ -1,6 +1,7 @@
 export const TYPES = {
   // Application Interface
   IReportBuilder: Symbol.for("IReportBuilder"),
+  IPlainReportBuilder: Symbol.for("IPlainReportBuilder"),
   // Repository Interface
   IProjectRepository: Symbol.for("IProjectRepository"),
   IScenarioRepository: Symbol.for("IScenarioRepository"),

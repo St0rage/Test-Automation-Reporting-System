@@ -13,20 +13,11 @@ export const reportPathValidateMiddleware = async (req: Request, res: Response, 
     const projectRepository = container.get<IProjectRepository>(TYPES.IProjectRepository);
     const scenarioRepository = container.get<IScenarioRepository>(TYPES.IScenarioRepository);
 
-    // const isProjectExist = await projectRepository.checkProjectIsExist(
-    //   projectName.toUpperCase()
-    // );
-
     const projectId = await projectRepository.getProjectIdByProjectName(projectName.toUpperCase());
 
     if (!projectId) {
       throw new ResponseError(404, "Not Found");
     }
-
-    // const isScenarioExist = await scenarioRepository.checkScenarioIsExist(
-    //   scenarioName.toUpperCase(),
-    //   projectId.id
-    // );
 
     const scenarioId = await scenarioRepository.getScenarioIdByScenarioNameAndProjectId(scenarioName, projectId.id);
 
