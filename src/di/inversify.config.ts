@@ -24,8 +24,6 @@ import { ToolRepository } from "../repository/tool-repository";
 import { ReportService } from "../service/report-service";
 import { WebService } from "../service/web-service";
 import { TYPES } from "./types";
-import { ITestStepPlainRepository } from "../interface/repository/test-step-plain-repository-interface";
-import { TestStepPlainRepository } from "../repository/test-step-plain-repository";
 import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
 import { PlainReportBuilder } from "../application/plain-report-builder";
 
@@ -42,7 +40,6 @@ container.bind<IToolRepository>(TYPES.IToolRepository).to(ToolRepository);
 container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
 container.bind<ISectionRepository>(TYPES.ISectionRepository).to(SectionRepository);
 container.bind<ITestStepRepository>(TYPES.ITestStepRepository).to(TestStepRepository);
-container.bind<ITestStepPlainRepository>(TYPES.ITestStepPlainRepository).to(TestStepPlainRepository);
 container.bind<IFileRecordRepository>(TYPES.IFileRecordRepository).to(FileRecordRepository);
 // Service
 container.bind<IReportService>(TYPES.IReportService).to(ReportService);

@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { ISectionRepository } from "../interface/repository/section-repository-interface";
-import { SectionFullRespone, SectionInsertRequest, SectionResponse } from "../model/model";
+import { SectionFullPlainRespone, SectionFullRespone, SectionInsertRequest, SectionResponse } from "../model/model";
 import { prismaClient } from "../application/database";
 
 @injectable()
@@ -47,6 +47,36 @@ export class SectionRepository implements ISectionRepository {
             title: true,
             description: true,
             image: true,
+            status: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  findAllSectionAndPlainTestStepByReportId(reportId: number): Promise<SectionFullPlainRespone[]> {
+    return prismaClient.section.findMany({
+      where: {
+        report_id: reportId,
+      },
+      orderBy: {
+        section_number: "asc",
+      },
+      select: {
+        section_number: true,
+        name: true,
+        test_steps: {
+          orderBy: {
+            step_number: "asc",
+          },
+          select: {
+            step_number: true,
+            title: true,
+            description: true,
             status: {
               select: {
                 name: true,

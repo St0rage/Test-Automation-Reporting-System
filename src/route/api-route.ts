@@ -36,6 +36,12 @@ apiRoute.post(
 /* PLAIN REPORT */
 apiRoute.post("/api/create-plain-report", reportController.createPlainReport.bind(reportController));
 apiRoute.post(
+  "/api/add-plain-section",
+  authPlainMiddleware,
+  queueMiddleware,
+  reportController.addPlainSection.bind(reportController)
+);
+apiRoute.post(
   "/api/add-plain-test-step",
   authPlainMiddleware,
   queueMiddleware,

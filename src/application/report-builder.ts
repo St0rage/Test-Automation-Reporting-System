@@ -1337,7 +1337,7 @@ export class ReportBuilder implements IReportBuilder {
       activityName: report.activity,
       testCaseName: report.test_case.unique_id,
       authorName: report.author,
-      date: moment(date * 1000).format("DD-MMMM-YYYY_HH:mm:ss"),
+      date: moment(date * 1000).format("DD-MM-YYYY_HH:mm:ss"),
     };
     await this.createCover(coverData);
 
@@ -1408,7 +1408,7 @@ export class ReportBuilder implements IReportBuilder {
         contentData.push({
           ...stepBase,
           description: stepVal.description as string,
-          image: path.join(imagePath, stepVal.image),
+          image: path.join(imagePath, stepVal.image as string),
         });
 
         if ((stepIdx + 1) % 2 === 0 && stepIdx !== sectionVal.test_steps.length - 1) linkNumber++;

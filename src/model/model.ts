@@ -99,7 +99,7 @@ export type PlainTestStepRequest = {
 };
 
 export type PlainTestStepInsertRequest = {
-  report_id: number;
+  section_id: number;
   step_number: number;
   status_id: number;
   title: string;
@@ -156,11 +156,17 @@ export type SectionFullRespone = {
   test_steps: TestStepResponse[];
 };
 
+export type SectionFullPlainRespone = {
+  section_number: number;
+  name: string;
+  test_steps: PlainTestStepResponse[];
+};
+
 export type TestStepResponse = {
   step_number: number | null;
   title: string | null;
   description: string | null;
-  image: string;
+  image: string | null;
   status: {
     name: string;
   } | null;
@@ -171,19 +177,19 @@ export type TestStepResponseWithId = {
   step_number: number | null;
   title: string | null;
   description: string | null;
-  image: string;
+  image: string | null;
   status: {
     name: string;
   } | null;
 };
 
 export type PlainTestStepResponse = {
-  step_number: number;
-  title: string;
-  description: string;
+  step_number: number | null;
+  title: string | null;
+  description: string | null;
   status: {
     name: string;
-  };
+  } | null;
 };
 
 export type PlainTestStepNumRespone = {

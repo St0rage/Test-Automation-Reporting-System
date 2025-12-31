@@ -52,7 +52,25 @@ export class ReportController {
         name: req.body.name as string,
       };
 
-      await this.reportService.addSection(sectionRequest);
+      await this.reportService.addSection(sectionRequest, false);
+
+      res.setHeader("Content-Type", "application/json");
+      res.status(201).json({
+        data: "OK",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async addPlainSection(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const sectionRequest: SectionRequest = {
+        report_id: res.locals.reportId as number,
+        name: req.body.name as string,
+      };
+
+      await this.reportService.addSection(sectionRequest, true);
 
       res.setHeader("Content-Type", "application/json");
       res.status(201).json({

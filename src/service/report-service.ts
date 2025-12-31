@@ -3,12 +3,14 @@ import path from "path";
 import { container } from "../di/inversify.config";
 import { TYPES } from "../di/types";
 import { ResponseError } from "../error/response-error";
+import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
 import { IReportBuilder } from "../interface/application/report-builder-interface";
 import { IFileRecordRepository } from "../interface/repository/file-record-repository-interface";
 import { IProjectRepository } from "../interface/repository/project-repository-interface";
-import { ITestStepRepository } from "../interface/repository/test-step-repository-interface";
 import { IReportRepository } from "../interface/repository/report-repository-interface";
 import { IScenarioRepository } from "../interface/repository/scenario-repository-interface";
+import { ISectionRepository } from "../interface/repository/section-repository-interface";
+import { ITestStepRepository } from "../interface/repository/test-step-repository-interface";
 import { ITestCaseRepository } from "../interface/repository/testcase-repository-interface";
 import { IToolRepository } from "../interface/repository/tool-repository-interface";
 import { IReportService } from "../interface/service/report-service-interface";
@@ -26,14 +28,12 @@ import {
   TestCaseInsertRequest,
   TestStepInsertRequest,
   TestStepRequest,
+  TestStepResponseWithId,
 } from "../model/model";
 import { AuthUtil } from "../utils/auth-util";
 import { FileSystem } from "../utils/file-system-util";
 import { ReportValidation } from "../validation/report-validation";
 import { Validation } from "../validation/validation";
-import { ISectionRepository } from "../interface/repository/section-repository-interface";
-import { ITestStepPlainRepository } from "../interface/repository/test-step-plain-repository-interface";
-import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
 
 @injectable()
 export class ReportService implements IReportService {
@@ -50,8 +50,6 @@ export class ReportService implements IReportService {
     @inject(TYPES.ISectionRepository) private sectionRepository: ISectionRepository,
     @inject(TYPES.ITestStepRepository)
     private testStepRepository: ITestStepRepository,
-    @inject(TYPES.ITestStepPlainRepository)
-    private testStepPlainRepository: ITestStepPlainRepository,
     @inject(TYPES.IFileRecordRepository)
     private fileRecordRepository: IFileRecordRepository
   ) {}
@@ -98,7 +96,7 @@ export class ReportService implements IReportService {
     return AuthUtil.signJwt(result);
   }
 
-  public async addSection(sectionRequest: SectionRequest): Promise<void> {
+  public async addSection(sectionRequest: SectionRequest, isPlain: boolean): Promise<void> {
     Validation.validate(ReportValidation.sectionSchema, sectionRequest);
 
     const { report_id, name } = sectionRequest;
@@ -106,20 +104,28 @@ export class ReportService implements IReportService {
     const section = await this.sectionRepository.checkLastSection(report_id);
 
     if (section) {
-      const testStep = await this.testStepRepository.checkLastTestStep(section.id);
+      const testStep = !isPlain
+        ? await this.testStepRepository.checkLastTestStep(section.id)
+        : await this.testStepRepository.checkLastPlainTestStep(section.id);
 
       if (!testStep) {
         throw new ResponseError(
           400,
-          `Cannot create section. Previous section '${section.section_number} ${section.name}' has an empty test step.`
+          `Cannot create section. Previous section '${section.section_number} ${section.name}' has an empty ${
+            !isPlain ? "test step." : "plain test step."
+          }`
         );
       }
 
-      if (testStep && (!testStep.title || !testStep.description || !testStep.status)) {
-        throw new ResponseError(
-          400,
-          `Cannot create section. Previous section '${section.section_number} ${section.name}' has an empty test step details.(test_step_id: ${testStep.id})`
-        );
+      if (!isPlain) {
+        if (testStep && (!testStep.title || !testStep.description || !testStep.status)) {
+          throw new ResponseError(
+            400,
+            `Cannot create section. Previous section '${section.section_number} ${
+              section.name
+            }' has an empty test step details.(test_step_id: ${(testStep as TestStepResponseWithId).id})`
+          );
+        }
       }
     }
 
@@ -186,17 +192,23 @@ export class ReportService implements IReportService {
   public async addPlainTestStep(reportId: number, plainTestStepRequest: PlainTestStepRequest): Promise<void> {
     Validation.validate(ReportValidation.plainTestStepSchema, plainTestStepRequest);
 
-    const plainTestStep = await this.testStepPlainRepository.checkLastPlainTestStep(reportId);
+    const section = await this.sectionRepository.checkLastSection(reportId);
+
+    if (!section) {
+      throw new ResponseError(400, "Cannot add plain test step. Section is required.");
+    }
+
+    const testStep = await this.testStepRepository.checkLastPlainTestStep(section.id);
 
     const plainTestStepInsertRequest: PlainTestStepInsertRequest = {
-      report_id: reportId,
+      section_id: section.id,
       title: plainTestStepRequest.title,
       description: plainTestStepRequest.description,
       status_id: plainTestStepRequest.status,
-      step_number: (plainTestStep?.step_number ?? 0) + 1, // Prevents NaN issues
+      step_number: (testStep?.step_number ?? 0) + 1, // Prevents NaN issues
     };
 
-    await this.testStepPlainRepository.createPlainTestStep(plainTestStepInsertRequest);
+    await this.testStepRepository.createPlainTestStep(plainTestStepInsertRequest);
   }
 
   public async saveReport(reportId: number, status: boolean): Promise<void> {
@@ -245,17 +257,23 @@ export class ReportService implements IReportService {
     const imagePath = process.env.IMAGE_PATH as string;
     for (const section of sections) {
       for (const testStep of section.test_steps) {
-        await FileSystem.deleteFile(path.join(imagePath, testStep.image));
+        await FileSystem.deleteFile(path.join(imagePath, testStep.image as string));
       }
     }
   }
 
   public async savePlainReport(reportId: number, status: boolean): Promise<void> {
     const report = await this.reportRepository.getReportById(reportId);
-    const plainTestSteps = await this.testStepPlainRepository.findAllPlainTestStep(reportId);
+    const sections = await this.sectionRepository.findAllSectionAndPlainTestStepByReportId(reportId);
+
+    if (sections.length < 1 || sections.some((s) => s.test_steps.length < 1)) {
+      throw new ResponseError(400, "No sections or one of the sections has no plain test steps.");
+    }
 
     if (status) {
-      const isReportFailed = plainTestSteps.some((plainTestStep) => plainTestStep.status?.name === "FAILED");
+      const isReportFailed = sections.some((section) =>
+        section.test_steps.some((step) => step.status?.name === "FAILED")
+      );
 
       if (isReportFailed) {
         throw new ResponseError(
@@ -267,7 +285,7 @@ export class ReportService implements IReportService {
 
     const plainReportBuilder = container.get<IPlainReportBuilder>(TYPES.IPlainReportBuilder);
 
-    const { fileName, date } = await plainReportBuilder.createReport(report, plainTestSteps);
+    const { fileName, date } = await plainReportBuilder.createReport(report, sections);
 
     const fileRecordRequest: FileRecordRequest = {
       test_case_id: report.test_case.id,

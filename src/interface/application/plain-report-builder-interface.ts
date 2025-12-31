@@ -1,8 +1,8 @@
-import { PlainTestStepResponse, ReportResponse } from "../../model/model";
+import { PlainTestStepResponse, ReportResponse, SectionFullPlainRespone } from "../../model/model";
 
 export interface IPlainReportBuilder {
   createReport(
     report: ReportResponse,
-    plainTestSteps: PlainTestStepResponse[]
+    sections: SectionFullPlainRespone[]
   ): Promise<{ fileName: string; date: number }>;
 }

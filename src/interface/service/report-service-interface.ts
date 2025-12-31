@@ -9,7 +9,7 @@ import {
 export interface IReportService {
   addTestImage(reportId: number, imageDetail: ImageDetailRequest): Promise<{ id: number }>;
   createReport(reportRequest: ReportRequest, isPlain: boolean): Promise<string>;
-  addSection(sectionRequest: SectionRequest): Promise<void>;
+  addSection(sectionRequest: SectionRequest, isPlain: boolean): Promise<void>;
   addTestStep(reportId: number, testStepRequest: TestStepRequest): Promise<void>;
   addPlainTestStep(reportId: number, plainTestStepRequest: PlainTestStepRequest): Promise<void>;
   saveReport(reportId: number, status: boolean): Promise<void>;

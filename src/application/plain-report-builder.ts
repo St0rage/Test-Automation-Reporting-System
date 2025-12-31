@@ -5,7 +5,7 @@ import autoTable, { CellHookData } from "jspdf-autotable";
 import moment from "moment";
 import path from "path";
 import { IPlainReportBuilder } from "../interface/application/plain-report-builder-interface";
-import { PlainTestStepResponse, ReportResponse } from "../model/model";
+import { PlainTestStepResponse, ReportResponse, SectionFullPlainRespone, SectionFullRespone } from "../model/model";
 
 type CoverData = {
   projectName: string;
@@ -81,7 +81,7 @@ export class PlainReportBuilder implements IPlainReportBuilder {
     this.page = 2;
   }
 
-  private async addPage(totalPage: number) {
+  private async addPage() {
     const textFontSize = 10;
     const headerPosition = 8;
     const headerImagewidth = 24;
@@ -1158,7 +1158,8 @@ export class PlainReportBuilder implements IPlainReportBuilder {
     }
   }
 
-  private async createContent(stepsData: StepData[], startPage: number): Promise<SummaryData[]> {
+  private async createContent(sections: SectionFullPlainRespone[], startPage: number): Promise<SummaryData[]> {
+    const sectionFontSize = 12;
     const fontSize = 11;
     const titlePadding = 2;
     const descPadding = 6;
@@ -1202,7 +1203,7 @@ export class PlainReportBuilder implements IPlainReportBuilder {
     const summaryData: SummaryData[] = [];
     let currentPage = startPage;
     let remainingSpace = this.pageHeight - this.y * 2;
-    let currentTitlePosition: number = this.y + this.yPadding + 4;
+    let currentTitlePosition: number = this.y + this.yPadding + 8;
     let currentDescriptionPosition: number = 0;
     let fitDescHeight: number = 0;
 
@@ -1210,12 +1211,12 @@ export class PlainReportBuilder implements IPlainReportBuilder {
       let titleHeight: number = 0;
       let titleBlockHeight: number = 0;
 
-      // Get Section Height And Title
+      // Get Title Height
       this.doc.setFont("times", "bold");
       this.doc.setFontSize(fontSize);
       titleHeight = this.doc.getTextDimensions(title).h * 1.15;
       if (isFirstTitle) {
-        titleBlockHeight = this.yPadding + titlePadding + 4 + titleHeight + descPadding;
+        titleBlockHeight = this.yPadding + titlePadding + 8 + titleHeight + descPadding;
       } else {
         titleBlockHeight = titlePadding + titleHeight + descPadding;
       }
@@ -1223,78 +1224,110 @@ export class PlainReportBuilder implements IPlainReportBuilder {
       return titleBlockHeight;
     };
 
-    const drawContent = async (stepData: StepData, titleNum: number, isFirstDraw: boolean) => {
-      let fitDesc: string = "";
-      let overflowDesc: string = "";
-      const title: string = `${titleNum}. ${stepData.title}`;
-      const titleBlockHeight = getTitleHeight(title, isFirstDraw);
+    const getSectionHeight = (section: string): number => {
+      let sectionHeight: number = 0;
+      let sectionBlockHeight: number = 0;
 
-      if (titleBlockHeight > remainingSpace) {
-        currentPage++;
-        remainingSpace = this.pageHeight - this.y * 2;
-        await this.addPage(currentPage);
-        this.doc.setPage(currentPage);
-        currentTitlePosition = this.y + this.yPadding + 4;
-      } else {
-        if (isFirstDraw) {
-          currentTitlePosition += currentDescriptionPosition + fitDescHeight + titlePadding;
-        } else {
-          currentTitlePosition = currentDescriptionPosition + fitDescHeight + titlePadding;
-        }
-      }
-
-      // Set Title
+      // Get Section Height
       this.doc.setFont("times", "bold");
-      this.doc.setFontSize(fontSize);
-      if (stepData.status.name === "FAILED") {
-        this.doc.setTextColor(247, 59, 59);
-      } else {
-        this.doc.setTextColor(stepData.status.name === "DONE" ? "black" : "green");
-      }
-      // currentTitlePosition += currentDescriptionPosition + fitDescHeight + titlePadding;
-      this.doc.text(title, this.x + this.xPadding, currentTitlePosition);
+      this.doc.setFontSize(sectionFontSize);
+      sectionHeight = this.doc.getTextDimensions(section).h * 1.15;
+      sectionBlockHeight = this.yPadding + 3 + sectionHeight;
+
+      return sectionBlockHeight;
+    };
+
+    const drawContent = async (sectionData: SectionFullPlainRespone, sectionNum: number) => {
+      const section: string = `${sectionNum}. ${sectionData.name}`;
+      const sectionBlockHeight: number = getSectionHeight(section);
+
+      // Set Section
+      this.doc.setFont("times", "bold");
+      this.doc.setFontSize(sectionFontSize);
+      const sectionWidth = this.doc.getTextWidth(section);
+      const sectionPosition = this.y + this.yPadding + 3;
+      this.doc.text(section, this.pageWidth / 2 - sectionWidth / 2, sectionPosition);
+      remainingSpace -= sectionBlockHeight;
       summaryData.push({
-        title: title,
+        title: section,
         linkNumber: currentPage.toString(),
-        status: stepData.status.name,
+        status: "-",
       });
 
-      // Set Description
-      this.doc.setFont("times", "normal");
-      this.doc.setTextColor("black");
-      this.doc.setFontSize(fontSize);
-      remainingSpace -= titleBlockHeight;
-      [fitDesc, fitDescHeight, overflowDesc] = splitDescription(stepData.description, remainingSpace);
-      currentDescriptionPosition = currentTitlePosition + descPadding;
-      this.doc.text(fitDesc, this.x + this.xPadding, currentDescriptionPosition);
-      remainingSpace -= fitDescHeight;
-      while (overflowDesc.length > 0) {
-        currentPage++;
-        remainingSpace = this.pageHeight - this.y * 2;
-        await this.addPage(currentPage);
-        this.doc.setPage(currentPage);
+      let stepIndex = 0;
+      for (const stepData of sectionData.test_steps) {
+        let fitDesc: string = "";
+        let overflowDesc: string = "";
+        const title: string = `${sectionNum}.${stepIndex + 1} ${stepData.title as string}`;
+        const titleBlockHeight = getTitleHeight(title, stepIndex == 0);
+
+        // Set Title
+        if (titleBlockHeight > remainingSpace) {
+          currentPage++;
+          remainingSpace = this.pageHeight - this.y * 2;
+          await this.addPage();
+          this.doc.setPage(currentPage);
+          currentTitlePosition = this.y + this.yPadding + 4;
+        } else {
+          if (stepIndex == 0) {
+            currentTitlePosition += currentDescriptionPosition + fitDescHeight + titlePadding;
+          } else {
+            currentTitlePosition = currentDescriptionPosition + fitDescHeight + titlePadding;
+          }
+        }
+        this.doc.setFont("times", "bold");
+        this.doc.setFontSize(fontSize);
+        if (stepData.status?.name === "FAILED") {
+          this.doc.setTextColor(247, 59, 59);
+        } else {
+          this.doc.setTextColor(stepData.status?.name === "DONE" ? "black" : "green");
+        }
+        this.doc.text(title, this.x + this.xPadding, currentTitlePosition);
+        remainingSpace -= titleBlockHeight;
+        summaryData.push({
+          title: title,
+          linkNumber: currentPage.toString(),
+          status: stepData.status?.name as string,
+        });
+
+        // Set Description
         this.doc.setFont("times", "normal");
         this.doc.setTextColor("black");
         this.doc.setFontSize(fontSize);
-        remainingSpace -= titleBlockHeight;
-        [fitDesc, fitDescHeight, overflowDesc] = splitDescription(overflowDesc, remainingSpace);
-        currentDescriptionPosition = this.y + this.yPadding + 4;
+        [fitDesc, fitDescHeight, overflowDesc] = splitDescription(stepData.description as string, remainingSpace);
+        currentDescriptionPosition = currentTitlePosition + descPadding;
         this.doc.text(fitDesc, this.x + this.xPadding, currentDescriptionPosition);
         remainingSpace -= fitDescHeight;
+        while (overflowDesc.length > 0) {
+          currentPage++;
+          remainingSpace = this.pageHeight - this.y * 2;
+          await this.addPage();
+          this.doc.setPage(currentPage);
+          this.doc.setFont("times", "normal");
+          this.doc.setTextColor("black");
+          this.doc.setFontSize(fontSize);
+          remainingSpace -= titleBlockHeight;
+          [fitDesc, fitDescHeight, overflowDesc] = splitDescription(overflowDesc, remainingSpace);
+          currentDescriptionPosition = this.y + this.yPadding + 4;
+          this.doc.text(fitDesc, this.x + this.xPadding, currentDescriptionPosition);
+          remainingSpace -= fitDescHeight;
+        }
+
+        stepIndex++;
       }
     };
 
-    await this.addPage(currentPage);
-    this.doc.setPage(currentPage);
-
     let stepIndex = 0;
-    for (const stepData of stepsData) {
-      if (stepIndex === 0) {
-        await drawContent(stepData, stepIndex + 1, true);
-      } else {
-        await drawContent(stepData, stepIndex + 1, false);
-      }
+    for (const section of sections) {
+      await this.addPage();
+      this.doc.setPage(currentPage);
+      await drawContent(section, stepIndex + 1);
       stepIndex++;
+      currentPage++;
+      remainingSpace = this.pageHeight - this.y * 2;
+      currentTitlePosition = this.y + this.yPadding + 8;
+      currentDescriptionPosition = 0;
+      fitDescHeight = 0;
     }
 
     return summaryData;
@@ -1316,13 +1349,15 @@ export class PlainReportBuilder implements IPlainReportBuilder {
 
   public async createReport(
     report: ReportResponse,
-    plainTestSteps: PlainTestStepResponse[]
+    sections: SectionFullPlainRespone[]
   ): Promise<{ fileName: string; date: number }> {
     moment.locale("id");
     // Date
     const date: number = Math.floor(Date.now() / 1000);
     // Content Page
-    const stepDataTotalLength = plainTestSteps.length;
+    const stepDataTotalLength = sections.reduce((acc, cur) => acc + cur.test_steps.length, 0);
+
+    const sectionTotalLength = sections.length;
     // Harcoded Page
     const coverTotalPage = 1;
     const beritaAcaraTotalPage = 4;
@@ -1330,12 +1365,15 @@ export class PlainReportBuilder implements IPlainReportBuilder {
     const tocStartPage = 6;
     const tocFirstPageLength = 46;
     const tocRestPageLength = 51;
-    const tocTotalPage = Math.ceil(Math.max(0, stepDataTotalLength - tocFirstPageLength) / tocRestPageLength) + 1;
+    const tocTotalPage =
+      Math.ceil(Math.max(0, stepDataTotalLength + sectionTotalLength - tocFirstPageLength) / tocRestPageLength) + 1;
     const docSummStartPage = coverTotalPage + beritaAcaraTotalPage + tocTotalPage + 1;
     const docSummFirstPageLength = 34;
     const docSummRestPageLength = 40;
     const docSummTotalPage =
-      Math.ceil(Math.max(0, stepDataTotalLength - docSummFirstPageLength) / docSummRestPageLength) + 1;
+      Math.ceil(
+        Math.max(0, stepDataTotalLength + sectionTotalLength - docSummFirstPageLength) / docSummRestPageLength
+      ) + 1;
     // Total Page
     const totalPage = beritaAcaraTotalPage + tocTotalPage + docSummTotalPage;
     const startContentNum = coverTotalPage + beritaAcaraTotalPage + tocTotalPage + docSummTotalPage + 1;
@@ -1346,13 +1384,13 @@ export class PlainReportBuilder implements IPlainReportBuilder {
       activityName: report.activity,
       testCaseName: report.test_case.unique_id,
       authorName: report.author,
-      date: moment(date * 1000).format("DD-MMMM-YYYY_HH:mm:ss"),
+      date: moment(date * 1000).format("DD-MM-YYYY_HH:mm:ss"),
     };
     await this.createCover(coverData);
 
     // Add Pages
     for (let i = 0; i < totalPage; i++) {
-      await this.addPage(totalPage + coverTotalPage);
+      await this.addPage();
     }
 
     // Create Berita Acara
@@ -1377,7 +1415,7 @@ export class PlainReportBuilder implements IPlainReportBuilder {
     await this.createBeritaAcaraPage4(5);
 
     // Content
-    const summaryData = await this.createContent(plainTestSteps, startContentNum);
+    const summaryData = await this.createContent(sections, startContentNum);
 
     // Table of Content
     await this.createTableOfContent(summaryData, tocStartPage, docSummStartPage, tocFirstPageLength, tocRestPageLength);
